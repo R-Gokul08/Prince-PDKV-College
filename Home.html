@@ -11,21 +11,16 @@
     
     
     <header>
-      <h1 id="Prince">
-        Prince DrK Vasudevan college of Engineering and Technology
-      </h1>
-      <img
-        src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
-        alt="logo" width="80px" height="80px"
-        id="logoimg"
-      />
-      <nav id="navbar">
-        <a href="Home.html" class="a1">Home</a>
-        <a href="Courses.html" class="a2">Courses</a>
-        <a href="TimeTable.html" class="a3">Time Table</a>
-        <a href="Faculty.html" class="a4">Faculty</a>
-        <a href="About.html" class="a5">About Us</a>
-      </nav>
+      <header>
+        <h1 id="Prince">Prince DrK Vasudevan College of Engineering and Technology</h1>
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" width="80" height="80" id="logoimg">
+        <nav id="navbar">
+            <a href="Home.html" class="a1">🏠 Home</a>
+            <a href="Courses.html" class="a2">📚 Courses</a>
+            <a href="TimeTable.html" class="a3">⏰ Time Table</a>
+            <a href="Faculty.html" class="a4">👨‍🏫 Faculty</a>
+            <a href="About.html" class="a5">ℹ️ About Us</a>
+        </nav>
     </header>
     
     <div id="content">
@@ -42,26 +37,57 @@
       </p>
     </div>
 
-    <form id ="login">
-        <h3> 🧑‍💻LOGIN</h3>
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name" placeholder="Enter your name" required />
-      <br><br>
-      <label for="Register No">Register No:</label>
-      <input type="text" id="Register No" name="Register No" placeholder="Enter your Register No" required />
-      <br><br>
-      <label for="phone">Phone No:</label>
-      <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required />
-      <br><br>
-      <label for="email">Email Id:</label>
-      <input type="email" id="email" name="email" placeholder="Enter your email" required />
-      <br><br>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required />
-      
-      <br><br>
-      <button type="submit">Login</button>
-      </form>
+    <div id="authContainer">
+        <!-- LOGIN FORM -->
+        <div id="loginForm" class="auth-form">
+            <h3>🧑‍💻 LOGIN</h3>
+            <form id="loginFormElement">
+                <label>Email:</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                <br><br>
+                <label>Password:</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                <br><br>
+                <button type="submit">🚀 Login</button>
+                <button type="button" id="showSignupBtn">Don't have account? Sign Up</button>
+            </form>
+        </div>
+
+        <!-- SIGNUP FORM -->
+        <div id="signupForm" class="auth-form" style="display: none;">
+            <h3>👤 SIGN UP</h3>
+            <form id="signupFormElement">
+                <label>Full Name:</label>
+                <input type="text" id="signupName" placeholder="Enter your full name" required>
+                <br><br>
+                <label>Register No:</label>
+                <input type="text" id="signupRegNo" placeholder="Enter Register No (10-12 digits)" required>
+                <br><br>
+                <label>Phone No:</label>
+                <input type="tel" id="signupPhone" placeholder="Enter 10-digit phone number" required>
+                <br><br>
+                <label>Email:</label>
+                <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                <br><br>
+                <label>Password:</label>
+                <input type="password" id="signupPassword" placeholder="Enter password (min 6 chars)" required>
+                <br><br>
+                <button type="submit">✅ Create Account</button>
+                <button type="button" id="showLoginBtn">Already have account? Login</button>
+            </form>
+        </div>
+
+        <!-- WELCOME DASHBOARD -->
+        <div id="welcomeMessage" style="display: none;" class="auth-form">
+            <h3>🎉 Welcome <span id="userName"></span>!</h3>
+            <div style="background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <p><strong>📱 Register No:</strong> <span id="userRegNo"></span></p>
+                <p><strong>📧 Email:</strong> <span id="userEmail"></span></p>
+                <p><strong>📞 Phone:</strong> <span id="userPhone"></span></p>
+            </div>
+            <button id="logoutBtn">👋 Logout</button>
+        </div>
+    </div>
 
     <footer>
       <p>&copy; 2026 Prince DrK Vasudevan college of Engineering and Technology</p>
@@ -75,6 +101,6 @@
     window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-
+<script src="Home.js" ></script>
   </body>
 </html>
