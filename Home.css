@@ -113,7 +113,8 @@ h2 {
 /* Auth Forms */
 .auth-form {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.708), rgba(255, 255, 255, 0.776));
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(7px);
+
     border-radius: 20px;
     padding: 35px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
@@ -227,7 +228,7 @@ h2 {
     height: 100%;
     background: rgba(0,0,0,0.6);
     z-index: 10000;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
 }
 
 .custom-alert.show {
@@ -239,7 +240,7 @@ h2 {
 
 .alert-box {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.664), rgba(255,255,255,0.85));
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px);
     border-radius: 20px;
     padding: 35px;
     max-width: 450px;
