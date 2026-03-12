@@ -24,12 +24,31 @@ body {
     vertical-align: middle;
     padding: 5px;
 }
-#navbar a {
-    color: black;
-    text-align: center;
-    padding: 10px;
-    font-weight: bold;
+
+#navbar {
+    margin-top: 15px;
 }
+
+#navbar a {
+    color: #2c3e50;
+    text-align: center;
+    padding: 12px 20px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 10px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.516);
+}
+
+#navbar a:hover {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(76,175,80,0.4);
+}
+
 footer {
     text-align: center;
     padding: 10px;
