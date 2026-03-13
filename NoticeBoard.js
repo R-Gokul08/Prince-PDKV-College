@@ -1,90 +1,59 @@
-// App State
-let currentUser = null;
-let currentNotices = [];
-let currentFilter = 'all';
-
-// Real college notices & events (March 2026)
-const seedNotices = [
+// Sample college notices (March 2026)
+const sampleNotices = [
     {
-        id: 'midterm-mar2026',
-        title: '🧮 MIDTERM EXAMINATIONS - March 2026',
+        id: 'midterm1',
+        title: '🧮 MIDTERM EXAM - March 17, 2026',
         type: 'exam',
         date: '2026-03-17',
         time: '09:00 AM',
-        desc: 'Midterm exams for all UG/PG programs (Sem 2,4,6,8). Time: 9 AM - 12 PM daily. Hall tickets mandatory. Check department notice boards for seat arrangements.',
-        registrations: []
+        desc: 'Midterm exams for Sem 2,4,6,8. Time: 9 AM - 12 PM daily. Hall tickets compulsory. Check dept notice boards for seating.'
     },
     {
-        id: 'protothon26',
-        title: '🚀 PROTO-THON\'26 Hackathon',
+        id: 'hackathon',
+        title: '🚀 ProtoThon Hackathon 2026',
         type: 'event',
         date: '2026-03-28',
         time: '08:00 AM',
-        desc: 'National Level 24hr Hackathon by CSE/AI&DS. Prize Pool: ₹1,50,000. Register teams of 2-4. Last date: March 20. Venue: Main Auditorium.',
-        registrations: []
+        desc: '24hr National Hackathon. Prize: ₹1,50,000. Teams of 2-4. Register by March 20. Main Auditorium.'
     },
     {
-        id: 'internal-marks',
-        title: '📊 INTERNAL MARKS ENTRY DEADLINE',
-        type: 'notice',
-        date: '2026-03-15',
-        time: '05:00 PM',
-        desc: 'Faculty to submit CIA marks by March 15, 5 PM. Students check ERP portal from March 16. Grievance window: March 17-19.',
-        registrations: []
-    },
-    {
-        id: 'workshop-ai',
-        title: '🤖 AI/ML Hands-on Workshop',
+        id: 'workshop',
+        title: '🤖 AI/ML Workshop',
         type: 'event',
         date: '2026-03-20',
         time: '02:00 PM',
-        desc: 'Free workshop by AI&DS Dept. Topics: Python, TensorFlow, NLP. Limited seats: 100. Register now! Certificates provided.',
-        registrations: []
+        desc: 'Hands-on AI workshop by AI&DS Dept. Python + TensorFlow. 100 seats only. Certificates provided.'
     },
     {
-        id: 'seminar-embedded',
-        title: '🔧 Embedded Systems Seminar',
-        type: 'event',
-        date: '2026-03-22',
-        time: '10:00 AM',
-        desc: 'Expert talk by industry professional from L&T. Topics: IoT, ARM, RTOS. Open to ECE/EEE students. Venue: Seminar Hall A.',
-        registrations: []
-    },
-    {
-        id: 'practical-exams',
-        title: '🔬 PRACTICAL EXAMINATIONS',
-        type: 'exam',
-        date: '2026-03-25',
-        time: '09:00 AM',
-        desc: 'Lab exams for all branches. Schedule available on dept notice boards. Bring lab manuals & records. No late entries.',
-        registrations: []
+        id: 'internals',
+        title: '📊 Internal Marks Submission',
+        type: 'notice',
+        date: '2026-03-15',
+        time: '05:00 PM',
+        desc: 'Faculty deadline for CIA marks. Students check ERP from March 16. Grievances: March 17-19.'
     }
 ];
 
+let currentUser = null;
+let notices = JSON.parse(localStorage.getItem('notices')) || sampleNotices;
+let currentFilter = 'all';
+
 document.addEventListener('DOMContentLoaded', function() {
-    updateDateDisplay();
+    localStorage.setItem('notices', JSON.stringify(notices));
     checkAuth();
     loadNotices();
     setupFilters();
 });
 
-// Date Display
-function updateDateDisplay() {
-    const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('date-display').textContent = now.toLocaleDateString('en-IN', options);
-}
-
-// Authentication
 function checkAuth() {
     const user = localStorage.getItem('currentUser');
     if (user) {
         currentUser = JSON.parse(user);
         document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('userInfo').style.display = 'inline-block';
-        document.getElementById('userInfo').textContent = `👋 ${currentUser.name}`;
-        document.getElementById('logoutBtn').style.display = 'inline-block';
-        document.getElementById('addNoticeBtn').style.display = 'block';
+        document.getElementById('userInfo').style.display = 'inline';
+        document.getElementById('userInfo').textContent = `Hi, ${currentUser.name}!`;
+        document.getElementById('logoutBtn').style.display = 'inline';
+        document.getElementById('addNoticeBtn').style.display = 'inline';
     }
 }
 
@@ -92,150 +61,109 @@ function showAuth(type) {
     const modal = document.getElementById('authModal');
     const title = document.getElementById('authTitle');
     const toggle = document.getElementById('toggleAuth');
-    const extraFields = ['authName', 'authRegno', 'authPhone'];
     
     if (type === 'signup') {
-        title.textContent = '👤 Create Account';
-        toggle.textContent = 'Already registered? Sign In';
-        extraFields.forEach(id => document.getElementById(id).style.display = 'block');
+        title.textContent = 'Sign Up';
+        toggle.textContent = 'Already have account? Sign In';
+        document.getElementById('authName').style.display = 'block';
+        document.getElementById('authRegno').style.display = 'block';
+        document.getElementById('authPhone').style.display = 'block';
     } else {
-        title.textContent = '🔐 Sign In';
+        title.textContent = 'Sign In';
         toggle.textContent = "Don't have account? Sign Up";
-        extraFields.forEach(id => document.getElementById(id).style.display = 'none');
+        document.getElementById('authName').style.display = 'none';
+        document.getElementById('authRegno').style.display = 'none';
+        document.getElementById('authPhone').style.display = 'none';
     }
     
-    document.getElementById('authForm').dataset.mode = type;
+    document.getElementById('authForm').dataset.type = type;
     modal.style.display = 'block';
 }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
 }
 
-document.getElementById('toggleAuth').onclick = (e) => {
+document.getElementById('toggleAuth').onclick = function(e) {
     e.preventDefault();
-    const mode = document.getElementById('authForm').dataset.mode === 'signup' ? 'login' : 'signup';
-    showAuth(mode);
+    const type = document.getElementById('authForm').dataset.type === 'signup' ? 'login' : 'signup';
+    showAuth(type);
 };
 
-document.getElementById('authForm').onsubmit = (e) => {
+document.getElementById('authForm').onsubmit = function(e) {
     e.preventDefault();
-    const mode = e.target.dataset.mode;
-    const email = document.getElementById('authEmail').value;
-    const password = document.getElementById('authPassword').value;
+    const type = this.dataset.type;
     
-    if (mode === 'signup') {
-        const name = document.getElementById('authName').value;
-        const regno = document.getElementById('authRegno').value;
-        const phone = document.getElementById('authPhone').value;
-        
+    if (type === 'signup') {
+        const user = {
+            name: document.getElementById('authName').value,
+            email: document.getElementById('authEmail').value,
+            password: document.getElementById('authPassword').value,
+            regno: document.getElementById('authRegno').value,
+            phone: document.getElementById('authPhone').value
+        };
         const users = JSON.parse(localStorage.getItem('users') || '[]');
-        if (users.find(u => u.email === email)) {
-            alert('❌ Email already registered!');
+        if (users.find(u => u.email === user.email)) {
+            showAlert('Email already exists!', 'error');
             return;
         }
-        
-        const user = { name, email, password, regno, phone, joined: new Date().toISOString() };
         users.push(user);
         localStorage.setItem('users', JSON.stringify(users));
         localStorage.setItem('currentUser', JSON.stringify(user));
-        alert('✅ Account created successfully!');
+        showAlert('Account created successfully!');
     } else {
         const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const user = users.find(u => u.email === email && u.password === password);
+        const user = users.find(u => u.email === document.getElementById('authEmail').value && 
+                                   u.password === document.getElementById('authPassword').value);
         if (!user) {
-            alert('❌ Invalid credentials!');
+            showAlert('Invalid credentials!', 'error');
             return;
         }
         localStorage.setItem('currentUser', JSON.stringify(user));
-        alert('✅ Welcome back!');
+        showAlert('Login successful!');
     }
     
     currentUser = JSON.parse(localStorage.getItem('currentUser'));
     checkAuth();
     closeModal('authModal');
+    loadNotices();
 };
 
 function logout() {
     localStorage.removeItem('currentUser');
     currentUser = null;
-    document.getElementById('loginBtn').style.display = 'inline-block';
+    document.getElementById('loginBtn').style.display = 'inline';
     document.getElementById('userInfo').style.display = 'none';
     document.getElementById('logoutBtn').style.display = 'none';
     document.getElementById('addNoticeBtn').style.display = 'none';
     loadNotices();
 }
 
-// Notices Management
 function loadNotices() {
-    let notices = JSON.parse(localStorage.getItem('notices') || '[]');
-    
-    // If no custom notices, use seed data
-    if (notices.length === 0) {
-        notices = [...seedNotices];
-        localStorage.setItem('notices', JSON.stringify(notices));
-    }
-    
-    currentNotices = notices;
-    renderNotices();
-}
-
-function renderNotices() {
     const container = document.getElementById('noticesList');
-    const noNotices = document.getElementById('noNotices');
-    
-    const filtered = currentNotices.filter(notice => {
-        if (currentFilter === 'all') return true;
-        return notice.type === currentFilter;
-    });
-    
-    if (filtered.length === 0) {
-        container.style.display = 'none';
-        noNotices.style.display = 'block';
-        return;
-    }
-    
-    container.style.display = 'grid';
-    noNotices.style.display = 'none';
+    const filtered = notices.filter(n => currentFilter === 'all' || n.type === currentFilter);
     
     container.innerHTML = filtered.map(notice => createNoticeCard(notice)).join('');
 }
 
 function createNoticeCard(notice) {
     const isPast = new Date(notice.date) < new Date();
-    const isRegistered = currentUser && notice.registrations?.some(r => r.userEmail === currentUser.email);
-    const today = new Date().toDateString();
-    const noticeDate = new Date(notice.date).toDateString();
-    const showTillDate = !isPast; // Show registered notices till event date
-    
-    let btnContent = '';
-    if (notice.type === 'notice') {
-        btnContent = '📄 View Details';
-    } else if (isRegistered && showTillDate) {
-        btnContent = '✅ Registered!';
-    } else if (currentUser || notice.type === 'notice') {
-        btnContent = notice.type === 'notice' ? '📄 View Details' : '📝 Register Now';
-    } else {
-        btnContent = '🔐 Sign In to Register';
-    }
-    
-    const btnClass = isRegistered ? 'action-btn registered-btn' : 
-                    (notice.type === 'notice' ? 'action-btn view-registrations' : 'action-btn register-btn');
-    
-    const icon = notice.type === 'event' ? '🎉' : notice.type === 'exam' ? '📚' : '📢';
+    const isRegistered = currentUser && notice.registrations?.some(r => r.email === currentUser.email);
+    const btnText = notice.type === 'notice' ? 'View Details' : 
+                   (isRegistered ? '✅ Registered' : (currentUser ? 'Register' : 'Sign In'));
     
     return `
-        <div class="notice-card notice-type-${notice.type}" data-id="${notice.id}">
-            <span class="notice-icon">${icon}</span>
+        <div class="notice-card">
             <h3 class="notice-title">${notice.title}</h3>
             <div class="notice-meta">
-                <span>📅 ${new Date(notice.date).toLocaleDateString('en-IN')}</span>
-                ${notice.time ? `<span>🕒 ${notice.time}</span>` : ''}
-                <span>👥 ${notice.registrations?.length || 0} registered</span>
+                📅 ${new Date(notice.date).toLocaleDateString('en-IN')} | 
+                ${notice.time || 'All Day'} | 
+                👥 ${notice.registrations?.length || 0} registered
             </div>
             <p class="notice-desc">${notice.desc}</p>
-            <button class="${btnClass}" onclick="handleNoticeAction('${notice.id}', '${notice.type}')">
-                ${btnContent}
+            <button class="action-btn ${isRegistered ? 'registered-btn' : 'register-btn'}" 
+                    onclick="handleAction('${notice.id}', '${notice.type}')">
+                ${btnText}
             </button>
         </div>
     `;
@@ -247,129 +175,97 @@ function setupFilters() {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentFilter = btn.dataset.type;
-            renderNotices();
+            loadNotices();
         };
     });
 }
 
-function handleNoticeAction(noticeId, type) {
+function handleAction(noticeId, type) {
     if (!currentUser && type !== 'notice') {
-        alert('🔐 Please sign in to register for events!');
         showAuth('login');
         return;
     }
-    
     if (type === 'notice') {
-        showNoticeDetails(noticeId);
+        showAlert('General notice - No registration needed');
     } else {
         showRegisterModal(noticeId);
     }
 }
 
 function showRegisterModal(noticeId) {
-    const notice = currentNotices.find(n => n.id === noticeId);
-    if (!notice) return;
-    
-    document.getElementById('noticeTitle').textContent = notice.title;
-    document.getElementById('noticeDetails').innerHTML = `
-        <div class="notice-meta">
-            📅 ${new Date(notice.date).toLocaleDateString('en-IN')} | 
-            ${notice.time ? `🕒 ${notice.time}` : ''} | 
-            👥 ${notice.registrations?.length || 0} registered
-        </div>
-        <p>${notice.desc}</p>
-    `;
-    
-    const myRegs = notice.registrations?.filter(r => r.userEmail === currentUser.email) || [];
-    const regsHtml = myRegs.map(reg => `
-        <div class="registration-item">
-            <strong>${reg.name}</strong> (${reg.year}, ${reg.dept})<br>
-            Reg: ${reg.regno} | Phone: ${reg.phone}<br>
-            <small>Registered: ${new Date(reg.timestamp).toLocaleString()}</small>
-        </div>
-    `).join('');
-    
-    document.getElementById('myRegistrations').innerHTML = myRegs.length ? 
-        `<div class="my-registrations"><h4>✅ Your Registration:</h4>${regsHtml}</div>` : '';
-    
+    const notice = notices.find(n => n.id === noticeId);
+    document.getElementById('noticeTitleReg').textContent = notice.title;
+    document.getElementById('noticeDetailsReg').textContent = `${notice.date} | ${notice.desc}`;
     document.getElementById('registerModal').dataset.noticeId = noticeId;
     document.getElementById('registerModal').style.display = 'block';
 }
 
-function showNoticeDetails(noticeId) {
-    const notice = currentNotices.find(n => n.id === noticeId);
-    alert(`📄 ${notice.title}\n\n📅 ${notice.date}\n\n${notice.desc}`);
-}
-
-document.getElementById('registerForm').onsubmit = (e) => {
+document.getElementById('registerForm').onsubmit = function(e) {
     e.preventDefault();
     const noticeId = document.getElementById('registerModal').dataset.noticeId;
-    const notice = currentNotices.find(n => n.id === noticeId);
+    const notice = notices.find(n => n.id === noticeId);
     
-    const regData = {
+    notice.registrations = notice.registrations || [];
+    notice.registrations.push({
         name: document.getElementById('regName').value,
         year: document.getElementById('regYear').value,
         dept: document.getElementById('regDept').value,
         regno: document.getElementById('regRegno').value,
         phone: document.getElementById('regPhone').value,
-        userEmail: currentUser.email,
-        timestamp: new Date().toISOString()
-    };
+        email: currentUser.email
+    });
     
-    notice.registrations = notice.registrations || [];
-    notice.registrations.push(regData);
-    
-    // Update localStorage
-    const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-    const noticeIndex = notices.findIndex(n => n.id === noticeId);
-    notices[noticeIndex] = notice;
     localStorage.setItem('notices', JSON.stringify(notices));
-    
-    currentNotices = notices;
-    alert('✅ Registration confirmed! Notice will show until event date.');
+    showAlert('Registration successful! Notice shows till event date.');
     closeModal('registerModal');
-    renderNotices();
+    loadNotices();
 };
 
 function showAddNotice() {
-    if (!currentUser) {
-        alert('🔐 Login required to post notices!');
-        return;
-    }
+    if (!currentUser) return;
     document.getElementById('addNoticeModal').style.display = 'block';
 }
 
-document.getElementById('addNoticeForm').onsubmit = (e) => {
+document.getElementById('addNoticeForm').onsubmit = function(e) {
     e.preventDefault();
-    const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-    
     const newNotice = {
         id: 'notice_' + Date.now(),
-        title: document.getElementById('noticeTitleInput').value,
+        title: document.getElementById('noticeTitle').value,
         type: document.getElementById('noticeType').value,
         date: document.getElementById('noticeDate').value,
-        time: document.getElementById('noticeTime').value || '',
+        time: document.getElementById('noticeTime').value,
         desc: document.getElementById('noticeDesc').value,
-        registrations: [],
-        postedBy: currentUser.name,
-        postedAt: new Date().toISOString()
+        registrations: []
     };
     
-    notices.unshift(newNotice); // Add to top
+    notices.unshift(newNotice);
     localStorage.setItem('notices', JSON.stringify(notices));
-    
-    currentNotices = notices;
-    alert('✅ Notice published successfully!');
+    showAlert('Notice added successfully!');
     closeModal('addNoticeModal');
-    renderNotices();
+    loadNotices();
 };
 
-// Close modals on outside click
-window.onclick = (event) => {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-};
+function showAlert(message, type = 'success') {
+    const alert = document.getElementById('customAlert');
+    const box = document.getElementById('alertBox');
+    const icon = document.getElementById('alertIcon');
+    const msg = document.getElementById('alertMessage');
+    
+    box.className = `alert-box alert-${type}`;
+    icon.textContent = type === 'success' ? '✅' : '❌';
+    msg.textContent = message;
+    alert.classList.add('show');
+}
 
-// Auto refresh every 5 minutes for new notices
-setInterval(loadNotices, 300000);
+function closeAlert() {
+    document.getElementById('customAlert').classList.remove('show');
+}
+
+window.onclick = function(event) {
+    const modals = ['authModal', 'registerModal', 'addNoticeModal'];
+    modals.forEach(id => {
+        if (event.target.classList.contains('modal')) {
+            closeModal(id);
+        }
+    });
+};
