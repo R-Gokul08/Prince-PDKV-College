@@ -6,6 +6,11 @@
     <title>Notice Board - Prince DrK Vasudevan College</title>
     <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon">
     <link rel="stylesheet" href="NoticeBoard.css"/>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="NoticeBoard.js" defer></script>
 </head>
 <body>
     <header>
@@ -20,7 +25,7 @@
         </nav>
         <div id="auth-section">
             <button id="loginBtn" onclick="showAuth('login')">🔐 Sign In</button>
-            <button id="signupBtn" onclick="showAuth('signup')" style="display:none;">Sign Up</button>
+            <button id="signupBtn" onclick="showAuth('signup')">Sign Up</button>
             <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
             <span id="userInfo" style="display:none;"></span>
             <button id="addNoticeBtn" onclick="showAddNotice()" style="display:none;">➕ Add Notice</button>
@@ -105,7 +110,5 @@
     <footer>
         <p>&copy; 2026 Prince DrK Vasudevan College of Engineering and Technology</p>
     </footer>
-
-    <script src="NoticeBoard.js"></script>
 </body>
 </html>
