@@ -35,7 +35,6 @@ function showAlert(message, type = 'error') {
   toast.className = 'toast-alert';
   toast.textContent = message;
 
-<<<<<<< HEAD
   Object.assign(toast.style, {
     position:        'fixed',
     top:             '22px',
@@ -53,13 +52,6 @@ function showAlert(message, type = 'error') {
     textAlign:       'center',
     animation:       'fadeSlideIn 0.3s ease',
   });
-=======
-        try {
-            const { data: existing } = await supabase
-                .from('login_information')
-                .select('email,regno')
-                .or(`email.eq.${email},regno.eq.${regno}`);
->>>>>>> 06f8de87dff20af9e979d32b0395b3591ebc77d8
 
   document.body.appendChild(toast);
   setTimeout(() => {
@@ -77,7 +69,6 @@ function showPanel(panel) {
   panel.style.display      = 'block';
 }
 
-<<<<<<< HEAD
 // ============================================================
 //  1.  TOGGLE  Login ↔ Signup
 // ============================================================
@@ -85,11 +76,6 @@ showSignupBtn.addEventListener('click', () => {
   loginFormEl.reset();
   showPanel(signupDiv);
 });
-=======
-            await supabase.from('login_information').insert({
-                id: authData.user.id, name, regno, phone, email
-            });
->>>>>>> 06f8de87dff20af9e979d32b0395b3591ebc77d8
 
 showLoginBtn.addEventListener('click', () => {
   signupFormEl.reset();
@@ -118,7 +104,6 @@ signupFormEl.addEventListener('submit', async (e) => {
   const email    = document.getElementById('signupEmail').value.trim();
   const password = document.getElementById('signupPassword').value;
 
-<<<<<<< HEAD
   // ── Client-side validation ───────────────────────────────
   if (name.length < 3) {
     showAlert('❌ Full name must be at least 3 characters.'); return;
@@ -135,13 +120,6 @@ signupFormEl.addEventListener('submit', async (e) => {
   if (password.length < 6) {
     showAlert('❌ Password must be at least 6 characters.'); return;
   }
-=======
-            const { data: profile } = await supabase
-                .from('login_information')
-                .select('*')
-                .eq('id', data.user.id)
-                .single();
->>>>>>> 06f8de87dff20af9e979d32b0395b3591ebc77d8
 
   setLoading(signupSubmitBtn, true, '✅ Create Account');
 
