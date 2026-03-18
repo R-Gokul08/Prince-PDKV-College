@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Information</title>
+  <title>Student Information - PDKV</title>
   <link rel="stylesheet" href="Student.css" />
   <link rel="shortcut icon"
     href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
@@ -11,70 +11,66 @@
 </head>
 <body>
   <header>
-    <h1 id="Prince">
-      Prince DrK Vasudevan College of Engineering and Technology
-    </h1>
+    <h1 id="Prince">Prince DrK Vasudevan College of Engineering and Technology</h1>
     <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
       alt="logo" width="80px" height="80px" id="logoimg" />
     <nav id="navbar">
       <a href="Home.html" class="a1">🏠 Home</a>
       <a href="Courses.html" class="a2">📚 Courses</a>
       <a href="NoticeBoard.html" class="a3">📌 Notice Board</a>
-      
+ 
       <a href="Student.html" class="a5 active">👨‍🎓 Students</a>
       <a href="About.html"       class="a5">ℹ️ About Us</a>
     </nav>
   </header>
 
   <div id="form-container">
+    <!-- FORM SECTION -->
     <div id="student-form-section">
       <h2>📝 Student Information Form</h2>
       <form id="studentForm">
-        <!-- Personal Info -->
         <div class="form-group">
-          <h3>Personal Information</h3>
-          <input type="file" id="studentImage" accept="image/*" required>
-          <input type="text" id="studentName" placeholder="Full Name" required>
-          <input type="text" id="guardianName" placeholder="Father/Mother/Guardian Name" required>
-          <input type="text" id="registerNo" placeholder="Register Number" required>
-          <input type="text" id="department" placeholder="Department" required>
+          <h3>👤 Personal Information</h3>
+          <input type="file" id="studentImage" accept="image/*">
+          <input type="text" id="studentName" placeholder="Full Name *" required>
+          <input type="text" id="guardianName" placeholder="Father/Mother/Guardian Name *" required>
+          <input type="text" id="registerNo" placeholder="Register Number (Unique) *" required>
+          <input type="text" id="department" placeholder="Department *" required>
           <input type="number" id="year" placeholder="Year (1-4)" min="1" max="4" required>
-          <input type="tel" id="phone" placeholder="Phone Number" required>
-          <input type="email" id="email" placeholder="Email ID" required>
-          <input type="url" id="linkedin" placeholder="LinkedIn Profile">
-          <input type="url" id="github" placeholder="GitHub Profile">
+          <input type="tel" id="phone" placeholder="Phone Number *" required>
+          <input type="email" id="email" placeholder="Email ID *" required>
+          <input type="url" id="linkedin" placeholder="LinkedIn Profile (Optional)">
+          <input type="url" id="github" placeholder="GitHub Profile (Optional)">
           <input type="date" id="dob" required>
         </div>
 
-        <!-- Exam Details -->
         <div class="form-group">
           <h3>📊 Exam Details</h3>
           <div id="examDetails">
             <div class="exam-entry">
               <input type="text" class="exam-subject" placeholder="Subject Name">
-              <input type="number" class="exam-marks" placeholder="Marks" min="0">
+              <input type="number" class="exam-marks" placeholder="Marks" min="0" max="100">
               <select class="exam-result">
                 <option value="">Pass/Fail</option>
-                <option value="Pass">Pass</option>
-                <option value="Fail">Fail</option>
+                <option value="Pass">✅ Pass</option>
+                <option value="Fail">❌ Fail</option>
               </select>
               <select class="exam-type">
                 <option value="">Sem/CIA</option>
-                <option value="Semester">Semester</option>
-                <option value="CIA">CIA</option>
+                <option value="Semester">📚 Semester</option>
+                <option value="CIA">📝 CIA</option>
               </select>
-              <button type="button" class="remove-exam" onclick="removeExam(this)">❌</button>
+              <button type="button" class="remove-exam">❌</button>
             </div>
           </div>
           <button type="button" id="addExamBtn">➕ Add Exam</button>
         </div>
 
-        <!-- Attendance -->
         <div class="form-group">
           <h3>📅 Attendance</h3>
-          <input type="number" id="totalDays" placeholder="Total College Days" min="0" required>
-          <input type="number" id="presentDays" placeholder="Present Days" min="0" required>
-          <input type="number" id="absentDays" placeholder="Absent Days" min="0" required>
+          <input type="number" id="totalDays" placeholder="Total College Days *" min="0" required>
+          <input type="number" id="presentDays" placeholder="Present Days *" min="0" required>
+          <input type="number" id="absentDays" placeholder="Absent Days *" readonly>
           <div id="attendancePercentage"></div>
         </div>
 
@@ -82,8 +78,12 @@
       </form>
     </div>
 
+    <!-- STUDENT PROFILE SECTION (PERSISTENT) -->
     <div id="student-display-section" style="display: none;">
-      <h2>👤 Student Profile</h2>
+      <div style="position: sticky; top: 20px; right: 20px; z-index: 1000; float: right;">
+        <button id="backToForm" class="back-btn">➕ Add New Student</button>
+      </div>
+      <h2 style="text-align: center; margin-top: 60px;">👤 Student Profile</h2>
       <div id="studentProfile"></div>
     </div>
   </div>
@@ -92,7 +92,7 @@
     <p>&copy; 2026 Prince DrK Vasudevan College of Engineering and Technology</p>
   </footer>
 
-  <!-- Supabase CDN -->
+  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabaseClient.js"></script>
   <script src="Student.js"></script>
