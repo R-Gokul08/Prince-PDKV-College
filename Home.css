@@ -27,7 +27,6 @@ header {
 }
 
 /* Navigation */
-
 #navbar {
     margin-top: 15px;
 }
@@ -115,7 +114,6 @@ h2 {
 .auth-form {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.708), rgba(255, 255, 255, 0.776));
     backdrop-filter: blur(7px);
-
     border-radius: 20px;
     padding: 35px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
@@ -219,82 +217,10 @@ h2 {
     font-size: 30px !important;
 }
 
-/* Custom Alert */
-.custom-alert {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 10000;
-    backdrop-filter: blur(6px);
-}
-
-.custom-alert.show {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.3s ease;
-}
-
-.alert-box {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.664), rgba(255,255,255,0.85));
-    backdrop-filter: blur(8px);
-    border-radius: 20px;
-    padding: 35px;
-    max-width: 450px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    border: 2px solid rgba(255,255,255,0.3);
-    animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-}
-
-.alert-success .alert-box { border-left: 6px solid #4CAF50; }
-.alert-error .alert-box { border-left: 6px solid #f44336; }
-.alert-info .alert-box { border-left: 6px solid #2196F3; }
-
-.alert-icon { font-size: 50px; margin-bottom: 15px; display: block; }
-.alert-success .alert-icon { color: #4CAF50; }
-.alert-error .alert-icon { color: #f44336; }
-.alert-info .alert-icon { color: #2196F3; }
-
-.alert-message {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 25px;
-    line-height: 1.5;
-}
-
-.alert-close-btn {
-    padding: 15px 35px;
-    background: linear-gradient(45deg, #4CAF50, #45a049);
-   
-     color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.alert-close-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(76,175,80,0.4);
-}
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideIn { to { transform: scale(1); opacity: 1; } }
-
+/* Responsive */
 @media (max-width: 768px) {
     .auth-form { margin: 15px; padding: 25px 20px; }
     #navbar a { display: block; margin: 8px 0; }
     header { padding: 15px; }
     #Prince { font-size: 20px; }
-
 }
- 
