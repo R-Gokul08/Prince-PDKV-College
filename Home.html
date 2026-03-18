@@ -5,77 +5,106 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Prince DrK Vasudevan College</title>
   <link rel="stylesheet" href="Home.css" />
-  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon">
+  <link rel="shortcut icon"
+    href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
+    type="image/x-icon">
 </head>
 <body>
-    <header>
-      <h1 id="Prince">Prince Dr K Vasudevan College of Engineering and Technology</h1>
-      <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" id="logoimg">
-      <nav id="navbar">
-        <a href="index.html" class="a1">🏠 Home</a>
-        <a href="Courses.html" class="a2">📚 Courses</a>
-        <a href="NoticeBoard.html" class="a3">📌 Notice Board</a>
-        <a href="Faculty.html" class="a4">👨‍🏫 Faculty</a>
-        <a href="About.html" class="a5">ℹ️ About Us</a>
-      </nav>
-    </header>
 
-    <div id="content">
-      <h2>Welcome to PDKV</h2>
-      <p>Prince Dr K Vasudevan College of Engineering and Technology is a premier institution dedicated to excellence in education, research, and innovation. Established with the vision of nurturing future leaders in engineering and technology.</p>
+  <!-- ===== HEADER ===== -->
+  <header>
+    <h1 id="Prince">Prince Dr K Vasudevan College of Engineering and Technology</h1>
+    <img
+      src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
+      alt="PDKV Logo" width="80" height="80" id="logoimg">
+    <nav id="navbar">
+      <a href="Home.html"       class="a1">🏠 Home</a>
+      <a href="Courses.html"    class="a2">📚 Courses</a>
+      <a href="NoticeBoard.html"class="a3">📌 Notice Board</a>
+      <a href="Faculty.html"    class="a4">👨‍🏫 Faculty</a>
+      <a href="About.html"      class="a5">ℹ️ About Us</a>
+    </nav>
+  </header>
+
+  <!-- ===== INTRO CONTENT ===== -->
+  <div id="content">
+    <h2>Welcome to PDKV</h2>
+    <p>
+      Prince Dr K Vasudevan College of Engineering and Technology is a premier institution
+      dedicated to excellence in education, research, and innovation. Established with the vision
+      of nurturing future leaders in engineering and technology, our college offers a wide range of
+      undergraduate and postgraduate programs designed to equip students with the skills and
+      knowledge needed to thrive in today's dynamic world.
+    </p>
+  </div>
+
+  <!-- ===== AUTH CONTAINER ===== -->
+  <div id="authContainer">
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm" class="auth-form">
+      <h3>🧑‍💻 LOGIN</h3>
+      <form id="loginFormElement" novalidate>
+        <label for="loginEmail">Email:</label>
+        <input type="email" id="loginEmail" placeholder="Enter your email" required />
+
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required />
+
+        <button type="submit" id="loginSubmitBtn">🚀 Login</button>
+        <button type="button" id="showSignupBtn">🆕 Don't have an account? Sign Up</button>
+      </form>
     </div>
 
-    <div id="authContainer">
-      <!-- LOGIN FORM -->
-      <div id="loginForm" class="auth-form">
-        <h3>🧑‍💻 LOGIN</h3>
-        <form id="loginFormElement">
-          <label>Email:</label>
-          <input type="email" id="loginEmail" placeholder="Enter your email" required>
-          <label>Password:</label>
-          <input type="password" id="loginPassword" placeholder="Enter your password" required>
-          <button type="submit">🚀 Login</button>
-          <button type="button" id="showSignupBtn">Don't have an account? Sign Up</button>
-        </form>
-      </div>
+    <!-- SIGN UP FORM -->
+    <div id="signupForm" class="auth-form" style="display:none;">
+      <h3>👤 SIGN UP</h3>
+      <form id="signupFormElement" novalidate>
+        <label for="signupName">Full Name:</label>
+        <input type="text" id="signupName" placeholder="Enter your full name" required />
 
-      <!-- SIGNUP FORM -->
-      <div id="signupForm" class="auth-form" style="display: none;">
-        <h3>👤 SIGN UP</h3>
-        <form id="signupFormElement">
-          <label>Full Name:</label>
-          <input type="text" id="signupName" placeholder="Enter your full name" required>
-          <label>Register No:</label>
-          <input type="text" id="signupRegNo" placeholder="Enter Register No (e.g., 23CS001)" required>
-          <label>Phone No:</label>
-          <input type="tel" id="signupPhone" placeholder="Enter 10-digit phone number" required>
-          <label>Email:</label>
-          <input type="email" id="signupEmail" placeholder="Enter your email" required>
-          <label>Password:</label>
-          <input type="password" id="signupPassword" placeholder="Enter password (min 6 chars)" required>
-          <button type="submit">✅ Create Account</button>
-          <button type="button" id="showLoginBtn">Already have an account? Login</button>
-        </form>
-      </div>
+        <label for="signupRegNo">Register No:</label>
+        <input type="text" id="signupRegNo" placeholder="e.g. 23CSE001" required />
 
-      <!-- WELCOME DASHBOARD -->
-      <div id="welcomeMessage" style="display: none;" class="auth-form">
-        <h3>🎉 Welcome <span id="userName"></span>!</h3>
-        <div style="background: rgba(76, 175, 80, 0.2); padding: 25px; border-radius: 15px; margin: 25px 0; border-left: 6px solid #4CAF50;">
-          <p><strong>📱 Register No:</strong> <span id="userRegNo"></span></p>
-          <p><strong>📧 Email:</strong> <span id="userEmail"></span></p>
-          <p><strong>📞 Phone:</strong> <span id="userPhone"></span></p>
-        </div>
-        <button id="logoutBtn">👋 Logout</button>
-      </div>
+        <label for="signupPhone">Phone No:</label>
+        <input type="tel" id="signupPhone" placeholder="Enter 10-digit phone number" required />
+
+        <label for="signupEmail">Email:</label>
+        <input type="email" id="signupEmail" placeholder="Enter your email" required />
+
+        <label for="signupPassword">Password:</label>
+        <input type="password" id="signupPassword" placeholder="Min 6 characters" required />
+
+        <button type="submit" id="signupSubmitBtn">✅ Create Account</button>
+        <button type="button" id="showLoginBtn">🔐 Already have an account? Login</button>
+      </form>
     </div>
 
-    <footer>
-      <p>&copy; 2026 Prince DrK Vasudevan College of Engineering and Technology. All rights reserved.</p>
-    </footer>
+    <!-- WELCOME DASHBOARD (shown after login) -->
+    <div id="welcomeMessage" class="auth-form" style="display:none;">
+      <h3>🎉 Welcome, <span id="userName"></span>!</h3>
+      <div class="profile-card">
+        <p><strong>🎓 Register No:</strong> <span id="userRegNo"></span></p>
+        <p><strong>📧 Email:</strong>       <span id="userEmail"></span></p>
+        <p><strong>📞 Phone:</strong>       <span id="userPhone"></span></p>
+      </div>
+      <button id="logoutBtn">👋 Logout</button>
+    </div>
 
-    <!-- Module Scripts -->
-    <script type="module" src="supabaseClient.js"></script>
-    <script type="module" src="Home.js"></script>
+  </div><!-- /authContainer -->
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p>&copy; 2026 Prince DrK Vasudevan College of Engineering and Technology</p>
+  </footer>
+
+  <!--
+    ✅ CRITICAL FIX: type="module" is REQUIRED because supabaseClient.js
+       uses ES `import` syntax. Without this, Supabase never loads and
+       everything breaks silently.
+  -->
+  <script type="module" src="supabaseClient.js"></script>
+  <script type="module" src="Home.js"></script>
+
 </body>
 </html>
