@@ -1,139 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notice Board - Prince DrK Vasudevan College</title>
-  <link rel="shortcut icon"
-    href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
-    type="image/x-icon"/>
-  <link rel="stylesheet" href="NoticeBoard.css"/>
-
-  <!-- Supabase CDN (UMD build — exposes window.supabase) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <!-- Our client init (must come AFTER the CDN above) -->
-  <script src="supabaseClient.js"></script>
-  <!-- Main logic -->
-  <script src="NoticeBoard.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notice Board - Prince Dr K Vasudevan College</title>
+  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
+  <link rel="stylesheet" href="/shared.css" />
+  <link rel="stylesheet" href="/NoticeBoard.css" />
 </head>
 <body>
 
-  <!-- ═══ HEADER ═══ -->
-  <header>
-    <h1 id="Prince">Prince Dr K Vasudevan College of Engineering and Technology</h1>
-    <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
-         alt="logo" id="logoimg"/>
-    <nav id="navbar">
-      <a href="Home.html"        class="a1">🏠 Home</a>
-      <a href="Courses.html"     class="a2">📚 Courses</a>
-      <a href="NoticeBoard.html" class="a3">📌 Notice Board</a>
-      <a href="Student.html"     class="a4">👨‍🎓 Students</a>
-      <a href="About.html"       class="a5">ℹ️ About Us</a>
-    </nav>
-    <div id="auth-section">
-      <button id="loginBtn"     onclick="showAuth('login')">🔐 Sign In</button>
-      <button id="signupBtn"    onclick="showAuth('signup')">📝 Sign Up</button>
-      <button id="logoutBtn"    onclick="logout()" style="display:none;">🚪 Logout</button>
-      <span   id="userInfo"     style="display:none;" class="user-greeting"></span>
-      <button id="addNoticeBtn" onclick="showAddNotice()" style="display:none;">➕ Add Notice</button>
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
+        <span class="header-title">Prince Dr K Vasudevan College of Engineering & Technology</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="NoticeBoard.html" class="nav-link active"><i class="fas fa-bell"></i><span>Notice Board</span></a>
+        <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+      </nav>
     </div>
   </header>
 
-  <!-- ═══ MAIN CONTENT ═══ -->
-  <div id="content">
-    <h2>📌 College Notice Board &amp; Events</h2>
-
-    <!-- Filter Buttons -->
-    <div class="filters">
-      <button class="filter-btn active" data-type="all">📋 All</button>
-      <button class="filter-btn" data-type="event">🎉 Events</button>
-      <button class="filter-btn" data-type="exam">📝 Exams</button>
-      <button class="filter-btn" data-type="notice">📢 Notices</button>
+  <!-- PAGE HERO -->
+  <section class="page-hero nb-hero">
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <h1 class="animate-fade-up"><i class="fas fa-bell"></i> Notice Board</h1>
+      <p class="animate-fade-up">Stay updated with college events, exams &amp; announcements</p>
+      <div class="nb-auth-bar animate-fade-up" id="authBar">
+        <button id="loginBtn" class="btn btn-glass-sm">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <button id="signupBtn" class="btn btn-glass-sm">
+          <i class="fas fa-user-plus"></i> Sign Up
+        </button>
+        <span id="userGreeting" class="user-greeting-hero" style="display:none;"></span>
+        <button id="addNoticeBtn" class="btn btn-accent-sm" style="display:none;">
+          <i class="fas fa-plus"></i> Add Notice
+        </button>
+        <button id="logoutBtn" class="btn btn-glass-sm btn-sm-danger" style="display:none;">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
     </div>
+  </section>
 
-    <!-- Notices will be injected here -->
-    <div id="noticesList">
-      <div class="loading-spinner">⏳ Loading notices...</div>
-    </div>
-  </div>
+  <!-- NOTICE BOARD CONTENT -->
+  <section class="section nb-content-section">
+    <div class="container">
+      <!-- Filter Tabs -->
+      <div class="nb-filters animate-fade-up">
+        <button class="nb-filter active" data-type="all"><i class="fas fa-border-all"></i> All</button>
+        <button class="nb-filter" data-type="event"><i class="fas fa-calendar-star"></i> Events</button>
+        <button class="nb-filter" data-type="exam"><i class="fas fa-file-alt"></i> Exams</button>
+        <button class="nb-filter" data-type="notice"><i class="fas fa-megaphone"></i> Notices</button>
+      </div>
 
-  <!-- ═══ AUTH MODAL (Sign In / Sign Up) ═══ -->
-  <div id="authModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('authModal')">&times;</span>
-      <h3 id="authTitle">Sign In</h3>
-      <form id="authForm" class="auth-form" data-type="login">
-        <input type="email"    id="authEmail"    placeholder="📧 Email"     required/>
-        <input type="password" id="authPassword" placeholder="🔒 Password"  required/>
-        <div id="signupFields" style="display:none;">
-          <input type="text" id="authName"  placeholder="👤 Full Name"/>
-          <input type="text" id="authRegno" placeholder="🎓 Register No"/>
-          <input type="text" id="authYear"  placeholder="📅 Year (e.g. 2nd Year)"/>
-          <input type="text" id="authDept"  placeholder="🏛️ Department"/>
-          <input type="tel"  id="authPhone" placeholder="📞 Phone Number"/>
+      <!-- Notices List -->
+      <div id="noticesList">
+        <div class="nb-loading">
+          <div class="spinner"></div>
+          <p>Loading notices…</p>
         </div>
-        <button type="submit">Submit</button>
-        <a href="#" id="toggleAuth" onclick="toggleAuthMode(event)">
-          Don't have an account? Sign Up
-        </a>
-      </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ AUTH MODAL ═══ -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="authModalTitle">Sign In</h3>
+        <button class="modal-close" data-close-modal="authModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="authForm" data-type="login" novalidate>
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-envelope"></i> Email</label>
+            <input type="email" id="authEmail" class="form-input" placeholder="your@email.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-lock"></i> Password</label>
+            <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required />
+          </div>
+          <div id="signupFields" style="display:none;">
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-user"></i> Full Name</label>
+              <input type="text" id="authName" class="form-input" placeholder="Your full name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-id-card"></i> Register No</label>
+              <input type="text" id="authRegno" class="form-input" placeholder="e.g. 22CS101" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-calendar"></i> Year</label>
+              <input type="text" id="authYear" class="form-input" placeholder="e.g. 2nd Year" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-building"></i> Department</label>
+              <input type="text" id="authDept" class="form-input" placeholder="e.g. CSE" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-phone"></i> Phone</label>
+              <input type="tel" id="authPhone" class="form-input" placeholder="+91 99999 99999" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" id="authSubmitBtn">
+            Sign In
+          </button>
+          <button type="button" id="toggleAuth" class="toggle-auth-btn">
+            Don't have an account? <span>Sign Up</span>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
-  <!-- ═══ EVENT REGISTRATION MODAL ═══ -->
-  <div id="registerModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('registerModal')">&times;</span>
-      <h3 id="noticeTitleReg">Register for Event</h3>
-      <p  id="noticeDetailsReg" class="notice-details-reg"></p>
-      <form id="registerForm" class="auth-form">
-        <input type="text" id="regName"  placeholder="👤 Full Name"   required/>
-        <input type="tel"  id="regPhone" placeholder="📞 Phone No"    required/>
-        <input type="text" id="regRegno" placeholder="🎓 Register No" required/>
-        <input type="text" id="regYear"  placeholder="📅 Year"        required/>
-        <!-- Pre-filled hidden email for logged-in users -->
-        <input type="email" id="regEmail" style="display:none;"/>
-        <div id="regStatus" class="reg-status"></div>
-        <button type="submit" id="regSubmitBtn">✅ Confirm Registration</button>
-      </form>
+  <!-- ═══ REGISTER MODAL ═══ -->
+  <div class="modal-overlay" id="registerModal" data-notice-id="">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="regModalTitle">Register for Event</h3>
+        <button class="modal-close" data-close-modal="registerModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="regDetails" class="reg-details-text"></p>
+        <div id="regStatus" class="reg-auto-fill-note" style="display:none;"></div>
+        <form id="registerForm" novalidate>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="regName" class="form-input" placeholder="Your full name" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" id="regPhone" class="form-input" placeholder="+91 99999 99999" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Register Number</label>
+            <input type="text" id="regRegno" class="form-input" placeholder="e.g. 22CS101" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Year</label>
+            <input type="text" id="regYear" class="form-input" placeholder="e.g. 2nd Year" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
+            <i class="fas fa-check-circle"></i> Confirm Registration
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- ═══ ADD NOTICE MODAL ═══ -->
-  <div id="addNoticeModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('addNoticeModal')">&times;</span>
-      <h3>➕ Add New Notice / Event</h3>
-      <form id="addNoticeForm" class="auth-form">
-        <input type="text"     id="noticeTitle" placeholder="📌 Title"       required/>
-        <select id="noticeType" required>
-          <option value="">Select Type</option>
-          <option value="event">🎉 Event</option>
-          <option value="exam">📝 Exam</option>
-          <option value="notice">📢 Notice</option>
-        </select>
-        <label class="form-label">📅 Event Date</label>
-        <input type="date"     id="noticeDate"  required/>
-        <label class="form-label">⏰ Event Time (optional)</label>
-        <input type="time"     id="noticeTime"/>
-        <textarea id="noticeDesc" placeholder="📝 Description / Details"
-                  rows="4" required></textarea>
-        <button type="submit">🚀 Publish Notice</button>
-      </form>
+  <div class="modal-overlay" id="addNoticeModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add New Notice / Event</h3>
+        <button class="modal-close" data-close-modal="addNoticeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addNoticeForm" novalidate>
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input type="text" id="noticeTitle" class="form-input" placeholder="Notice title" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select id="noticeType" class="form-select" required>
+              <option value="">Select type...</option>
+              <option value="event">Event</option>
+              <option value="exam">Exam</option>
+              <option value="notice">Notice</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="noticeDate" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time (optional)</label>
+            <input type="time" id="noticeTime" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="noticeDesc" class="form-textarea" placeholder="Details about this notice…" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+            <i class="fas fa-paper-plane"></i> Publish Notice
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
-  <!-- ═══ CUSTOM ALERT ═══ -->
-  <div id="customAlert" class="custom-alert">
-    <div class="alert-box" id="alertBox">
-      <div class="alert-icon"    id="alertIcon">✅</div>
-      <div class="alert-message" id="alertMessage"></div>
-      <button class="alert-close-btn" onclick="closeAlert()">OK</button>
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo-row">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
+        <div>
+          <p class="footer-name">Prince Dr K Vasudevan College</p>
+          <p class="footer-sub">of Engineering &amp; Technology</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="Courses.html">Courses</a>
+        <a href="NoticeBoard.html">Notice Board</a>
+        <a href="Student.html">Students</a>
+        <a href="About.html">About Us</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology</p>
     </div>
-  </div>
-
-  <footer>
-    <p>&copy; 2026 Prince DrK Vasudevan College of Engineering and Technology</p>
   </footer>
+
+  <script type="module" src="/NoticeBoard.js"></script>
 </body>
 </html>

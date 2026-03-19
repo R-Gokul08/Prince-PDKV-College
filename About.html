@@ -1,56 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
-      <link rel="stylesheet" href="About.css" />
-  <link rel="shortcut icon"
-    href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
-    type="image/x-icon">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us - Prince Dr K Vasudevan College</title>
+  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
+  <link rel="stylesheet" href="/shared.css" />
+  <link rel="stylesheet" href="/About.css" />
 </head>
 <body>
-     <header>
-      <h1 id="Prince">
-        Prince DrK Vasudevan college of Engineering and Technology
-      </h1>
-      
-      <img
-        src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
-        alt="logo" width="80px" height="80px"
-        id="logoimg"
-      />
-      <nav id="navbar">
-        <a href="Home.html" class="a1">🏠 Home</a>
-        <a href="Courses.html" class="a2">📚 Courses</a>
-        <a href="NoticeBoard.html" class="a3">📌 Notice Board</a>
-        <a href="Student.html" class="a4">👨‍🎓 Students</a>
-        <a href="About.html" class="a5">ℹ️ About Us</a>
-      </nav>
-    </header>
-    <div id="AboutUsContent">
-         <h2>About Us</h2>
-        <p>
-        Prince DrK Vasudevan college of Engineering and Technology, established in 2009, is a premier institution dedicated to excellence in engineering education and research. Located in a serene environment, the college offers state-of-the-art facilities and a vibrant campus life. Our mission is to nurture innovative minds and equip students with the skills needed to excel in the ever-evolving field of technology. With a team of experienced faculty members and industry collaborations, we strive to provide a holistic learning experience that fosters creativity, critical thinking, and professional growth.
-        </p>
-    </div>
-    <div id="ContactInfo">
-        <h2>Contact Information</h2>
-          Address: Prince DrK Vasudevan college of Engineering and Technology,<br> Ponmar Chennai-126<br>
-          Email: princedrkvasudevan@gmail.com <br>
-          website: www.princedrkvasudevan.ac.in <br>
-          Phone: +91 9876543210 <br>
-    </div>
 
-    <footer>
-      <p>&copy; 2026 Prince DrK Vasudevan college of Engineering and Technology</p>
-    </footer>
-    
-    <script>
-      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/speed-insights/script.js"></script>
-    
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
+        <span class="header-title">Prince Dr K Vasudevan College of Engineering & Technology</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
+        <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="About.html" class="nav-link active"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero ab-hero">
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <h1 class="animate-fade-up"><i class="fas fa-info-circle"></i> About Us</h1>
+      <p class="animate-fade-up">Learn about our institution's legacy, values, and vision</p>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section class="section bg-gradient-light">
+    <div class="container">
+      <div class="about-grid">
+        <!-- Left: Content -->
+        <div class="about-text-col animate-fade-up">
+          <h2 class="section-title" style="text-align:left;">Who We Are</h2>
+          <div class="title-underline" style="margin-left:0;"></div>
+          <p class="about-para">
+            <strong>Prince Dr K Vasudevan College of Engineering and Technology</strong>, established in 2009,
+            is a premier institution dedicated to excellence in engineering education and research.
+            Located on a serene 65-acre campus in Ponmar, Chennai, the college offers state-of-the-art
+            facilities and a vibrant campus life.
+          </p>
+          <p class="about-para">
+            Our mission is to nurture innovative minds and equip students with the skills needed to excel
+            in the ever-evolving field of technology. With a team of experienced faculty members and
+            strong industry collaborations, we strive to provide a holistic learning experience that
+            fosters creativity, critical thinking, and professional growth.
+          </p>
+          <p class="about-para">
+            Affiliated with Anna University and approved by AICTE, the college holds a prestigious
+            <strong>NAAC A+ Grade</strong> accreditation, reflecting our commitment to academic quality,
+            research excellence, and student development.
+          </p>
+          <div class="about-highlights">
+            <div class="about-highlight-item">
+              <i class="fas fa-check-circle"></i>
+              <span>Anna University Affiliated — TNEA Code 4116</span>
+            </div>
+            <div class="about-highlight-item">
+              <i class="fas fa-check-circle"></i>
+              <span>NAAC A+ Accredited until 2029</span>
+            </div>
+            <div class="about-highlight-item">
+              <i class="fas fa-check-circle"></i>
+              <span>AICTE Approved &amp; ISO 9001:2015 Certified</span>
+            </div>
+            <div class="about-highlight-item">
+              <i class="fas fa-check-circle"></i>
+              <span>Over 14 Years of Educational Excellence</span>
+            </div>
+          </div>
+          <a href="https://www.princedrkvasudevan.com" target="_blank" class="btn btn-primary" style="margin-top:24px;">
+            <i class="fas fa-external-link-alt"></i> Visit Official Website
+          </a>
+        </div>
+
+        <!-- Right: Stats -->
+        <div class="about-stats-col animate-fade-up">
+          <div class="about-stat-card">
+            <div class="ab-stat-icon green"><i class="fas fa-calendar-alt"></i></div>
+            <div class="ab-stat-num" data-target="14">0</div>
+            <div class="ab-stat-label">Years of Excellence</div>
+          </div>
+          <div class="about-stat-card">
+            <div class="ab-stat-icon blue"><i class="fas fa-users"></i></div>
+            <div class="ab-stat-num" data-target="2452">0</div>
+            <div class="ab-stat-label">Students Enrolled</div>
+          </div>
+          <div class="about-stat-card">
+            <div class="ab-stat-icon gold"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div class="ab-stat-num" data-target="150">0</div>
+            <div class="ab-stat-label">Faculty Members</div>
+          </div>
+          <div class="about-stat-card">
+            <div class="ab-stat-icon teal"><i class="fas fa-building"></i></div>
+            <div class="ab-stat-num" data-target="65">0</div>
+            <div class="ab-stat-label">Acres Campus</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISION & MISSION -->
+  <section class="section bg-white">
+    <div class="container">
+      <h2 class="section-title animate-fade-up">Vision &amp; Mission</h2>
+      <div class="title-underline mb-large animate-fade-up"></div>
+      <div class="vm-grid">
+        <div class="vm-card vision-card animate-fade-up">
+          <div class="vm-icon"><i class="fas fa-eye"></i></div>
+          <h3>Our Vision</h3>
+          <p>To be a globally recognized institution of excellence, producing technically competent and ethically grounded engineers who contribute meaningfully to society and drive technological innovation.</p>
+        </div>
+        <div class="vm-card mission-card animate-fade-up">
+          <div class="vm-icon"><i class="fas fa-bullseye"></i></div>
+          <h3>Our Mission</h3>
+          <ul>
+            <li>Provide quality education with a practical orientation</li>
+            <li>Foster research, innovation and entrepreneurship</li>
+            <li>Collaborate with industry for real-world learning</li>
+            <li>Develop well-rounded professionals with strong ethics</li>
+            <li>Promote inclusive and sustainable development</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section class="section contact-ab-section">
+    <div class="container">
+      <h2 class="section-title light animate-fade-up">Contact Information</h2>
+      <div class="title-underline animate-fade-up"></div>
+      <p class="section-subtitle light animate-fade-up" style="margin-top:20px;">We'd love to hear from you</p>
+      <div class="contact-cards-grid">
+        <div class="contact-ab-card animate-fade-up">
+          <div class="contact-ab-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <h4>Address</h4>
+          <p>Prince Dr K Vasudevan College of Engineering and Technology<br>
+             Medavakkam-Mambakkam Main Road<br>
+             Ponmar, Chennai - 600 127, Tamil Nadu</p>
+          <a href="https://maps.google.com/?q=Prince+Dr+K+Vasudevan+College+of+Engineering+and+Technology,+Ponmar,+Chennai" target="_blank" class="contact-ab-link">
+            <i class="fas fa-directions"></i> Get Directions
+          </a>
+        </div>
+        <div class="contact-ab-card animate-fade-up">
+          <div class="contact-ab-icon"><i class="fas fa-phone-alt"></i></div>
+          <h4>Phone</h4>
+          <p>+91 44-2242 0129<br>+91 44-2246 1478</p>
+          <a href="tel:+914422420129" class="contact-ab-link">
+            <i class="fas fa-phone"></i> Call Now
+          </a>
+        </div>
+        <div class="contact-ab-card animate-fade-up">
+          <div class="contact-ab-icon"><i class="fas fa-envelope"></i></div>
+          <h4>Email</h4>
+          <p>princedrkvasudevan@gmail.com</p>
+          <a href="mailto:princedrkvasudevan@gmail.com" class="contact-ab-link">
+            <i class="fas fa-paper-plane"></i> Send Email
+          </a>
+        </div>
+        <div class="contact-ab-card animate-fade-up">
+          <div class="contact-ab-icon"><i class="fas fa-globe"></i></div>
+          <h4>Website</h4>
+          <p>www.princedrkvasudevan.ac.in<br>TNEA Code: 4116</p>
+          <a href="https://www.princedrkvasudevan.com" target="_blank" class="contact-ab-link">
+            <i class="fas fa-external-link-alt"></i> Visit Site
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP EMBED -->
+  <section class="map-section">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3889.5!2d80.2!3d12.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525c12b32c3e85%3A0xda69d76e2d7b4d4f!2sPrince%20Dr%20K%20Vasudevan%20College%20of%20Engineering%20and%20Technology!5e0!3m2!1sen!2sin!4v1234567890"
+      width="100%" height="380" style="border:0;" allowfullscreen="" loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade" title="College Map">
+    </iframe>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo-row">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
+        <div>
+          <p class="footer-name">Prince Dr K Vasudevan College</p>
+          <p class="footer-sub">of Engineering &amp; Technology</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="Courses.html">Courses</a>
+        <a href="NoticeBoard.html">Notice Board</a>
+        <a href="Student.html">Students</a>
+        <a href="About.html">About Us</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/About.js"></script>
 </body>
 </html>

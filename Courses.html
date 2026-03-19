@@ -1,79 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Courses - Prince DrK Vasudevan College</title>
-  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon">
-  <link rel="stylesheet" href="Courses.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Courses - Prince Dr K Vasudevan College</title>
+  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
+  <link rel="stylesheet" href="/shared.css" />
+  <link rel="stylesheet" href="/Courses.css" />
 </head>
 <body>
-  <header>
-    <h1 id="Prince">Prince DrK Vasudevan College of Engineering and Technology</h1>
-    <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="logo" id="logoimg">
-    <nav id="navbar">
-      <a href="Home.html" class="a1">🏠 Home</a>
-      <a href="Courses.html" class="a2 active">📚 Courses</a>
-      <a href="NoticeBoard.html" class="a3">📌 Notice Board</a>
-      <a href="Student.html" class="a4">👨‍🎓 Students</a>
-      <a href="About.html" class="a5">ℹ️ About Us</a>
-    </nav>
+
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
+        <span class="header-title">Prince Dr K Vasudevan College of Engineering & Technology</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html" class="nav-link active"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
+        <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+      </nav>
+    </div>
   </header>
 
-  <div id="Courses-content">
-    <h2>Our Courses</h2>
-    <div class="courses-grid">
-      <div class="course-card co1" data-course="btech-cse">
-        <img src="https://ddn.gehu.ac.in/uploads/image/Nw1oCYC1-trending-course-gehu-1-jpg.webp" alt="CSE">
-        <h3>B.Tech Computer Science and Engineering</h3>
+  <!-- PAGE HERO -->
+  <section class="page-hero">
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <h1 class="animate-fade-up"><i class="fas fa-book-open"></i> Our Courses</h1>
+      <p class="animate-fade-up">Explore world-class engineering &amp; management programs</p>
+    </div>
+  </section>
+
+  <!-- COURSES GRID -->
+  <section class="section bg-gradient-light">
+    <div class="container">
+      <h2 class="section-title animate-fade-up">Academic Programs</h2>
+      <div class="title-underline mb-large animate-fade-up"></div>
+
+      <!-- Filter Tabs -->
+      <div class="course-filters animate-fade-up">
+        <button class="cf-btn active" data-filter="all">All Programs</button>
+        <button class="cf-btn" data-filter="btech">B.Tech (UG)</button>
+        <button class="cf-btn" data-filter="mtech">M.Tech (PG)</button>
+        <button class="cf-btn" data-filter="other">MBA / Arts</button>
       </div>
-      <div class="course-card co2" data-course="btech-ece">
-        <img src="https://sru.edu.in/assets/schools/ece/ece.png" alt="ECE">
-        <h3>B.Tech Electronics & Communication Engineering</h3>
+
+      <div class="courses-grid" id="coursesGrid">
+        <!-- CSE -->
+        <div class="course-card animate-fade-up" data-category="btech" data-course="btech-cse">
+          <div class="course-img-wrap">
+            <img src="https://ddn.gehu.ac.in/uploads/image/Nw1oCYC1-trending-course-gehu-1-jpg.webp" alt="CSE" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-blue">B.Tech • 4 Years</span>
+            <h3>Computer Science &amp; Engineering</h3>
+            <p>Software development, AI, Data Science &amp; Algorithms</p>
+            <div class="course-meta">
+              <span><i class="fas fa-users"></i> 60 Seats</span>
+              <span><i class="fas fa-clock"></i> 4 Years</span>
+            </div>
+          </div>
+        </div>
+        <!-- ECE -->
+        <div class="course-card animate-fade-up" data-category="btech" data-course="btech-ece">
+          <div class="course-img-wrap">
+            <img src="https://sru.edu.in/assets/schools/ece/ece.png" alt="ECE" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-green">B.Tech • 4 Years</span>
+            <h3>Electronics &amp; Communication Engineering</h3>
+            <p>Communication systems, VLSI &amp; Embedded systems</p>
+            <div class="course-meta">
+              <span><i class="fas fa-users"></i> 60 Seats</span>
+              <span><i class="fas fa-clock"></i> 4 Years</span>
+            </div>
+          </div>
+        </div>
+        <!-- Mechanical -->
+        <div class="course-card animate-fade-up" data-category="btech" data-course="btech-mech">
+          <div class="course-img-wrap">
+            <img src="https://cache.careers360.mobi/media/article_images/2020/5/6/B-Tech-in-Mechanical-and-Automation-Engineering.jpg" alt="Mechanical" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-gold">B.Tech • 4 Years</span>
+            <h3>Mechanical Engineering</h3>
+            <p>Design, manufacturing &amp; thermal engineering</p>
+            <div class="course-meta">
+              <span><i class="fas fa-users"></i> 60 Seats</span>
+              <span><i class="fas fa-clock"></i> 4 Years</span>
+            </div>
+          </div>
+        </div>
+        <!-- Civil -->
+        <div class="course-card animate-fade-up" data-category="btech" data-course="btech-civil">
+          <div class="course-img-wrap">
+            <img src="https://sijoul.sandipuniversity.edu.in/engineering-technology/images/header/UG/Civil.jpg" alt="Civil" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-blue">B.Tech • 4 Years</span>
+            <h3>Civil Engineering</h3>
+            <p>Structural engineering &amp; construction management</p>
+            <div class="course-meta">
+              <span><i class="fas fa-users"></i> 60 Seats</span>
+              <span><i class="fas fa-clock"></i> 4 Years</span>
+            </div>
+          </div>
+        </div>
+        <!-- M.Tech CSE -->
+        <div class="course-card animate-fade-up" data-category="mtech" data-course="mtech-cse">
+          <div class="course-img-wrap">
+            <img src="https://theredpen.in/wp-content/uploads/2024/09/medium-shot-man-wearing-vr-glasses-1-scaled.jpg" alt="M.Tech CSE" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-red">M.Tech • 2 Years</span>
+            <h3>M.Tech Computer Science &amp; Engineering</h3>
+            <p>Advanced algorithms, networks &amp; software engineering</p>
+            <div class="course-meta">
+              <span><i class="fas fa-users"></i> 9 Seats</span>
+              <span><i class="fas fa-clock"></i> 2 Years</span>
+            </div>
+          </div>
+        </div>
+        <!-- M.Tech VLSI -->
+        <div class="course-card animate-fade-up" data-category="mtech" data-course="mtech-vlsi">
+          <div class="course-img-wrap">
+            <img src="https://www.msruas.ac.in/assets/frontend/images/oview-img-vlsi.webp" alt="VLSI" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-red">M.Tech • 2 Years</span>
+            <h3>M.Tech VLSI Design</h3>
+            <p>CMOS design, semiconductor tech &amp; HDL</p>
+            <div class="course-meta">
+              <span><i class="fas fa-users"></i> 18 Seats</span>
+              <span><i class="fas fa-clock"></i> 2 Years</span>
+            </div>
+          </div>
+        </div>
+        <!-- MBA -->
+        <div class="course-card animate-fade-up" data-category="other" data-course="mba">
+          <div class="course-img-wrap">
+            <img src="https://media.istockphoto.com/id/1159875854/photo/mba-with-man.jpg?s=612x612&w=0&k=20&c=fm3BxaCV0OksY-P-khvO7mv1jdWLYHFlYEPaHEvZlVo=" alt="MBA" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-gold">MBA • 2 Years</span>
+            <h3>Master of Business Administration</h3>
+            <p>Marketing, finance, HR &amp; industry projects</p>
+            <div class="course-meta">
+              <span><i class="fas fa-users"></i> 60 Seats</span>
+              <span><i class="fas fa-clock"></i> 2 Years</span>
+            </div>
+          </div>
+        </div>
+        <!-- Arts -->
+        <div class="course-card animate-fade-up" data-category="other" data-course="arts">
+          <div class="course-img-wrap">
+            <img src="https://t3.ftcdn.net/jpg/16/92/35/14/360_F_1692351410_kBjDpoScGMXZf0ZA28VEKTWLTV5KnO6P.jpg" alt="Arts" loading="lazy" />
+            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          </div>
+          <div class="course-info">
+            <span class="badge badge-green">Arts &amp; Humanities</span>
+            <h3>Arts and Humanities</h3>
+            <p>Critical thinking, communication &amp; cultural studies</p>
+            <div class="course-meta">
+              <span><i class="fas fa-book"></i> Multiple</span>
+              <span><i class="fas fa-clock"></i> 3 Years</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="course-card co3" data-course="btech-mech">
-        <img src="https://cache.careers360.mobi/media/article_images/2020/5/6/B-Tech-in-Mechanical-and-Automation-Engineering.jpg" alt="Mechanical">
-        <h3>B.Tech Mechanical Engineering</h3>
+    </div>
+  </section>
+
+  <!-- COURSE DETAIL MODAL -->
+  <div class="modal-overlay" id="courseModal">
+    <div class="modal-box modal-box-lg">
+      <div class="modal-header">
+        <h3 id="modalTitle">Course Details</h3>
+        <button class="modal-close" id="modalCloseBtn" aria-label="Close">&times;</button>
       </div>
-      <div class="course-card co4" data-course="btech-civil">
-        <img src="https://sijoul.sandipuniversity.edu.in/engineering-technology/images/header/UG/Civil.jpg" alt="Civil">
-        <h3>B.Tech Civil Engineering</h3>
-      </div>
-      <div class="course-card co5" data-course="mtech-cse">
-        <img src="https://theredpen.in/wp-content/uploads/2024/09/medium-shot-man-wearing-vr-glasses-1-scaled.jpg" alt="M.Tech CSE">
-        <h3>M.Tech Computer Science and Engineering</h3>
-      </div>
-      <div class="course-card co6" data-course="mtech-vlsi">
-        <img src="https://www.msruas.ac.in/assets/frontend/images/oview-img-vlsi.webp" alt="VLSI">
-        <h3>M.Tech VLSI Design</h3>
-      </div>
-      <div class="course-card co7" data-course="mba">
-        <img src="https://media.istockphoto.com/id/1159875854/photo/mba-with-man.jpg?s=612x612&w=0&k=20&c=fm3BxaCV0OksY-P-khvO7mv1jdWLYHFlYEPaHEvZlVo=" alt="MBA">
-        <h3>Master of Business Administration (MBA)</h3>
-      </div>
-      <div class="course-card co8" data-course="arts">
-        <img src="https://t3.ftcdn.net/jpg/16/92/35/14/360_F_1692351410_kBjDpoScGMXZf0ZA28VEKTWLTV5KnO6P.jpg" alt="Arts">
-        <h3>Arts and Humanities</h3>
+      <div class="modal-body">
+        <div class="modal-course-img-wrap">
+          <img id="modalImg" src="" alt="" />
+        </div>
+        <div class="modal-meta-row">
+          <span id="modalBadge" class="badge badge-blue"></span>
+          <span id="modalSeats" class="badge badge-green"></span>
+        </div>
+        <p id="modalDesc" style="color:var(--text-body);line-height:1.8;margin:16px 0 24px;font-size:clamp(0.9rem,1.5vw,1rem);"></p>
+        <a id="modalLink" href="#" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;">
+          <i class="fas fa-external-link-alt"></i> Learn More on College Website
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- Modal for course details -->
-  <div id="course-modal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <div id="course-details">
-        <h2 id="modal-title"></h2>
-        <p id="modal-description"></p>
-        <a id="course-link" href="#" target="_blank">Learn More</a>
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo-row">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
+        <div>
+          <p class="footer-name">Prince Dr K Vasudevan College</p>
+          <p class="footer-sub">of Engineering &amp; Technology</p>
+        </div>
       </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="Courses.html">Courses</a>
+        <a href="NoticeBoard.html">Notice Board</a>
+        <a href="Student.html">Students</a>
+        <a href="About.html">About Us</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
     </div>
-  </div>
-
-  <footer>
-    <p>&copy; 2026 Prince DrK Vasudevan College of Engineering and Technology</p>
   </footer>
 
-  <script src="Courses.js"></script>
+  <script type="module" src="/Courses.js"></script>
 </body>
 </html>

@@ -1,79 +1,127 @@
-// Courses.js
-document.addEventListener('DOMContentLoaded', function() {
-  const courseCards = document.querySelectorAll('.course-card');
-  const modal = document.getElementById('course-modal');
-  const closeBtn = document.querySelector('.close');
-  const modalTitle = document.getElementById('modal-title');
-  const modalDesc = document.getElementById('modal-description');
-  const courseLink = document.getElementById('course-link');
+import { initStickyHeader, initHamburger, initScrollAnimations, openModal, closeModal, initModalCloseHandlers, showToast } from './shared.js'
 
-  // Course data from college website and reliable sources [web:1][web:2][web:3][web:4][web:5][web:9][page:2]
-  const courseDetails = {
-    'btech-cse': {
-      title: 'B.Tech Computer Science and Engineering',
-      desc: '4-year UG program affiliated with Anna University. Focuses on software development, algorithms, AI, and data science. Established in 1985 with excellent placements in TCS, Infosys, Zoho. 420 seats available across B.Tech specializations. [web:1][web:9][page:2]',
-      link: 'https://www.princedrkvasudevan.com/departments/BE.CSE.html'
-    },
-    'btech-ece': {
-      title: 'B.Tech Electronics & Communication Engineering',
-      desc: '4-year program (60 seats) with total fees around ₹2 Lakh. Covers communication systems, VLSI, embedded systems. Admission via TNEA/CBSE 12th. [web:2][web:10]',
-      link: 'https://www.shiksha.com/college/prince-dr-k-vasudevan-college-of-engineering-and-technology-chennai-53970/course-b-e-in-electronics-and-communication-engineering-539701'
-    },
-    'btech-mech': {
-      title: 'B.Tech Mechanical Engineering',
-      desc: '4-year UG program focusing on design, manufacturing, thermal engineering. Lateral entry available (3 years, ₹1.65 Lakh). Strong industry connections. [web:3]',
-      link: 'https://www.shiksha.com/college/prince-dr-k-vasudevan-college-of-engineering-and-technology-chennai-53970/courses/be-btech-bc'
-    },
-    'btech-civil': {
-      title: 'B.Tech Civil Engineering',
-      desc: '4-year program covering structural engineering, construction management. Affiliated with Anna University. Practical training emphasis. [web:1]',
-      link: 'https://www.princedrkvasudevan.com'
-    },
-    'mtech-cse': {
-      title: 'M.Tech Computer Science and Engineering',
-      desc: '2-year PG program (9 seats) based on GATE/CEETA scores. Advanced topics in algorithms, networks, software engineering. [web:5]',
-      link: 'https://www.shiksha.com/college/prince-dr-k-vasudevan-college-of-engineering-and-technology-chennai-53970/courses/me-mtech-bc'
-    },
-    'mtech-vlsi': {
-      title: 'M.Tech VLSI Design',
-      desc: '2-year postgraduate program focusing on CMOS design, semiconductor tech, HDL, embedded systems. High industry demand. [web:6]',
-      link: 'https://www.niet.co.in/blog/mtech-in-vlsi-design-best-colleges-in-india-admission-process--placement-packages'
-    },
-    'mba': {
-      title: 'Master of Business Administration (MBA)',
-      desc: '2-year full-time program (60 seats) affiliated with Anna University, AICTE approved. Specializations in marketing, finance, HR. Industry projects & internships. [web:7]',
-      link: 'https://psvpec.in/mba/'
-    },
-    'arts': {
-      title: 'Arts and Humanities',
-      desc: 'Programs fostering critical thinking, communication, cultural studies. Prepares for diverse career paths in education, media, public service. [web:4]',
-      link: 'https://www.princedrkvasudevan.com'
-    }
-  };
+const courseData = {
+  'btech-cse': {
+    title: 'B.Tech Computer Science and Engineering',
+    badge: 'B.Tech • 4 Years',
+    badgeClass: 'badge-blue',
+    seats: '60 Seats',
+    desc: 'A flagship 4-year undergraduate program affiliated with Anna University. Focuses on software development, algorithms, artificial intelligence, data science, and networking. Strong industry placements in TCS, Infosys, Zoho, and more.',
+    link: 'https://www.princedrkvasudevan.com/departments/BE.CSE.html',
+    img: 'https://ddn.gehu.ac.in/uploads/image/Nw1oCYC1-trending-course-gehu-1-jpg.webp'
+  },
+  'btech-ece': {
+    title: 'B.Tech Electronics & Communication Engineering',
+    badge: 'B.Tech • 4 Years',
+    badgeClass: 'badge-green',
+    seats: '60 Seats',
+    desc: '4-year program covering communication systems, VLSI design, embedded systems, and signal processing. Anna University affiliated, AICTE approved. Total fees approx. ₹2 Lakh. Admission via TNEA.',
+    link: 'https://www.shiksha.com/college/prince-dr-k-vasudevan-college-of-engineering-and-technology-chennai-53970/course-b-e-in-electronics-and-communication-engineering-539701',
+    img: 'https://sru.edu.in/assets/schools/ece/ece.png'
+  },
+  'btech-mech': {
+    title: 'B.Tech Mechanical Engineering',
+    badge: 'B.Tech • 4 Years',
+    badgeClass: 'badge-gold',
+    seats: '60 Seats',
+    desc: '4-year UG program focusing on design, manufacturing, and thermal engineering. Lateral entry available (3 years). Strong industry connections and hands-on lab experience with modern machinery.',
+    link: 'https://www.shiksha.com/college/prince-dr-k-vasudevan-college-of-engineering-and-technology-chennai-53970/courses/be-btech-bc',
+    img: 'https://cache.careers360.mobi/media/article_images/2020/5/6/B-Tech-in-Mechanical-and-Automation-Engineering.jpg'
+  },
+  'btech-civil': {
+    title: 'B.Tech Civil Engineering',
+    badge: 'B.Tech • 4 Years',
+    badgeClass: 'badge-blue',
+    seats: '60 Seats',
+    desc: '4-year program covering structural engineering, construction management, geotechnical engineering, and environmental engineering. Anna University affiliated. Emphasis on practical training and site visits.',
+    link: 'https://www.princedrkvasudevan.com',
+    img: 'https://sijoul.sandipuniversity.edu.in/engineering-technology/images/header/UG/Civil.jpg'
+  },
+  'mtech-cse': {
+    title: 'M.Tech Computer Science and Engineering',
+    badge: 'M.Tech • 2 Years',
+    badgeClass: 'badge-red',
+    seats: '9 Seats',
+    desc: '2-year postgraduate program with only 9 seats, admission via GATE/TANCET. Advanced topics in algorithms, cloud computing, machine learning, and distributed networks. Excellent for research aspirants.',
+    link: 'https://www.shiksha.com/college/prince-dr-k-vasudevan-college-of-engineering-and-technology-chennai-53970/courses/me-mtech-bc',
+    img: 'https://theredpen.in/wp-content/uploads/2024/09/medium-shot-man-wearing-vr-glasses-1-scaled.jpg'
+  },
+  'mtech-vlsi': {
+    title: 'M.Tech VLSI Design',
+    badge: 'M.Tech • 2 Years',
+    badgeClass: 'badge-red',
+    seats: '18 Seats',
+    desc: '2-year PG program focusing on CMOS design, semiconductor technology, HDL programming, and embedded systems. High industry demand with excellent career prospects in chip design companies.',
+    link: 'https://www.princedrkvasudevan.com',
+    img: 'https://www.msruas.ac.in/assets/frontend/images/oview-img-vlsi.webp'
+  },
+  'mba': {
+    title: 'Master of Business Administration (MBA)',
+    badge: 'MBA • 2 Years',
+    badgeClass: 'badge-gold',
+    seats: '60 Seats',
+    desc: '2-year full-time MBA program affiliated with Anna University, AICTE approved. Specializations in marketing, finance, and HR. Features industry projects, internships, and guest lectures from business leaders.',
+    link: 'https://psvpec.in/mba/',
+    img: 'https://media.istockphoto.com/id/1159875854/photo/mba-with-man.jpg?s=612x612&w=0&k=20&c=fm3BxaCV0OksY-P-khvO7mv1jdWLYHFlYEPaHEvZlVo='
+  },
+  'arts': {
+    title: 'Arts and Humanities',
+    badge: 'Arts & Humanities',
+    badgeClass: 'badge-green',
+    seats: 'Multiple',
+    desc: 'Programs fostering critical thinking, communication, and cultural studies. Prepares students for diverse career paths in education, media, public service, and creative industries.',
+    link: 'https://www.princedrkvasudevan.com',
+    img: 'https://t3.ftcdn.net/jpg/16/92/35/14/360_F_1692351410_kBjDpoScGMXZf0ZA28VEKTWLTV5KnO6P.jpg'
+  }
+}
 
-  // Add click event to course cards
-  courseCards.forEach(card => {
-    card.addEventListener('click', function() {
-      const courseId = this.getAttribute('data-course');
-      const details = courseDetails[courseId];
-      
-      if (details) {
-        modalTitle.textContent = details.title;
-        modalDesc.innerHTML = details.desc;
-        courseLink.href = details.link;
-        modal.style.display = 'block';
-      }
-    });
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  initStickyHeader()
+  initHamburger()
+  initScrollAnimations()
+  initModalCloseHandlers()
 
-  // Close modal
-  closeBtn.onclick = function() {
-    modal.style.display = 'none';
-  };
+  // Course card click -> open modal
+  document.querySelectorAll('.course-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.course
+      const data = courseData[id]
+      if (!data) return
 
-  window.onclick = function(event) {
-    if (event.target === modal) {
-      modal.style.display = 'none';
-    }
-  };
-});
+      document.getElementById('modalTitle').textContent = data.title
+      document.getElementById('modalImg').src = data.img
+      document.getElementById('modalImg').alt = data.title
+      document.getElementById('modalDesc').textContent = data.desc
+      document.getElementById('modalLink').href = data.link
+
+      const badge = document.getElementById('modalBadge')
+      badge.textContent = data.badge
+      badge.className = `badge ${data.badgeClass}`
+
+      const seats = document.getElementById('modalSeats')
+      seats.innerHTML = `<i class="fas fa-users"></i> ${data.seats}`
+
+      openModal('courseModal')
+    })
+  })
+
+  // Close button
+  document.getElementById('modalCloseBtn').addEventListener('click', () => closeModal('courseModal'))
+
+  // Filter buttons
+  document.querySelectorAll('.cf-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cf-btn').forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+
+      const filter = btn.dataset.filter
+      document.querySelectorAll('.course-card').forEach(card => {
+        if (filter === 'all' || card.dataset.category === filter) {
+          card.classList.remove('hidden')
+        } else {
+          card.classList.add('hidden')
+        }
+      })
+    })
+  })
+})

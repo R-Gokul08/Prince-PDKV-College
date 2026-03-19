@@ -1,100 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Information - PDKV</title>
-  <link rel="stylesheet" href="Student.css" />
-  <link rel="shortcut icon"
-    href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
-    type="image/x-icon">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal - Prince Dr K Vasudevan College</title>
+  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
+  <link rel="stylesheet" href="/shared.css" />
+  <link rel="stylesheet" href="/Student.css" />
 </head>
 <body>
-  <header>
-    <h1 id="Prince">Prince DrK Vasudevan College of Engineering and Technology</h1>
-    <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj"
-      alt="logo" width="80px" height="80px" id="logoimg" />
-    <nav id="navbar">
-      <a href="Home.html" class="a1">🏠 Home</a>
-      <a href="Courses.html" class="a2">📚 Courses</a>
-      <a href="NoticeBoard.html" class="a3">📌 Notice Board</a>
- 
-      <a href="Student.html" class="a5 active">👨‍🎓 Students</a>
-      <a href="About.html"       class="a5">ℹ️ About Us</a>
-    </nav>
+
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
+        <span class="header-title">Prince Dr K Vasudevan College of Engineering & Technology</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
+        <a href="Student.html" class="nav-link active"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+      </nav>
+    </div>
   </header>
 
-  <div id="form-container">
-    <!-- FORM SECTION -->
-    <div id="student-form-section">
-      <h2>📝 Student Information Form</h2>
-      <form id="studentForm">
-        <div class="form-group">
-          <h3>👤 Personal Information</h3>
-          <input type="file" id="studentImage" accept="image/*">
-          <input type="text" id="studentName" placeholder="Full Name *" required>
-          <input type="text" id="guardianName" placeholder="Father/Mother/Guardian Name *" required>
-          <input type="text" id="registerNo" placeholder="Register Number (Unique) *" required>
-          <input type="text" id="department" placeholder="Department *" required>
-          <input type="number" id="year" placeholder="Year (1-4)" min="1" max="4" required>
-          <input type="tel" id="phone" placeholder="Phone Number *" required>
-          <input type="email" id="email" placeholder="Email ID *" required>
-          <input type="url" id="linkedin" placeholder="LinkedIn Profile (Optional)">
-          <input type="url" id="github" placeholder="GitHub Profile (Optional)">
-          <input type="date" id="dob" required>
-        </div>
+  <!-- PAGE HERO -->
+  <section class="page-hero st-hero">
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <h1 class="animate-fade-up"><i class="fas fa-user-graduate"></i> Student Portal</h1>
+      <p class="animate-fade-up">Submit and view student academic information</p>
+    </div>
+  </section>
 
-        <div class="form-group">
-          <h3>📊 Exam Details</h3>
-          <div id="examDetails">
-            <div class="exam-entry">
-              <input type="text" class="exam-subject" placeholder="Subject Name">
-              <input type="number" class="exam-marks" placeholder="Marks" min="0" max="100">
-              <select class="exam-result">
-                <option value="">Pass/Fail</option>
-                <option value="Pass">✅ Pass</option>
-                <option value="Fail">❌ Fail</option>
-              </select>
-              <select class="exam-type">
-                <option value="">Sem/CIA</option>
-                <option value="Semester">📚 Semester</option>
-                <option value="CIA">📝 CIA</option>
-              </select>
-              <button type="button" class="remove-exam">❌</button>
-            </div>
+  <!-- MAIN CONTENT -->
+  <section class="section st-section">
+    <div class="container">
+
+      <!-- FORM SECTION -->
+      <div id="formSection">
+        <div class="st-form-card animate-fade-up">
+          <div class="st-form-header">
+            <h2><i class="fas fa-clipboard-list"></i> Student Information Form</h2>
+            <p>Fill in the details below to register student information</p>
           </div>
-          <button type="button" id="addExamBtn">➕ Add Exam</button>
+
+          <form id="studentForm" novalidate>
+            <!-- Personal Info -->
+            <div class="form-section-block">
+              <h3 class="form-section-title"><i class="fas fa-user"></i> Personal Information</h3>
+              <div class="form-img-upload" id="imgUploadArea">
+                <div class="img-preview" id="imgPreview">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <label class="img-upload-label" for="studentImage">
+                  <i class="fas fa-camera"></i> Upload Photo
+                </label>
+                <input type="file" id="studentImage" accept="image/*" style="display:none;" />
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Full Name *</label>
+                  <input type="text" id="studentName" class="form-input" placeholder="Enter full name" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Guardian Name *</label>
+                  <input type="text" id="guardianName" class="form-input" placeholder="Father / Mother / Guardian" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Register Number *</label>
+                  <input type="text" id="registerNo" class="form-input" placeholder="e.g. 22CS0001" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Department *</label>
+                  <input type="text" id="department" class="form-input" placeholder="e.g. CSE" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Year (1-4) *</label>
+                  <input type="number" id="year" class="form-input" placeholder="Year" min="1" max="4" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone Number *</label>
+                  <input type="tel" id="phone" class="form-input" placeholder="+91 99999 99999" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email ID *</label>
+                  <input type="email" id="email" class="form-input" placeholder="student@email.com" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Date of Birth *</label>
+                  <input type="date" id="dob" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">LinkedIn (Optional)</label>
+                  <input type="url" id="linkedin" class="form-input" placeholder="linkedin.com/in/..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">GitHub (Optional)</label>
+                  <input type="url" id="github" class="form-input" placeholder="github.com/..." />
+                </div>
+              </div>
+            </div>
+
+            <!-- Exam Details -->
+            <div class="form-section-block">
+              <h3 class="form-section-title"><i class="fas fa-graduation-cap"></i> Exam Details</h3>
+              <div id="examEntries">
+                <div class="exam-entry">
+                  <input type="text" class="form-input exam-subject" placeholder="Subject Name" />
+                  <input type="number" class="form-input exam-marks" placeholder="Marks (0-100)" min="0" max="100" />
+                  <select class="form-select exam-result">
+                    <option value="">Pass/Fail</option>
+                    <option value="Pass">✅ Pass</option>
+                    <option value="Fail">❌ Fail</option>
+                  </select>
+                  <select class="form-select exam-type">
+                    <option value="">Sem/CIA</option>
+                    <option value="Semester">Semester</option>
+                    <option value="CIA">CIA</option>
+                  </select>
+                  <button type="button" class="remove-exam-btn" onclick="removeExam(this)"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+              <button type="button" id="addExamBtn" class="btn btn-secondary" style="margin-top:12px;">
+                <i class="fas fa-plus"></i> Add Exam
+              </button>
+            </div>
+
+            <!-- Attendance -->
+            <div class="form-section-block">
+              <h3 class="form-section-title"><i class="fas fa-calendar-check"></i> Attendance</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Total College Days *</label>
+                  <input type="number" id="totalDays" class="form-input" placeholder="e.g. 180" min="0" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Days Present *</label>
+                  <input type="number" id="presentDays" class="form-input" placeholder="e.g. 160" min="0" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Days Absent</label>
+                  <input type="number" id="absentDays" class="form-input" readonly placeholder="Auto-calculated" />
+                </div>
+              </div>
+              <div id="attendanceDisplay" class="attendance-display" style="display:none;"></div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary submit-btn">
+              <i class="fas fa-save"></i> Submit Student Data
+            </button>
+          </form>
         </div>
-
-        <div class="form-group">
-          <h3>📅 Attendance</h3>
-          <input type="number" id="totalDays" placeholder="Total College Days *" min="0" required>
-          <input type="number" id="presentDays" placeholder="Present Days *" min="0" required>
-          <input type="number" id="absentDays" placeholder="Absent Days *" readonly>
-          <div id="attendancePercentage"></div>
-        </div>
-
-        <button type="submit" id="submitBtn">💾 Submit Student Data</button>
-      </form>
-    </div>
-
-    <!-- STUDENT PROFILE SECTION (PERSISTENT) -->
-    <div id="student-display-section" style="display: none;">
-      <div style="position: sticky; top: 20px; right: 20px; z-index: 1000; float: right;">
-        <button id="backToForm" class="back-btn">➕ Add New Student</button>
       </div>
-      <h2 style="text-align: center; margin-top: 60px;">👤 Student Profile</h2>
-      <div id="studentProfile"></div>
-    </div>
-  </div>
 
-  <footer>
-    <p>&copy; 2026 Prince DrK Vasudevan College of Engineering and Technology</p>
+      <!-- PROFILE SECTION -->
+      <div id="profileSection" style="display:none;">
+        <div class="profile-actions animate-fade-up">
+          <button id="backToFormBtn" class="btn btn-outline">
+            <i class="fas fa-plus"></i> Add New Student
+          </button>
+        </div>
+        <div id="profileContent" class="animate-fade-up"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo-row">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
+        <div>
+          <p class="footer-name">Prince Dr K Vasudevan College</p>
+          <p class="footer-sub">of Engineering &amp; Technology</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="Courses.html">Courses</a>
+        <a href="NoticeBoard.html">Notice Board</a>
+        <a href="Student.html">Students</a>
+        <a href="About.html">About Us</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology</p>
+    </div>
   </footer>
 
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseClient.js"></script>
-  <script src="Student.js"></script>
+  <script type="module" src="/Student.js"></script>
 </body>
 </html>

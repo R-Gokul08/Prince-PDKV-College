@@ -1,193 +1,256 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Prevent page refresh issues
-    if (window.history.replaceState) window.history.replaceState(null, null, window.location.href);
-    window.onbeforeunload = () => {};
+import { supabase } from './supabaseClient.js'
+import { initStickyHeader, initHamburger, initScrollAnimations, showToast } from './shared.js'
 
-    const supabase = window.supabase;
-    const studentForm = document.getElementById('studentForm');
-    const formSection = document.getElementById('student-form-section');
-    const displaySection = document.getElementById('student-display-section');
-    const studentProfile = document.getElementById('studentProfile');
-    const backToFormBtn = document.getElementById('backToForm');
-    const studentImageInput = document.getElementById('studentImage');
-    const examDetails = document.getElementById('examDetails');
-    const addExamBtn = document.getElementById('addExamBtn');
-    const totalDays = document.getElementById('totalDays');
-    const presentDays = document.getElementById('presentDays');
-    const absentDays = document.getElementById('absentDays');
-    const attendancePercentage = document.getElementById('attendancePercentage');
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.history.replaceState) window.history.replaceState(null, null, window.location.href)
 
-    // CHECK FOR PERSISTENT STUDENT ON LOAD
-    if (sessionStorage.getItem('currentStudent')) {
-        const student = JSON.parse(sessionStorage.getItem('currentStudent'));
-        formSection.style.display = 'none';
-        displaySection.style.display = 'block';
-        displayStudentProfile(student);
-        return;
+  initStickyHeader()
+  initHamburger()
+  initScrollAnimations()
+
+  const formSection    = document.getElementById('formSection')
+  const profileSection = document.getElementById('profileSection')
+  const studentForm    = document.getElementById('studentForm')
+  const backBtn        = document.getElementById('backToFormBtn')
+  const examEntries    = document.getElementById('examEntries')
+  const addExamBtn     = document.getElementById('addExamBtn')
+  const totalDaysInput = document.getElementById('totalDays')
+  const presentInput   = document.getElementById('presentDays')
+  const absentInput    = document.getElementById('absentDays')
+  const attDisplay     = document.getElementById('attendanceDisplay')
+  const imgInput       = document.getElementById('studentImage')
+  const imgPreview     = document.getElementById('imgPreview')
+
+  // ── Restore session ──────────────────────────────────────
+  const saved = sessionStorage.getItem('pdkv_student')
+  if (saved) {
+    showProfile(JSON.parse(saved))
+    return
+  }
+
+  // ── Image preview ────────────────────────────────────────
+  imgInput.addEventListener('change', () => {
+    const file = imgInput.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imgPreview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`
     }
+    reader.readAsDataURL(file)
+  })
 
-    // ATTENDANCE CALCULATION
-    function calculateAttendance() {
-        const total = parseInt(totalDays.value) || 0;
-        const present = parseInt(presentDays.value) || 0;
-        if (total > 0 && present <= total) {
-            const percentage = ((present / total) * 100).toFixed(2);
-            attendancePercentage.innerHTML = `<strong style="color: #4CAF50;">📊 Attendance: ${percentage}%</strong>`;
-            absentDays.value = Math.max(0, total - present);
-        }
+  // ── Attendance calc ──────────────────────────────────────
+  function calcAttendance() {
+    const total   = parseInt(totalDaysInput.value) || 0
+    const present = parseInt(presentInput.value)   || 0
+    if (total > 0 && present <= total) {
+      const absent = total - present
+      const pct    = ((present / total) * 100).toFixed(2)
+      absentInput.value = absent
+      attDisplay.style.display = 'block'
+      const color = parseFloat(pct) >= 75 ? 'var(--accent)' : 'var(--danger)'
+      attDisplay.innerHTML = `<i class="fas fa-chart-bar" style="color:${color};margin-right:8px;"></i>Attendance: <span style="color:${color}">${pct}%</span> &nbsp;|&nbsp; Present: ${present} &nbsp;|&nbsp; Absent: ${absent}`
+    } else {
+      attDisplay.style.display = 'none'
     }
-    totalDays.addEventListener('input', calculateAttendance);
-    presentDays.addEventListener('input', calculateAttendance);
+  }
 
-    // ADD EXAM
-    addExamBtn.addEventListener('click', () => {
-        const examEntry = document.createElement('div');
-        examEntry.className = 'exam-entry';
-        examEntry.innerHTML = `
-            <input type="text" class="exam-subject" placeholder="Subject Name">
-            <input type="number" class="exam-marks" placeholder="Marks" min="0" max="100">
-            <select class="exam-result"><option value="">Pass/Fail</option><option value="Pass">✅ Pass</option><option value="Fail">❌ Fail</option></select>
-            <select class="exam-type"><option value="">Sem/CIA</option><option value="Semester">📚 Semester</option><option value="CIA">📝 CIA</option></select>
-            <button type="button" class="remove-exam" onclick="removeExam(this)">❌</button>
-        `;
-        examDetails.appendChild(examEntry);
-    });
+  totalDaysInput.addEventListener('input', calcAttendance)
+  presentInput.addEventListener('input', calcAttendance)
 
-    window.removeExam = (button) => {
-        if (examDetails.children.length > 1) button.parentElement.remove();
-    };
+  // ── Add / Remove Exam ─────────────────────────────────────
+  addExamBtn.addEventListener('click', () => {
+    const entry = document.createElement('div')
+    entry.className = 'exam-entry'
+    entry.innerHTML = `
+      <input type="text"   class="form-input exam-subject" placeholder="Subject Name" />
+      <input type="number" class="form-input exam-marks"   placeholder="Marks (0-100)" min="0" max="100" />
+      <select class="form-select exam-result">
+        <option value="">Pass/Fail</option>
+        <option value="Pass">✅ Pass</option>
+        <option value="Fail">❌ Fail</option>
+      </select>
+      <select class="form-select exam-type">
+        <option value="">Sem/CIA</option>
+        <option value="Semester">Semester</option>
+        <option value="CIA">CIA</option>
+      </select>
+      <button type="button" class="remove-exam-btn" onclick="removeExam(this)"><i class="fas fa-times"></i></button>
+    `
+    examEntries.appendChild(entry)
+  })
 
-    // FORM SUBMISSION
-    studentForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); e.stopPropagation();
-        
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '⏳ Saving...'; submitBtn.disabled = true;
+  window.removeExam = (btn) => {
+    if (examEntries.children.length > 1) btn.closest('.exam-entry').remove()
+  }
 
-        try {
-            // COLLECT FORM DATA
-            const dob = new Date(document.getElementById('dob').value).toLocaleDateString('en-GB');
-            const formData = {
-                name: document.getElementById('studentName').value.trim(),
-                guardian_name: document.getElementById('guardianName').value.trim(),
-                register_no: document.getElementById('registerNo').value.trim(),
-                department: document.getElementById('department').value.trim(),
-                year: parseInt(document.getElementById('year').value),
-                phone: document.getElementById('phone').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                linkedin: document.getElementById('linkedin').value.trim() || null,
-                github: document.getElementById('github').value.trim() || null,
-                dob, total_days: parseInt(totalDays.value) || 0,
-                present_days: parseInt(presentDays.value) || 0,
-                absent_days: parseInt(absentDays.value) || 0,
-                attendance_percentage: parseFloat(attendancePercentage.textContent?.match(/[\d.]+/)?.[0] || 0)
-            };
+  // ── Form submit ───────────────────────────────────────────
+  studentForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const submitBtn = document.getElementById('submitBtn')
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…'
+    submitBtn.disabled = true
 
-            // EXAMS
-            const exams = Array.from(document.querySelectorAll('.exam-entry')).map(entry => {
-                const subject = entry.querySelector('.exam-subject').value.trim();
-                const marks = entry.querySelector('.exam-marks').value.trim();
-                return subject && marks ? {
-                    subject, marks: parseInt(marks),
-                    result: entry.querySelector('.exam-result').value || 'Not Specified',
-                    type: entry.querySelector('.exam-type').value || 'Not Specified'
-                } : null;
-            }).filter(Boolean);
-            formData.exam_details = exams.length ? exams : null;
+    try {
+      const dob = new Date(document.getElementById('dob').value).toLocaleDateString('en-GB')
+      const formData = {
+        name:            document.getElementById('studentName').value.trim(),
+        guardian_name:   document.getElementById('guardianName').value.trim(),
+        register_no:     document.getElementById('registerNo').value.trim(),
+        department:      document.getElementById('department').value.trim(),
+        year:            parseInt(document.getElementById('year').value),
+        phone:           document.getElementById('phone').value.trim(),
+        email:           document.getElementById('email').value.trim(),
+        linkedin:        document.getElementById('linkedin').value.trim() || null,
+        github:          document.getElementById('github').value.trim() || null,
+        dob,
+        total_days:      parseInt(totalDaysInput.value) || 0,
+        present_days:    parseInt(presentInput.value) || 0,
+        absent_days:     parseInt(absentInput.value) || 0,
+        attendance_percentage: parseFloat(attDisplay.textContent?.match(/[\d.]+/)?.[0] || 0)
+      }
 
-            // CHECK DUPLICATE
-            const { data: existing } = await supabase
-                .from('student_information').select('register_no')
-                .eq('register_no', formData.register_no).maybeSingle();
-            if (existing) return alert('❌ Register number already exists!');
+      // Exams
+      const exams = Array.from(document.querySelectorAll('.exam-entry')).map(entry => {
+        const subject = entry.querySelector('.exam-subject').value.trim()
+        const marks   = entry.querySelector('.exam-marks').value.trim()
+        return subject && marks ? {
+          subject, marks: parseInt(marks),
+          result: entry.querySelector('.exam-result').value || 'Not Specified',
+          type:   entry.querySelector('.exam-type').value   || 'Not Specified'
+        } : null
+      }).filter(Boolean)
+      formData.exam_details = exams.length ? exams : null
 
-            // IMAGE UPLOAD
-            let imageUrl = null;
-            if (studentImageInput.files[0]) {
-                const file = studentImageInput.files[0];
-                const fileExt = file.name.split('.').pop().toLowerCase();
-                const fileName = `Student_images/${formData.register_no}.${fileExt}`;
-                const { error } = await supabase.storage.from('Image_files').upload(fileName, file);
-                if (!error) {
-                    const { data: urlData } = supabase.storage.from('Image_files').getPublicUrl(fileName);
-                    imageUrl = urlData.publicUrl;
-                }
-            }
+      // Check duplicate
+      const { data: existing } = await supabase
+        .from('student_information')
+        .select('register_no')
+        .eq('register_no', formData.register_no)
+        .maybeSingle()
 
-            // SAVE TO DATABASE
-            const { data: studentData } = await supabase
-                .from('student_information').insert([{ ...formData, image_url: imageUrl }])
-                .select().single();
+      if (existing) {
+        showToast('Register number already exists!', 'error')
+        return
+      }
 
-            // PERSISTENT STORAGE + DISPLAY
-            sessionStorage.setItem('currentStudent', JSON.stringify(studentData));
-            formSection.style.display = 'none';
-            displaySection.style.display = 'block';
-            displaySection.scrollIntoView({ behavior: 'smooth' });
-            displayStudentProfile(studentData);
-
-        } catch (error) {
-            alert('❌ Error: ' + error.message);
-        } finally {
-            submitBtn.innerHTML = originalText; submitBtn.disabled = false;
+      // Image upload
+      let imageUrl = null
+      if (imgInput.files[0]) {
+        const file    = imgInput.files[0]
+        const fileExt = file.name.split('.').pop().toLowerCase()
+        const fileName= `Student_images/${formData.register_no}.${fileExt}`
+        const { error: upErr } = await supabase.storage.from('Image_files').upload(fileName, file, { upsert: true })
+        if (!upErr) {
+          const { data: urlData } = supabase.storage.from('Image_files').getPublicUrl(fileName)
+          imageUrl = urlData.publicUrl
         }
-    });
+      }
 
-    // DISPLAY STUDENT PROFILE
-    window.displayStudentProfile = (student) => {
-        studentProfile.innerHTML = `
-            <div style="text-align:center;margin-bottom:30px">
-                <img src="${student.image_url || 'https://via.placeholder.com/150x150/4CAF50/FFFFFF?text=No+Image'}" alt="${student.name}" class="student-image">
-                <h3 style="color:#2c3e50;margin:10px 0">${student.name}</h3>
-                <h4 style="color:#4CAF50">${student.register_no}</h4>
-            </div>
-            <div class="student-info">
-                <div class="info-item"><div class="info-label">Department</div><div class="info-value">${student.department}</div></div>
-                <div class="info-item"><div class="info-label">Year</div><div class="info-value">${student.year}ᵗʰ Year</div></div>
-                <div class="info-item"><div class="info-label">Guardian</div><div class="info-value">${student.guardian_name}</div></div>
-                <div class="info-item"><div class="info-label">Phone</div><div class="info-value">${student.phone}</div></div>
-                <div class="info-item"><div class="info-label">Email</div><div class="info-value">${student.email}</div></div>
-                <div class="info-item"><div class="info-label">DOB</div><div class="info-value">${student.dob}</div></div>
-                ${student.linkedin ? `<div class="info-item"><div class="info-label">LinkedIn</div><div class="info-value"><a href="${student.linkedin}" target="_blank">🔗 Profile</a></div></div>` : ''}
-                ${student.github ? `<div class="info-item"><div class="info-label">GitHub</div><div class="info-value"><a href="${student.github}" target="_blank">🔗 Profile</a></div></div>` : ''}
-            </div>
-            <div class="attendance-grid" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;border-radius:15px;color:white;margin:20px 0">
-                <h3 style="margin-top:0;color:white">📅 Attendance</h3>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
-                    <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:10px;text-align:center">
-                        <div style="font-size:24px;font-weight:bold">${student.attendance_percentage}%</div><div>Attendance</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:10px;text-align:center">
-                        <div>${student.present_days}/${student.total_days}</div><div>Present/Total</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:10px;text-align:center">
-                        <div>${student.absent_days}</div><div>Absent Days</div>
-                    </div>
-                </div>
-            </div>
-            ${student.exam_details?.length ? `
-            <div class="exams-grid">
-                <h3>📊 Exam Results</h3>
-                ${student.exam_details.map(exam => `
-                    <div class="info-item" style="border-left:4px solid ${exam.result==='Pass'?'#4CAF50':'#f44336'}">
-                        <div class="info-label">${exam.subject}</div>
-                        <div class="info-value">${exam.marks}/100 - ${exam.result} (${exam.type})</div>
-                    </div>
-                `).join('')}
-            </div>
-            ` : `<div style="text-align:center;padding:40px;background:#f8f9fa;border-radius:15px;margin:25px 0"><p style="color:#6c757d;font-size:18px">📝 No exam details added</p></div>`}
-        `;
-    };
+      // Insert
+      const { data: saved, error } = await supabase
+        .from('student_information')
+        .insert([{ ...formData, image_url: imageUrl }])
+        .select()
+        .single()
 
-    // BACK TO FORM
-    backToFormBtn.addEventListener('click', () => {
-        sessionStorage.removeItem('currentStudent');
-        formSection.style.display = 'block';
-        displaySection.style.display = 'none';
-        studentForm.reset();
-        examDetails.innerHTML = examDetails.children[0].outerHTML;
-        attendancePercentage.innerHTML = '';
-        studentImageInput.value = '';
-    });
-});
+      if (error) throw error
+
+      sessionStorage.setItem('pdkv_student', JSON.stringify(saved))
+      showToast('Student data saved successfully!', 'success')
+      showProfile(saved)
+
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error')
+    } finally {
+      submitBtn.innerHTML = '<i class="fas fa-save"></i> Submit Student Data'
+      submitBtn.disabled = false
+    }
+  })
+
+  // ── Back to form ──────────────────────────────────────────
+  backBtn.addEventListener('click', () => {
+    sessionStorage.removeItem('pdkv_student')
+    formSection.style.display = 'block'
+    profileSection.style.display = 'none'
+    studentForm.reset()
+    imgPreview.innerHTML = '<i class="fas fa-user-circle"></i>'
+    examEntries.innerHTML = examEntries.children[0]?.outerHTML || ''
+    attDisplay.style.display = 'none'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+
+  // ── Show profile ──────────────────────────────────────────
+  function showProfile(student) {
+    formSection.style.display = 'none'
+    profileSection.style.display = 'block'
+
+    const attPct = student.attendance_percentage || 0
+    const attColor = attPct >= 75 ? '#4CAF50' : '#f44336'
+
+    const examsHtml = student.exam_details?.length
+      ? `<div class="exams-section">
+           <h3><i class="fas fa-graduation-cap"></i> Exam Results</h3>
+           <div class="exams-grid">
+             ${student.exam_details.map(ex => `
+               <div class="exam-result-card ${ex.result === 'Pass' ? 'exam-pass' : 'exam-fail'}">
+                 <div class="exam-subj">${ex.subject}</div>
+                 <div class="exam-score">Marks: ${ex.marks}/100 &bull; ${ex.result} &bull; ${ex.type}</div>
+               </div>`).join('')}
+           </div>
+         </div>`
+      : `<div style="text-align:center;padding:30px;background:var(--bg-light);border-radius:var(--radius-md);color:var(--text-muted);">
+           <i class="fas fa-clipboard" style="font-size:2.5rem;margin-bottom:12px;opacity:0.4;display:block;"></i>
+           <p>No exam details recorded</p>
+         </div>`
+
+    document.getElementById('profileContent').innerHTML = `
+      <div class="profile-card">
+        <div class="profile-header">
+          <img src="${student.image_url || 'https://via.placeholder.com/130x130/1a237e/FFFFFF?text=' + encodeURIComponent(student.name[0])}"
+               alt="${student.name}" class="profile-photo" />
+          <div class="profile-name">${student.name}</div>
+          <span class="profile-regno">${student.register_no}</span>
+        </div>
+        <div class="profile-body">
+          <div class="profile-info-grid">
+            <div class="profile-info-item"><div class="profile-info-label">Department</div><div class="profile-info-value">${student.department}</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Year</div><div class="profile-info-value">${student.year}${['st','nd','rd','th'][Math.min(student.year-1,3)]} Year</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Guardian</div><div class="profile-info-value">${student.guardian_name}</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Phone</div><div class="profile-info-value">${student.phone}</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Email</div><div class="profile-info-value">${student.email}</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Date of Birth</div><div class="profile-info-value">${student.dob}</div></div>
+            ${student.linkedin ? `<div class="profile-info-item"><div class="profile-info-label">LinkedIn</div><div class="profile-info-value"><a href="${student.linkedin}" target="_blank"><i class="fas fa-link"></i> View Profile</a></div></div>` : ''}
+            ${student.github   ? `<div class="profile-info-item"><div class="profile-info-label">GitHub</div><div class="profile-info-value"><a href="${student.github}" target="_blank"><i class="fas fa-link"></i> View Profile</a></div></div>` : ''}
+          </div>
+
+          <div class="attendance-card">
+            <h3><i class="fas fa-calendar-check"></i> Attendance Record</h3>
+            <div class="attendance-stats">
+              <div class="att-stat">
+                <span class="att-num" style="color:${attColor};">${attPct}%</span>
+                <span class="att-label">Attendance %</span>
+              </div>
+              <div class="att-stat">
+                <span class="att-num">${student.present_days}</span>
+                <span class="att-label">Days Present</span>
+              </div>
+              <div class="att-stat">
+                <span class="att-num">${student.absent_days}</span>
+                <span class="att-label">Days Absent</span>
+              </div>
+              <div class="att-stat">
+                <span class="att-num">${student.total_days}</span>
+                <span class="att-label">Total Days</span>
+              </div>
+            </div>
+          </div>
+
+          ${examsHtml}
+        </div>
+      </div>`
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    initScrollAnimations()
+  }
+})

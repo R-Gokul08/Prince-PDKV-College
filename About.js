@@ -3,12 +3,6 @@ import { initStickyHeader, initHamburger, initScrollAnimations, initCounters } f
 document.addEventListener('DOMContentLoaded', () => {
   initStickyHeader()
   initHamburger()
-
-  // Immediately make hero elements visible
-  document.querySelectorAll('.hero-content .animate-fade-up').forEach(el => {
-    el.classList.add('visible')
-  })
-
   initScrollAnimations()
   initCounters()
 })
