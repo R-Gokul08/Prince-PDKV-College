@@ -313,12 +313,12 @@ body {
 }
 
 .recruiters-logos img {
-  height: 65px;
-  filter: brightness(0) invert(1);
-  transition: all 0.4s ease;
-  padding: 8px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.1);
+  height: 55px;           /* or whatever size you want */
+  width: auto;
+  max-width: 140px;       /* prevent very wide logos */
+  object-fit: contain;
+  filter: brightness(0) invert(1);   /* your white effect */
+  /* ... rest of your styles ... */
 }
 
 .recruiters-logos img:hover {
@@ -380,7 +380,7 @@ body {
 .contact-item {
   background: rgba(255,255,255,0.12);
   backdrop-filter: blur(15px);
-  padding: 30px auto;
+  padding: 50px auto;
   border-radius: 20px;
   display: flex;
   gap: 18px;
