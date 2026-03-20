@@ -26,11 +26,12 @@
         <a href="NoticeBoard.html" class="nav-link active"><i class="fas fa-bell"></i><span>Notice Board</span></a>
         <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
         <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+        <!-- Auth -->
         <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;">
           <i class="fas fa-sign-in-alt"></i> Sign In
         </button>
         <span class="nav-user-chip global-header-user" style="display:none;"></span>
-        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#ef4444,#dc2626);">
+        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828);">
           <i class="fas fa-sign-out-alt"></i> Logout
         </button>
       </nav>
@@ -44,19 +45,7 @@
       <h1 class="animate-fade-up"><i class="fas fa-bell"></i> Notice Board</h1>
       <p class="animate-fade-up">Stay updated with college events, exams &amp; announcements</p>
       <div class="nb-auth-bar animate-fade-up" id="authBar">
-        <button id="loginBtn" class="btn btn-glass-sm">
-          <i class="fas fa-sign-in-alt"></i> Sign In
-        </button>
-        <button id="signupBtn" class="btn btn-glass-sm">
-          <i class="fas fa-user-plus"></i> Sign Up
-        </button>
         <span id="userGreeting" class="user-greeting-hero" style="display:none;"></span>
-        <button id="addNoticeBtn" class="btn btn-accent-sm" style="display:none;">
-          <i class="fas fa-plus"></i> Add Notice
-        </button>
-        <button id="logoutBtn" class="btn btn-glass-sm btn-sm-danger" style="display:none;">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
       </div>
     </div>
   </section>
@@ -81,56 +70,6 @@
       </div>
     </div>
   </section>
-
-  <!-- ═══ AUTH MODAL ═══ -->
-  <div class="modal-overlay" id="authModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 id="authModalTitle">Sign In</h3>
-        <button class="modal-close" data-close-modal="authModal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="authForm" data-type="login" novalidate>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-envelope"></i> Email</label>
-            <input type="email" id="authEmail" class="form-input" placeholder="your@email.com" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-lock"></i> Password</label>
-            <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required />
-          </div>
-          <div id="signupFields" style="display:none;">
-            <div class="form-group">
-              <label class="form-label"><i class="fas fa-user"></i> Full Name</label>
-              <input type="text" id="authName" class="form-input" placeholder="Your full name" />
-            </div>
-            <div class="form-group">
-              <label class="form-label"><i class="fas fa-id-card"></i> Register No</label>
-              <input type="text" id="authRegno" class="form-input" placeholder="e.g. 22CS101" />
-            </div>
-            <div class="form-group">
-              <label class="form-label"><i class="fas fa-calendar"></i> Year</label>
-              <input type="text" id="authYear" class="form-input" placeholder="e.g. 2nd Year" />
-            </div>
-            <div class="form-group">
-              <label class="form-label"><i class="fas fa-building"></i> Department</label>
-              <input type="text" id="authDept" class="form-input" placeholder="e.g. CSE" />
-            </div>
-            <div class="form-group">
-              <label class="form-label"><i class="fas fa-phone"></i> Phone</label>
-              <input type="tel" id="authPhone" class="form-input" placeholder="+91 99999 99999" />
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" id="authSubmitBtn">
-            Sign In
-          </button>
-          <button type="button" id="toggleAuth" class="toggle-auth-btn">
-            Don't have an account? <span>Sign Up</span>
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <!-- ═══ REGISTER MODAL ═══ -->
   <div class="modal-overlay" id="registerModal" data-notice-id="">
@@ -161,48 +100,6 @@
           </div>
           <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
             <i class="fas fa-check-circle"></i> Confirm Registration
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ ADD NOTICE MODAL ═══ -->
-  <div class="modal-overlay" id="addNoticeModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3>Add New Notice / Event</h3>
-        <button class="modal-close" data-close-modal="addNoticeModal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="addNoticeForm" novalidate>
-          <div class="form-group">
-            <label class="form-label">Title</label>
-            <input type="text" id="noticeTitle" class="form-input" placeholder="Notice title" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Type</label>
-            <select id="noticeType" class="form-select" required>
-              <option value="">Select type...</option>
-              <option value="event">Event</option>
-              <option value="exam">Exam</option>
-              <option value="notice">Notice</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Date</label>
-            <input type="date" id="noticeDate" class="form-input" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Time (optional)</label>
-            <input type="time" id="noticeTime" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea id="noticeDesc" class="form-textarea" placeholder="Details about this notice…" required></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
-            <i class="fas fa-paper-plane"></i> Publish Notice
           </button>
         </form>
       </div>
