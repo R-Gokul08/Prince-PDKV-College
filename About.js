@@ -5,9 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initHamburger()
   initScrollAnimations()
   initCounters()
-
   await initAuth()
-
   document.getElementById('headerLoginBtn')?.addEventListener('click', () => openAuthModal('login'))
   document.querySelectorAll('.global-header-logout').forEach(btn => {
     btn.addEventListener('click', async () => { await logoutUser() })

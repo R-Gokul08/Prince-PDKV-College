@@ -21,76 +21,163 @@
         <span></span><span></span><span></span>
       </button>
       <nav class="site-nav" id="siteNav">
-        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="index.html"       class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html"     class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
         <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
-        <a href="Student.html" class="nav-link active"><i class="fas fa-user-graduate"></i><span>Students</span></a>
-        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
-        <!-- Auth -->
+        <a href="Student.html"     class="nav-link active"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="About.html"       class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
         <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;">
           <i class="fas fa-sign-in-alt"></i> Sign In
         </button>
         <span class="nav-user-chip global-header-user" style="display:none;"></span>
-        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828);">
+        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#ef4444,#dc2626);">
           <i class="fas fa-sign-out-alt"></i> Logout
         </button>
       </nav>
     </div>
   </header>
 
-  <!-- PAGE HERO -->
-  <section class="page-hero st-hero">
+  <!-- HERO -->
+  <section class="page-hero">
     <div class="page-hero-overlay"></div>
+    <div class="hero-particles" id="heroParticles"></div>
     <div class="page-hero-content">
+      <div class="hero-badge animate-fade-up"><i class="fas fa-shield-alt"></i> Secure Student Portal</div>
       <h1 class="animate-fade-up"><i class="fas fa-user-graduate"></i> Student Portal</h1>
-      <p class="animate-fade-up">Sign in to view your academic profile and records</p>
+      <p class="animate-fade-up">Your academic profile, exam results &amp; attendance — all in one place</p>
     </div>
   </section>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <section class="section st-section">
     <div class="container">
 
-      <!-- NOT LOGGED IN STATE -->
+      <!-- NOT LOGGED IN -->
       <div id="notLoggedInSection" style="display:none;">
-        <div class="st-login-prompt animate-fade-up">
-          <div class="st-login-icon"><i class="fas fa-user-lock"></i></div>
-          <h2>Sign In to Access Your Profile</h2>
-          <p>Please sign in with your registered email and register number to view your academic details, exam results, and attendance records.</p>
-          <div class="st-login-actions">
-            <button class="btn btn-primary" id="promptLoginBtn">
-              <i class="fas fa-sign-in-alt"></i> Sign In
-            </button>
-            <button class="btn btn-secondary" id="promptSignupBtn">
-              <i class="fas fa-user-plus"></i> Create Account
-            </button>
+        <div class="st-prompt animate-fade-up">
+          <div class="st-prompt-icon"><i class="fas fa-user-lock"></i></div>
+          <h2>Sign In to Access Your Portal</h2>
+          <p>Your academic records are linked to your register number. Sign in or create an account to view your profile, exam results, and attendance records.</p>
+          <div class="st-prompt-actions">
+            <button class="btn btn-primary" id="promptLoginBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+            <button class="btn btn-secondary" id="promptSignupBtn"><i class="fas fa-user-plus"></i> Create Account</button>
           </div>
-          <p class="st-login-note">
+          <div class="st-prompt-note">
             <i class="fas fa-info-circle"></i>
-            Your academic data is linked to your register number. Once you sign in, your records stored by the institution will appear here automatically.
-          </p>
+            New students: create an account, then fill in your profile details. Exam &amp; attendance data will appear once entered by administration.
+          </div>
         </div>
       </div>
 
-      <!-- LOADING STATE -->
+      <!-- LOADING -->
       <div id="loadingSection" style="display:none;">
         <div class="st-loading animate-fade-up">
-          <div class="spinner"></div>
+          <div class="st-loading-ring"></div>
           <p>Loading your academic profile…</p>
         </div>
       </div>
 
-      <!-- NO DATA FOUND STATE -->
-      <div id="noDataSection" style="display:none;">
-        <div class="st-no-data animate-fade-up">
-          <div class="st-no-data-icon"><i class="fas fa-folder-open"></i></div>
-          <h2>No Records Found</h2>
-          <p id="noDataMsg">Your academic records have not been entered yet. Please contact the college administration.</p>
-          <div class="st-no-data-info" id="noDataUserInfo"></div>
+      <!-- REGISTRATION FORM (new student, no record in student_information yet) -->
+      <div id="registrationSection" style="display:none;">
+        <div class="st-reg-header animate-fade-up">
+          <div class="st-reg-header-icon"><i class="fas fa-user-plus"></i></div>
+          <div>
+            <h2>Complete Your Profile</h2>
+            <p>Welcome! Please fill in your details to set up your student profile.</p>
+          </div>
+        </div>
+
+        <div class="st-form-card animate-fade-up">
+          <form id="studentRegForm" novalidate>
+
+            <!-- Photo + basic info -->
+            <div class="form-section-block">
+              <h3 class="form-section-title"><i class="fas fa-camera"></i> Photo &amp; Identity</h3>
+              <div class="st-photo-row">
+                <div class="st-photo-wrap">
+                  <div class="st-photo-preview" id="photoPreview">
+                    <i class="fas fa-user-circle"></i>
+                  </div>
+                  <label class="st-photo-label" for="regImage">
+                    <i class="fas fa-upload"></i> Upload Photo
+                  </label>
+                  <input type="file" id="regImage" accept="image/*" style="display:none;" />
+                </div>
+                <div class="form-grid flex-1">
+                  <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" id="regName" class="form-input" placeholder="Your full name" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Guardian Name *</label>
+                    <input type="text" id="regGuardian" class="form-input" placeholder="Father / Mother / Guardian" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Register Number *</label>
+                    <input type="text" id="regRegno" class="form-input" placeholder="e.g. 22CS0001" required readonly />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Department *</label>
+                    <input type="text" id="regDept" class="form-input" placeholder="e.g. CSE, ECE, MECH" required />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Academic details -->
+            <div class="form-section-block">
+              <h3 class="form-section-title"><i class="fas fa-university"></i> Academic Details</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Year *</label>
+                  <select id="regYear" class="form-select" required>
+                    <option value="">Select year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Date of Birth *</label>
+                  <input type="date" id="regDob" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone Number *</label>
+                  <input type="tel" id="regPhone" class="form-input" placeholder="+91 99999 99999" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email ID *</label>
+                  <input type="email" id="regEmail" class="form-input" placeholder="student@email.com" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Optional links -->
+            <div class="form-section-block">
+              <h3 class="form-section-title"><i class="fas fa-link"></i> Social Links <span class="optional-badge">Optional</span></h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label"><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+                  <input type="url" id="regLinkedin" class="form-input" placeholder="linkedin.com/in/username" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><i class="fab fa-github"></i> GitHub URL</label>
+                  <input type="url" id="regGithub" class="form-input" placeholder="github.com/username" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section-block" style="border-bottom:none;">
+              <button type="submit" class="btn btn-primary st-submit-btn" id="regSubmitBtn">
+                <i class="fas fa-save"></i> Save My Profile
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
-      <!-- PROFILE SECTION -->
+      <!-- PROFILE VIEW -->
       <div id="profileSection" style="display:none;">
         <div id="profileContent" class="animate-fade-up"></div>
       </div>
