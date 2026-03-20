@@ -1,0 +1,260 @@
+/* ==============================
+   FACILITIES PAGE CSS
+   ============================== */
+
+/* Hero */
+.fac-hero {
+  position: relative;
+  min-height: clamp(360px, 52vw, 520px);
+  background: url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover no-repeat;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; color: white; text-align: center;
+}
+.page-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(10,15,60,0.88), rgba(26,35,126,0.75), rgba(56,130,60,0.5));
+}
+.fac-hero-particles { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.page-hero-content { position: relative; z-index: 2; padding: 0 24px; max-width: 900px; }
+.page-hero-content h1 { font-family: 'Poppins', sans-serif; font-size: clamp(2.2rem, 5.5vw, 3.8rem); font-weight: 900; margin-bottom: 14px; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.page-hero-content > p { font-size: clamp(0.95rem, 1.8vw, 1.15rem); opacity: 0.85; margin-bottom: 32px; }
+
+.fac-hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.25); color: #a5f3b0;
+  font-size: 0.88rem; font-weight: 700; padding: 8px 20px;
+  border-radius: 50px; margin-bottom: 18px;
+  animation: badgePulse 3s ease-in-out infinite;
+}
+@keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(165,243,176,0);}50%{box-shadow:0 0 0 8px rgba(165,243,176,0.15);} }
+
+.fac-hero-stats { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+.fac-hs {
+  background: rgba(255,255,255,0.12); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.22); border-radius: 20px;
+  padding: 18px 24px; min-width: 120px; text-align: center;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fac-hs:hover { background: rgba(255,255,255,0.22); transform: translateY(-6px); }
+.fac-hs-num { display: block; font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 800; color: #a5f3b0; }
+.fac-hs-lbl { font-size: 0.78rem; opacity: 0.85; }
+
+/* Quick Nav */
+.fac-quick-nav {
+  background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  position: sticky; top: var(--header-height); z-index: 500;
+  border-bottom: 1px solid var(--border);
+}
+.fac-qnav-inner { display: flex; gap: 4px; overflow-x: auto; padding: 12px 0; scrollbar-width: none; }
+.fac-qnav-inner::-webkit-scrollbar { display: none; }
+.fac-qnav-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border-radius: 50px; white-space: nowrap;
+  font-size: 0.88rem; font-weight: 600; color: var(--text-muted);
+  background: var(--bg-light); border: 1.5px solid transparent;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-decoration: none; flex-shrink: 0;
+}
+.fac-qnav-btn:hover { background: linear-gradient(135deg,var(--accent),var(--accent2)); color: white; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(76,175,80,0.3); }
+
+/* Bg */
+.bg-gradient-light { background: linear-gradient(135deg, #f0f4f8 0%, #e8f4fd 100%); }
+.bg-white { background: white; }
+
+/* Sub headings */
+.fac-sub-heading { font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--primary); margin: 48px 0 20px; display: flex; align-items: center; gap: 10px; }
+.fac-section-h3 { font-family: 'Poppins', sans-serif; font-size: clamp(1.2rem, 2.2vw, 1.5rem); font-weight: 700; color: var(--primary); margin-bottom: 14px; }
+.fac-section-p { font-size: clamp(0.92rem, 1.4vw, 1rem); color: var(--text-body); line-height: 1.8; margin-bottom: 24px; }
+
+/* ── CLUBS ── */
+.fac-clubs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 32px; }
+.fac-club-card {
+  background: white; border-radius: var(--radius-lg); padding: 28px 24px;
+  box-shadow: var(--shadow-md); transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+  position: relative; overflow: hidden;
+  border-top: 5px solid currentColor;
+}
+.fac-club-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; border-radius: 50%; background: currentColor; opacity: 0.04; transition: all 0.4s ease; }
+.fac-club-card:hover::before { transform: scale(2.5); opacity: 0.06; }
+.fac-club-card:hover { transform: translateY(-10px) scale(1.01); box-shadow: var(--shadow-lg); }
+.fac-club-icon {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem; color: white; margin-bottom: 18px;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fac-club-card:hover .fac-club-icon { transform: scale(1.12) rotate(-6deg); }
+.fac-club-card h3 { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+.fac-club-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+.fac-club-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.fac-club-tags span { font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 50px; background: var(--bg-light); color: var(--text-muted); border: 1px solid var(--border); transition: all 0.2s ease; }
+.fac-club-card:hover .fac-club-tags span { background: rgba(76,175,80,0.1); color: var(--accent-dark); border-color: rgba(76,175,80,0.3); }
+
+/* Committees */
+.fac-committees-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.fac-committee-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 50px; background: white;
+  border: 1.5px solid var(--border); font-size: 0.88rem; font-weight: 600;
+  color: var(--text-body); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--shadow-sm);
+}
+.fac-committee-pill:hover { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border-color: transparent; transform: translateY(-3px) scale(1.04); box-shadow: 0 8px 20px rgba(26,35,126,0.25); }
+.fac-committee-pill i { color: var(--accent2); transition: color 0.3s; }
+.fac-committee-pill:hover i { color: #a5f3b0; }
+
+/* ── HOSTEL ── */
+.fac-hostel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+.fac-hostel-img { position: relative; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-lg); }
+.fac-hostel-img img { width: 100%; height: 400px; object-fit: cover; transition: transform 0.6s ease; }
+.fac-hostel-img:hover img { transform: scale(1.04); }
+.fac-hostel-img-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(0deg, rgba(26,35,126,0.85), transparent); }
+.fac-hostel-img-overlay span { color: white; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.fac-feature-list { display: flex; flex-direction: column; gap: 14px; }
+.fac-feature-item { display: flex; align-items: flex-start; gap: 14px; }
+.fac-feature-item > i { color: var(--accent); font-size: 1.1rem; margin-top: 2px; flex-shrink: 0; }
+.fac-feature-item div strong { display: block; font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+.fac-feature-item div span { font-size: 0.85rem; color: var(--text-muted); }
+
+/* ── CANTEEN ── */
+.fac-canteen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+.fac-canteen-card {
+  background: white; border-radius: var(--radius-lg); padding: 36px 28px;
+  box-shadow: var(--shadow-md); transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+  text-align: center;
+}
+.fac-canteen-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); }
+.fac-canteen-icon {
+  width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  box-shadow: 0 8px 24px rgba(76,175,80,0.35);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fac-canteen-card:hover .fac-canteen-icon { transform: scale(1.15) rotate(-8deg); }
+.fac-canteen-card h3 { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+.fac-canteen-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+.fac-canteen-list { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 8px; }
+.fac-canteen-list li { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--text-body); }
+.fac-canteen-list li i { color: var(--accent2); font-size: 0.7rem; }
+
+/* ── SPORTS ── */
+.fac-sports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.fac-sport-card {
+  background: white; border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow-md); transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+.fac-sport-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); }
+.fac-sport-img { height: 200px; overflow: hidden; }
+.fac-sport-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+.fac-sport-card:hover .fac-sport-img img { transform: scale(1.08); }
+.fac-sport-card h3 { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700; color: var(--primary); padding: 16px 18px 8px; display: flex; align-items: center; gap: 8px; }
+.fac-sport-card h3 i { color: var(--accent); }
+.fac-sport-card p { font-size: 0.88rem; color: var(--text-muted); padding: 0 18px 18px; line-height: 1.6; }
+
+/* ── AUDITORIUM ── */
+.fac-aud-section {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #1565C0 100%);
+  color: white; position: relative; overflow: hidden;
+}
+.fac-aud-section::before { content: ''; position: absolute; top: -100px; right: -100px; width: 450px; height: 450px; background: rgba(255,255,255,0.03); border-radius: 50%; }
+.fac-aud-section .section-title, .fac-aud-section .title-underline { /* override */ }
+.fac-aud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; position: relative; z-index: 1; }
+.fac-aud-info h3 { font-family: 'Poppins', sans-serif; font-size: clamp(1.2rem, 2.2vw, 1.5rem); font-weight: 700; color: white; margin-bottom: 14px; }
+.fac-aud-info p { font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.8; margin-bottom: 28px; }
+.fac-aud-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+.fac-aud-spec { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.18); border-radius: var(--radius-md); padding: 18px; text-align: center; transition: var(--transition); }
+.fac-aud-spec:hover { background: rgba(255,255,255,0.18); transform: translateY(-4px); }
+.fac-spec-num { display: block; font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 800; color: #a5f3b0; }
+.fac-spec-lbl { font-size: 0.8rem; opacity: 0.8; }
+.fac-aud-features { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fac-aud-feat { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: rgba(255,255,255,0.85); }
+.fac-aud-feat i { color: #a5f3b0; flex-shrink: 0; }
+.fac-aud-img { border-radius: var(--radius-xl); overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
+.fac-aud-img img { width: 100%; height: 420px; object-fit: cover; transition: transform 0.6s ease; }
+.fac-aud-img:hover img { transform: scale(1.04); }
+
+/* ── CLASSROOMS ── */
+.fac-class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+.fac-class-card {
+  background: white; border-radius: var(--radius-lg); padding: 32px 24px;
+  box-shadow: var(--shadow-md); text-align: center;
+  transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1); position: relative; overflow: hidden;
+}
+.fac-class-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); }
+.fac-class-number {
+  font-family: 'Poppins', sans-serif; font-size: 3rem; font-weight: 900;
+  background: linear-gradient(135deg, rgba(76,175,80,0.12), rgba(33,150,243,0.12));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  position: absolute; top: 12px; right: 20px; opacity: 0.6;
+}
+.fac-class-icon {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 18px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  box-shadow: 0 8px 24px rgba(76,175,80,0.35);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fac-class-card:hover .fac-class-icon { transform: scale(1.15) rotate(-8deg); }
+.fac-class-card h3 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+.fac-class-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+
+/* ── TRANSPORT ── */
+.fac-transport-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start; }
+.fac-transport-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
+.fac-ts {
+  background: linear-gradient(135deg, rgba(26,35,126,0.06), rgba(33,150,243,0.06));
+  border: 1px solid rgba(26,35,126,0.12); border-radius: var(--radius-md); padding: 20px;
+  display: flex; align-items: center; gap: 14px; transition: var(--transition);
+}
+.fac-ts:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.fac-ts > i { font-size: 1.6rem; color: var(--accent2); flex-shrink: 0; }
+.fac-ts div span { display: block; font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+.fac-ts div { font-size: 0.82rem; color: var(--text-muted); }
+.fac-route-list { background: white; border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-md); }
+.fac-route-title { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.fac-routes-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.fac-route-badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 50px; font-size: 0.82rem; font-weight: 600;
+  background: rgba(33,150,243,0.08); color: var(--accent2-dark);
+  border: 1px solid rgba(33,150,243,0.2);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fac-route-badge:hover { background: var(--accent2); color: white; transform: translateY(-2px); }
+.fac-route-badge i { font-size: 0.5rem; }
+.fac-transport-note { display: flex; align-items: flex-start; gap: 8px; background: rgba(255,152,0,0.08); border: 1px solid rgba(255,152,0,0.2); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.83rem; color: #795548; }
+.fac-transport-note i { color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .fac-hostel-grid, .fac-aud-grid, .fac-transport-wrap { grid-template-columns: 1fr; gap: 40px; }
+  .fac-hostel-img img, .fac-aud-img img { height: 300px; }
+}
+@media (max-width: 768px) {
+  .fac-clubs-grid { grid-template-columns: 1fr 1fr; }
+  .fac-class-grid { grid-template-columns: 1fr 1fr; }
+  .fac-aud-specs { grid-template-columns: 1fr 1fr; }
+  .fac-aud-features { grid-template-columns: 1fr; }
+  .fac-transport-stats { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .fac-clubs-grid, .fac-class-grid, .fac-canteen-grid { grid-template-columns: 1fr; }
+  .fac-sports-grid { grid-template-columns: 1fr; }
+  .fac-transport-stats { grid-template-columns: 1fr 1fr; }
+  .fac-hero-stats { gap: 10px; }
+  .fac-hs { padding: 14px 18px; }
+  .fac-hs-num { font-size: 1.6rem; }
+}
+
+/* Stagger animations */
+.fac-clubs-grid .fac-club-card:nth-child(1) { transition-delay: 0.05s; }
+.fac-clubs-grid .fac-club-card:nth-child(2) { transition-delay: 0.10s; }
+.fac-clubs-grid .fac-club-card:nth-child(3) { transition-delay: 0.15s; }
+.fac-clubs-grid .fac-club-card:nth-child(4) { transition-delay: 0.20s; }
+.fac-clubs-grid .fac-club-card:nth-child(5) { transition-delay: 0.25s; }
+.fac-clubs-grid .fac-club-card:nth-child(6) { transition-delay: 0.30s; }
+.fac-clubs-grid .fac-club-card:nth-child(7) { transition-delay: 0.35s; }
+.fac-clubs-grid .fac-club-card:nth-child(8) { transition-delay: 0.40s; }

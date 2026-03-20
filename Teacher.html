@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="Teacher portal for Prince Dr K Vasudevan College — view faculty profiles and manage your profile." />
+  <meta name="theme-color" content="#1a237e" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teachers - Prince Dr K Vasudevan College</title>
+  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
+  <link rel="stylesheet" href="/shared.css" />
+  <link rel="stylesheet" href="/Teacher.css" />
+</head>
+<body>
+  <div class="page-transition-overlay" id="pageTransition"></div>
+
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
+        <span class="header-title">Prince Dr K Vasudevan College of Engineering &amp; Technology</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
+        <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="Teacher.html" class="nav-link active"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
+        <a href="Facilities.html" class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
+        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+        <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+        <span class="nav-user-chip global-header-user" style="display:none;"></span>
+        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828);"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero tch-hero">
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <h1 class="animate-fade-up"><i class="fas fa-chalkboard-teacher"></i> Teacher Portal</h1>
+      <p class="animate-fade-up">Dedicated portal for faculty members to manage their academic profiles</p>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <section class="section tch-section">
+    <div class="container">
+
+      <!-- NOT LOGGED IN -->
+      <div id="tch-notLoggedIn" style="display:none;">
+        <div class="tch-login-prompt animate-fade-up">
+          <div class="tch-login-icon"><i class="fas fa-user-tie"></i></div>
+          <h2>Faculty Sign In</h2>
+          <p>Access your faculty profile using your Register Number and Password. New faculty members can create an account below.</p>
+          <div class="tch-auth-cards">
+            <!-- LOGIN CARD -->
+            <div class="tch-auth-card" id="loginCard">
+              <h3><i class="fas fa-sign-in-alt"></i> Login</h3>
+              <form id="tch-loginForm" novalidate>
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-id-badge"></i> Register Number</label>
+                  <input type="text" id="tch-loginRegno" class="form-input" placeholder="e.g. TCH001" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-lock"></i> Password</label>
+                  <input type="password" id="tch-loginPass" class="form-input" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="tch-loginBtn">
+                  <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+              </form>
+            </div>
+            <!-- REGISTER CARD -->
+            <div class="tch-auth-card tch-register-card" id="registerCard">
+              <h3><i class="fas fa-user-plus"></i> Create Faculty Account</h3>
+              <form id="tch-registerForm" novalidate enctype="multipart/form-data">
+                <div class="tch-form-grid">
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
+                    <input type="text" id="tch-name" class="form-input" placeholder="Dr. / Prof. Name" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-id-badge"></i> Register No. *</label>
+                    <input type="text" id="tch-regno" class="form-input" placeholder="e.g. TCH001" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" id="tch-email" class="form-input" placeholder="faculty@pdkv.ac.in" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-lock"></i> Password *</label>
+                    <input type="password" id="tch-password" class="form-input" placeholder="Min 6 characters" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-phone"></i> Phone *</label>
+                    <input type="tel" id="tch-phone" class="form-input" placeholder="+91 99999 99999" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-venus-mars"></i> Gender *</label>
+                    <select id="tch-gender" class="form-select" required>
+                      <option value="">Select Gender</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-book"></i> Department *</label>
+                    <select id="tch-dept" class="form-select" required>
+                      <option value="">Select Department</option>
+                      <option>Computer Science &amp; Engineering (CSE)</option>
+                      <option>Artificial Intelligence &amp; Data Science (AIDS)</option>
+                      <option>Cyber Security (CYBER)</option>
+                      <option>Electronics &amp; Communication Engineering (ECE)</option>
+                      <option>Electrical &amp; Electronics Engineering (EEE)</option>
+                      <option>Mechanical Engineering (MECH)</option>
+                      <option>Civil Engineering (CIVIL)</option>
+                      <option>Master of Business Administration (MBA)</option>
+                      <option>M.Tech Computer Science (MTECH-CSE)</option>
+                      <option>M.Tech VLSI Design (MTECH-VLSI)</option>
+                      <option>Mathematics</option>
+                      <option>Physics</option>
+                      <option>Chemistry</option>
+                      <option>English</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user-graduate"></i> Designation *</label>
+                    <select id="tch-designation" class="form-select" required>
+                      <option value="">Select Designation</option>
+                      <option>Professor</option>
+                      <option>Associate Professor</option>
+                      <option>Assistant Professor</option>
+                      <option>Senior Lecturer</option>
+                      <option>Lecturer</option>
+                      <option>HOD</option>
+                      <option>Principal</option>
+                      <option>Dean</option>
+                    </select>
+                  </div>
+                  <div class="form-group tch-full-col">
+                    <label class="form-label"><i class="fas fa-chalkboard"></i> Subjects (comma separated) *</label>
+                    <input type="text" id="tch-subjects" class="form-input" placeholder="e.g. Data Structures, DBMS, Python" required />
+                  </div>
+                  <div class="form-group tch-full-col">
+                    <label class="form-label"><i class="fas fa-graduation-cap"></i> Education Qualification *</label>
+                    <input type="text" id="tch-education" class="form-input" placeholder="e.g. Ph.D. in Computer Science, IIT Madras" required />
+                  </div>
+                  <div class="form-group tch-full-col">
+                    <label class="form-label"><i class="fas fa-briefcase"></i> Experience</label>
+                    <input type="text" id="tch-experience" class="form-input" placeholder="e.g. 12 Years in Teaching and Research" />
+                  </div>
+                  <div class="form-group tch-full-col">
+                    <label class="form-label"><i class="fas fa-tools"></i> Skills (comma separated)</label>
+                    <input type="text" id="tch-skills" class="form-input" placeholder="e.g. Machine Learning, Cloud Computing, Research" />
+                  </div>
+                  <div class="form-group tch-full-col">
+                    <label class="form-label"><i class="fas fa-language"></i> Languages (comma separated)</label>
+                    <input type="text" id="tch-languages" class="form-input" placeholder="e.g. Tamil, English, Hindi" />
+                  </div>
+                  <div class="form-group tch-full-col">
+                    <label class="form-label"><i class="fas fa-align-left"></i> Short Bio</label>
+                    <textarea id="tch-bio" class="form-textarea" rows="3" placeholder="Brief description about yourself..."></textarea>
+                  </div>
+                  <!-- Profile Image -->
+                  <div class="form-group tch-full-col">
+                    <label class="form-label"><i class="fas fa-image"></i> Profile Photo</label>
+                    <div class="tch-img-options">
+                      <div class="tch-img-tab active" data-tab="url" onclick="switchImgTab('url')"><i class="fas fa-link"></i> Use URL</div>
+                      <div class="tch-img-tab" data-tab="upload" onclick="switchImgTab('upload')"><i class="fas fa-upload"></i> Upload File</div>
+                    </div>
+                    <div id="tch-img-url-panel">
+                      <input type="url" id="tch-imageUrl" class="form-input" placeholder="https://example.com/photo.jpg" />
+                    </div>
+                    <div id="tch-img-upload-panel" style="display:none;">
+                      <div class="file-upload-area" id="tch-uploadArea">
+                        <input type="file" id="tch-imageFile" accept="image/*" />
+                        <div class="file-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                        <div class="file-upload-text">Click or drag &amp; drop image here<br><small>JPG, PNG, WEBP up to 5MB</small></div>
+                      </div>
+                      <div id="tch-imgPreviewWrap" style="display:none; margin-top:12px; text-align:center;">
+                        <img id="tch-imgPreview" class="file-preview-img" src="" alt="Preview" />
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;" id="tch-imgFileName"></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="tch-registerBtn">
+                  <i class="fas fa-user-plus"></i> Create Faculty Account
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOADING -->
+      <div id="tch-loading" style="display:none;">
+        <div class="tch-loading-wrap animate-fade-up">
+          <div class="spinner"></div>
+          <p>Loading your faculty profile…</p>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="tch-profile" style="display:none;">
+        <div id="tch-profileContent" class="animate-fade-up"></div>
+      </div>
+
+      <!-- ALL TEACHERS PUBLIC VIEW -->
+      <div id="tch-allTeachers" class="animate-fade-up">
+        <h2 class="section-title section-title-grad" style="margin-bottom:16px;">Our Faculty</h2>
+        <div class="title-underline"></div>
+        <div class="tch-search-wrap">
+          <i class="fas fa-search tch-search-icon"></i>
+          <input type="text" id="tchSearch" class="tch-search-input" placeholder="Search faculty by name, department, subject…" />
+        </div>
+        <div id="tch-grid" class="tch-grid">
+          <div class="tch-grid-loading"><div class="spinner"></div><p>Loading faculty…</p></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo-row">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
+        <div><p class="footer-name">Prince Dr K Vasudevan College</p><p class="footer-sub">of Engineering &amp; Technology</p></div>
+      </div>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.youtube.com/@pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn"><i class="fas fa-globe"></i></a>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="Courses.html">Courses</a>
+        <a href="NoticeBoard.html">Notice Board</a>
+        <a href="Student.html">Students</a>
+        <a href="Teacher.html">Teachers</a>
+        <a href="Facilities.html">Facilities</a>
+        <a href="About.html">About Us</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
+      <p class="footer-addr">Medavakkam-Mambakkam Main Road, Ponmar, Chennai - 600 127</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/Teacher.js"></script>
+</body>
+</html>

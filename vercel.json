@@ -1,10 +1,12 @@
 {
   "rewrites": [
-    { "source": "/",           "destination": "/index.html" },
-    { "source": "/courses",    "destination": "/Courses.html" },
-    { "source": "/notices",    "destination": "/NoticeBoard.html" },
-    { "source": "/student",    "destination": "/Student.html" },
-    { "source": "/about",      "destination": "/About.html" },
-    { "source": "/(.*)",       "destination": "/index.html" }
+    { "source": "/",            "destination": "/index.html" },
+    { "source": "/courses",     "destination": "/Courses.html" },
+    { "source": "/notices",     "destination": "/NoticeBoard.html" },
+    { "source": "/student",     "destination": "/Student.html" },
+    { "source": "/teacher",     "destination": "/Teacher.html" },
+    { "source": "/facilities",  "destination": "/Facilities.html" },
+    { "source": "/about",       "destination": "/About.html" },
+    { "source": "/(.*)",        "destination": "/index.html" }
   ]
 }

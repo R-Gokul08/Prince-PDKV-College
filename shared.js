@@ -27,22 +27,18 @@ export function initStickyHeader() {
   const header = document.querySelector('.site-header')
   if (!header) return
 
-  // Inject scroll progress bar
   if (!document.getElementById('scrollProgressBar')) {
     const bar = document.createElement('div')
     bar.id = 'scrollProgressBar'
     document.body.prepend(bar)
   }
 
-  // Inject back-to-top button
   if (!document.getElementById('backToTop')) {
     const btn = document.createElement('button')
     btn.id = 'backToTop'
     btn.setAttribute('aria-label', 'Back to top')
     btn.innerHTML = '<i class="fas fa-chevron-up"></i>'
-    btn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    })
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }))
     document.body.appendChild(btn)
   }
 
@@ -92,9 +88,7 @@ export function initScrollAnimations() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
       if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('visible')
-        }, i * 90)
+        setTimeout(() => entry.target.classList.add('visible'), i * 90)
         observer.unobserve(entry.target)
       }
     })
@@ -108,7 +102,6 @@ export function animateCounter(el) {
   const target = parseFloat(el.dataset.target)
   const isDecimal = String(target).includes('.')
   const isPercent = el.dataset.percent === 'true'
-  let start = 0
   const duration = 1800
   const startTime = performance.now()
 
@@ -116,16 +109,12 @@ export function animateCounter(el) {
     const elapsed = now - startTime
     const progress = Math.min(elapsed / duration, 1)
     const eased = 1 - Math.pow(1 - progress, 3)
-    const current = start + (target - start) * eased
-
+    const current = target * eased
     el.textContent = isDecimal
       ? current.toFixed(2) + (isPercent ? '%' : '')
       : Math.floor(current).toLocaleString('en-IN') + (isPercent ? '%' : '')
-
     if (progress < 1) requestAnimationFrame(update)
-    else {
-      el.textContent = (isDecimal ? target.toFixed(2) : Math.floor(target).toLocaleString('en-IN')) + (isPercent ? '%' : '')
-    }
+    else el.textContent = (isDecimal ? target.toFixed(2) : Math.floor(target).toLocaleString('en-IN')) + (isPercent ? '%' : '')
   }
   requestAnimationFrame(update)
 }
@@ -133,7 +122,6 @@ export function animateCounter(el) {
 export function initCounters() {
   const counters = document.querySelectorAll('[data-target]')
   if (!counters.length) return
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting && !entry.target.dataset.animated) {
@@ -143,7 +131,6 @@ export function initCounters() {
       }
     })
   }, { threshold: 0.5 })
-
   counters.forEach(c => observer.observe(c))
 }
 
@@ -174,32 +161,21 @@ let _currentUser = null
 let _userProfile = null
 const _authListeners = []
 
-export function onAuthChange(cb) {
-  _authListeners.push(cb)
-}
-
-function notifyAuthListeners() {
-  _authListeners.forEach(cb => cb(_currentUser, _userProfile))
-}
+export function onAuthChange(cb) { _authListeners.push(cb) }
+function notifyAuthListeners() { _authListeners.forEach(cb => cb(_currentUser, _userProfile)) }
 
 export function getCurrentUser() { return _currentUser }
 export function getUserProfile() { return _userProfile }
 
 export async function initAuth() {
-  // Inject global auth modal if not present
   if (!document.getElementById('globalAuthModal')) {
     document.body.insertAdjacentHTML('beforeend', getAuthModalHTML())
   }
 
-  // Check existing session
   const { data: { session } } = await supabase.auth.getSession()
   if (session) {
     _currentUser = session.user
-    const { data } = await supabase
-      .from('login_information')
-      .select('*')
-      .eq('id', _currentUser.id)
-      .maybeSingle()
+    const { data } = await supabase.from('login_information').select('*').eq('id', _currentUser.id).maybeSingle()
     _userProfile = data || {}
   }
 
@@ -207,15 +183,10 @@ export async function initAuth() {
   updateHeaderAuthUI()
   notifyAuthListeners()
 
-  // Listen for auth state changes
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (session) {
       _currentUser = session.user
-      const { data } = await supabase
-        .from('login_information')
-        .select('*')
-        .eq('id', _currentUser.id)
-        .maybeSingle()
+      const { data } = await supabase.from('login_information').select('*').eq('id', _currentUser.id).maybeSingle()
       _userProfile = data || {}
     } else {
       _currentUser = null
@@ -273,6 +244,15 @@ function getAuthModalHTML() {
               <input type="tel" id="signupPhone" class="form-input" placeholder="+91 99999 99999" required />
             </div>
             <div class="form-group">
+              <label class="form-label"><i class="fas fa-venus-mars"></i> Gender *</label>
+              <select id="signupGender" class="form-select" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
               <label class="form-label"><i class="fas fa-envelope"></i> Email *</label>
               <input type="email" id="signupEmail" class="form-input" placeholder="your@email.com" required />
             </div>
@@ -291,7 +271,6 @@ function getAuthModalHTML() {
 }
 
 function setupAuthModalHandlers() {
-  // Tab switching
   document.querySelectorAll('#globalAuthModal .auth-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('#globalAuthModal .auth-tab').forEach(t => t.classList.remove('active'))
@@ -301,16 +280,13 @@ function setupAuthModalHandlers() {
     })
   })
 
-  // Login form
   document.getElementById('globalLoginForm').addEventListener('submit', async (e) => {
     e.preventDefault()
     const btn = document.getElementById('loginSubmitBtn')
     btn.disabled = true
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In…'
-
-    const email    = document.getElementById('loginEmail').value.trim()
+    const email = document.getElementById('loginEmail').value.trim()
     const password = document.getElementById('loginPassword').value
-
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       showToast(error.message, 'error')
@@ -318,7 +294,6 @@ function setupAuthModalHandlers() {
       btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In'
       return
     }
-
     showToast('Welcome back! Login successful.', 'success')
     closeModal('globalAuthModal')
     btn.disabled = false
@@ -326,7 +301,6 @@ function setupAuthModalHandlers() {
     document.getElementById('globalLoginForm').reset()
   })
 
-  // Signup form
   document.getElementById('globalSignupForm').addEventListener('submit', async (e) => {
     e.preventDefault()
     const btn = document.getElementById('signupSubmitBtn')
@@ -336,10 +310,11 @@ function setupAuthModalHandlers() {
     const name     = document.getElementById('signupName').value.trim()
     const regno    = document.getElementById('signupRegno').value.trim()
     const phone    = document.getElementById('signupPhone').value.trim()
+    const gender   = document.getElementById('signupGender').value
     const email    = document.getElementById('signupEmail').value.trim()
     const password = document.getElementById('signupPassword').value
 
-    if (!name || !regno || !phone || !email || !password) {
+    if (!name || !regno || !phone || !gender || !email || !password) {
       showToast('Please fill in all required fields.', 'error')
       btn.disabled = false
       btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account'
@@ -355,13 +330,7 @@ function setupAuthModalHandlers() {
     }
 
     if (data.user) {
-      await supabase.from('login_information').upsert({
-        id: data.user.id,
-        name,
-        regno,
-        phone,
-        email
-      })
+      await supabase.from('login_information').upsert({ id: data.user.id, name, regno, phone, gender, email })
     }
 
     showToast('Account created! You may need to verify your email.', 'success')
@@ -373,15 +342,13 @@ function setupAuthModalHandlers() {
 }
 
 export function updateHeaderAuthUI() {
-  // Update all header auth buttons on the page
-  const authBtns = document.querySelectorAll('.global-header-auth')
-  const userChips = document.querySelectorAll('.global-header-user')
+  const authBtns   = document.querySelectorAll('.global-header-auth')
+  const userChips  = document.querySelectorAll('.global-header-user')
   const logoutBtns = document.querySelectorAll('.global-header-logout')
 
   if (_currentUser) {
     const displayName = _userProfile?.name || _currentUser.email.split('@')[0]
     const regno = _userProfile?.regno || ''
-
     authBtns.forEach(btn => btn.style.display = 'none')
     userChips.forEach(chip => {
       chip.style.display = 'inline-flex'
@@ -396,23 +363,18 @@ export function updateHeaderAuthUI() {
 }
 
 export function openAuthModal(tab = 'login') {
-  const loginTab = document.getElementById('loginTab')
-  const signupTab = document.getElementById('signupTab')
-  const loginPanel = document.getElementById('loginPanel')
+  const loginTab    = document.getElementById('loginTab')
+  const signupTab   = document.getElementById('signupTab')
+  const loginPanel  = document.getElementById('loginPanel')
   const signupPanel = document.getElementById('signupPanel')
 
   if (tab === 'signup') {
-    loginTab?.classList.remove('active')
-    signupTab?.classList.add('active')
-    loginPanel?.classList.remove('active')
-    signupPanel?.classList.add('active')
+    loginTab?.classList.remove('active');  signupTab?.classList.add('active')
+    loginPanel?.classList.remove('active'); signupPanel?.classList.add('active')
   } else {
-    signupTab?.classList.remove('active')
-    loginTab?.classList.add('active')
-    signupPanel?.classList.remove('active')
-    loginPanel?.classList.add('active')
+    signupTab?.classList.remove('active'); loginTab?.classList.add('active')
+    signupPanel?.classList.remove('active'); loginPanel?.classList.add('active')
   }
-
   openModal('globalAuthModal')
 }
 
@@ -420,7 +382,8 @@ export async function logoutUser() {
   await supabase.auth.signOut()
   showToast('Logged out successfully!', 'info')
 }
-// ── Ripple effect on .btn elements ───────────────────────
+
+// ── Ripple effect ──────────────────────────────────────────
 export function initRipple() {
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn')
@@ -428,7 +391,7 @@ export function initRipple() {
     const rect = btn.getBoundingClientRect()
     const size = Math.max(rect.width, rect.height) * 2
     const x = e.clientX - rect.left - size / 2
-    const y = e.clientY - rect.top  - size / 2
+    const y = e.clientY - rect.top - size / 2
     const ripple = document.createElement('span')
     ripple.className = 'ripple'
     ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`
@@ -437,20 +400,18 @@ export function initRipple() {
   })
 }
 
-// ── Tilt effect on cards ─────────────────────────────────
+// ── Tilt effect on cards ──────────────────────────────────
 export function initTiltCards(selector = '.fact-card, .qlink-card, .about-stat-card') {
   document.querySelectorAll(selector).forEach(card => {
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect()
-      const cx = rect.left + rect.width  / 2
-      const cy = rect.top  + rect.height / 2
-      const dx = (e.clientX - cx) / (rect.width  / 2)
-      const dy = (e.clientY - cy) / (rect.height / 2)
+      const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2)
+      const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2)
       card.style.transform = `translateY(-10px) rotateX(${-dy * 5}deg) rotateY(${dx * 5}deg) scale(1.02)`
     })
     card.addEventListener('mouseleave', () => {
       card.style.transform = ''
-      card.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1)'
+      card.style.transition = 'transform 0.5s cubic-bezier(0.34,1.2,0.64,1)'
     })
     card.addEventListener('mouseenter', () => {
       card.style.transition = 'transform 0.15s ease'
@@ -458,7 +419,7 @@ export function initTiltCards(selector = '.fact-card, .qlink-card, .about-stat-c
   })
 }
 
-// ── Skeleton notice cards (3 placeholders) ───────────────
+// ── Skeleton notice cards ─────────────────────────────────
 export function showSkeletonNotices(containerId = 'noticesList') {
   const container = document.getElementById(containerId)
   if (!container) return
@@ -473,7 +434,7 @@ export function showSkeletonNotices(containerId = 'noticesList') {
     </div>`).join('')
 }
 
-// ── Page transition on internal nav links ────────────────
+// ── Page transitions ──────────────────────────────────────
 export function initPageTransitions() {
   const overlay = document.getElementById('pageTransition')
   if (!overlay) return
@@ -482,7 +443,6 @@ export function initPageTransitions() {
     const href = link.getAttribute('href')
     if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('tel')) return
     if (link.target === '_blank') return
-
     link.addEventListener('click', (e) => {
       e.preventDefault()
       overlay.classList.add('leaving')
@@ -491,7 +451,4 @@ export function initPageTransitions() {
   })
 }
 
-// ── Smooth number format helper ───────────────────────────
-export function formatNumber(n) {
-  return n.toLocaleString('en-IN')
-}
+export function formatNumber(n) { return n.toLocaleString('en-IN') }

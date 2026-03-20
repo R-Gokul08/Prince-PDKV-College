@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="Explore B.Tech, M.Tech and MBA programs at Prince Dr K Vasudevan College. AICTE approved, Anna University affiliated." />
+  <meta name="description" content="Explore B.Tech, M.Tech and MBA programs at Prince Dr K Vasudevan College. Apply online for admission." />
   <meta name="theme-color" content="#1a237e" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Courses - Prince Dr K Vasudevan College</title>
@@ -18,7 +18,7 @@
     <div class="header-inner">
       <div class="header-brand">
         <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
-        <span class="header-title">Prince Dr K Vasudevan College of Engineering & Technology</span>
+        <span class="header-title">Prince Dr K Vasudevan College of Engineering &amp; Technology</span>
       </div>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -28,15 +28,12 @@
         <a href="Courses.html" class="nav-link active"><i class="fas fa-book"></i><span>Courses</span></a>
         <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
         <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="Teacher.html" class="nav-link"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
+        <a href="Facilities.html" class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
         <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
-        <!-- Auth -->
-        <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;">
-          <i class="fas fa-sign-in-alt"></i> Sign In
-        </button>
+        <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;"><i class="fas fa-sign-in-alt"></i> Sign In</button>
         <span class="nav-user-chip global-header-user" style="display:none;"></span>
-        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828);">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828);"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </nav>
     </div>
   </header>
@@ -47,6 +44,9 @@
     <div class="page-hero-content">
       <h1 class="animate-fade-up"><i class="fas fa-book-open"></i> Our Courses</h1>
       <p class="animate-fade-up">Explore world-class engineering &amp; management programs</p>
+      <div class="animate-fade-up" style="margin-top:20px;">
+        <a href="#admission" class="btn btn-primary" style="backdrop-filter:blur(10px);background:rgba(76,175,80,0.85);"><i class="fas fa-file-alt"></i> Apply for Admission</a>
+      </div>
     </div>
   </section>
 
@@ -55,144 +55,222 @@
     <div class="container">
       <h2 class="section-title animate-fade-up">Academic Programs</h2>
       <div class="title-underline mb-large animate-fade-up"></div>
-
-      <!-- Filter Tabs -->
       <div class="course-filters animate-fade-up">
         <button class="cf-btn active" data-filter="all">All Programs</button>
         <button class="cf-btn" data-filter="btech">B.Tech (UG)</button>
         <button class="cf-btn" data-filter="mtech">M.Tech (PG)</button>
         <button class="cf-btn" data-filter="other">MBA / Arts</button>
       </div>
-
       <div class="courses-grid" id="coursesGrid">
-        <!-- CSE -->
         <div class="course-card animate-fade-up" data-category="btech" data-course="btech-cse">
-          <div class="course-img-wrap">
-            <img src="https://ddn.gehu.ac.in/uploads/image/Nw1oCYC1-trending-course-gehu-1-jpg.webp" alt="CSE" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
-          </div>
-          <div class="course-info">
-            <span class="badge badge-blue">B.Tech • 4 Years</span>
-            <h3>Computer Science &amp; Engineering</h3>
-            <p>Software development, AI, Data Science &amp; Algorithms</p>
-            <div class="course-meta">
-              <span><i class="fas fa-users"></i> 60 Seats</span>
-              <span><i class="fas fa-clock"></i> 4 Years</span>
-            </div>
-          </div>
+          <div class="course-img-wrap"><img src="https://ddn.gehu.ac.in/uploads/image/Nw1oCYC1-trending-course-gehu-1-jpg.webp" alt="CSE" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-blue">B.Tech • 4 Years</span><h3>Computer Science &amp; Engineering</h3><p>Software development, AI, Data Science &amp; Algorithms</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 4 Years</span></div></div>
         </div>
-        <!-- ECE -->
+        <div class="course-card animate-fade-up" data-category="btech" data-course="btech-aids">
+          <div class="course-img-wrap"><img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="AIDS" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-green">B.Tech • 4 Years</span><h3>Artificial Intelligence &amp; Data Science</h3><p>AI, Machine Learning, Deep Learning &amp; Big Data Analytics</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 4 Years</span></div></div>
+        </div>
+        <div class="course-card animate-fade-up" data-category="btech" data-course="btech-cyber">
+          <div class="course-img-wrap"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Cyber" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-red">B.Tech • 4 Years</span><h3>Cyber Security</h3><p>Network security, ethical hacking, cryptography &amp; digital forensics</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 4 Years</span></div></div>
+        </div>
         <div class="course-card animate-fade-up" data-category="btech" data-course="btech-ece">
-          <div class="course-img-wrap">
-            <img src="https://sru.edu.in/assets/schools/ece/ece.png" alt="ECE" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
-          </div>
-          <div class="course-info">
-            <span class="badge badge-green">B.Tech • 4 Years</span>
-            <h3>Electronics &amp; Communication Engineering</h3>
-            <p>Communication systems, VLSI &amp; Embedded systems</p>
-            <div class="course-meta">
-              <span><i class="fas fa-users"></i> 60 Seats</span>
-              <span><i class="fas fa-clock"></i> 4 Years</span>
-            </div>
-          </div>
+          <div class="course-img-wrap"><img src="https://sru.edu.in/assets/schools/ece/ece.png" alt="ECE" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-green">B.Tech • 4 Years</span><h3>Electronics &amp; Communication Engineering</h3><p>Communication systems, VLSI &amp; Embedded systems</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 4 Years</span></div></div>
         </div>
-        <!-- Mechanical -->
+        <div class="course-card animate-fade-up" data-category="btech" data-course="btech-eee">
+          <div class="course-img-wrap"><img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="EEE" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-gold">B.Tech • 4 Years</span><h3>Electrical &amp; Electronics Engineering</h3><p>Power systems, control engineering &amp; renewable energy</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 4 Years</span></div></div>
+        </div>
         <div class="course-card animate-fade-up" data-category="btech" data-course="btech-mech">
-          <div class="course-img-wrap">
-            <img src="https://cache.careers360.mobi/media/article_images/2020/5/6/B-Tech-in-Mechanical-and-Automation-Engineering.jpg" alt="Mechanical" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
-          </div>
-          <div class="course-info">
-            <span class="badge badge-gold">B.Tech • 4 Years</span>
-            <h3>Mechanical Engineering</h3>
-            <p>Design, manufacturing &amp; thermal engineering</p>
-            <div class="course-meta">
-              <span><i class="fas fa-users"></i> 60 Seats</span>
-              <span><i class="fas fa-clock"></i> 4 Years</span>
-            </div>
-          </div>
+          <div class="course-img-wrap"><img src="https://cache.careers360.mobi/media/article_images/2020/5/6/B-Tech-in-Mechanical-and-Automation-Engineering.jpg" alt="Mechanical" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-gold">B.Tech • 4 Years</span><h3>Mechanical Engineering</h3><p>Design, manufacturing &amp; thermal engineering</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 4 Years</span></div></div>
         </div>
-        <!-- Civil -->
         <div class="course-card animate-fade-up" data-category="btech" data-course="btech-civil">
-          <div class="course-img-wrap">
-            <img src="https://sijoul.sandipuniversity.edu.in/engineering-technology/images/header/UG/Civil.jpg" alt="Civil" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
-          </div>
-          <div class="course-info">
-            <span class="badge badge-blue">B.Tech • 4 Years</span>
-            <h3>Civil Engineering</h3>
-            <p>Structural engineering &amp; construction management</p>
-            <div class="course-meta">
-              <span><i class="fas fa-users"></i> 60 Seats</span>
-              <span><i class="fas fa-clock"></i> 4 Years</span>
-            </div>
-          </div>
+          <div class="course-img-wrap"><img src="https://sijoul.sandipuniversity.edu.in/engineering-technology/images/header/UG/Civil.jpg" alt="Civil" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-blue">B.Tech • 4 Years</span><h3>Civil Engineering</h3><p>Structural engineering &amp; construction management</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 4 Years</span></div></div>
         </div>
-        <!-- M.Tech CSE -->
         <div class="course-card animate-fade-up" data-category="mtech" data-course="mtech-cse">
-          <div class="course-img-wrap">
-            <img src="https://theredpen.in/wp-content/uploads/2024/09/medium-shot-man-wearing-vr-glasses-1-scaled.jpg" alt="M.Tech CSE" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
-          </div>
-          <div class="course-info">
-            <span class="badge badge-red">M.Tech • 2 Years</span>
-            <h3>M.Tech Computer Science &amp; Engineering</h3>
-            <p>Advanced algorithms, networks &amp; software engineering</p>
-            <div class="course-meta">
-              <span><i class="fas fa-users"></i> 9 Seats</span>
-              <span><i class="fas fa-clock"></i> 2 Years</span>
-            </div>
-          </div>
+          <div class="course-img-wrap"><img src="https://theredpen.in/wp-content/uploads/2024/09/medium-shot-man-wearing-vr-glasses-1-scaled.jpg" alt="M.Tech CSE" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-red">M.Tech • 2 Years</span><h3>M.Tech Computer Science &amp; Engineering</h3><p>Advanced algorithms, networks &amp; software engineering</p><div class="course-meta"><span><i class="fas fa-users"></i> 9 Seats</span><span><i class="fas fa-clock"></i> 2 Years</span></div></div>
         </div>
-        <!-- M.Tech VLSI -->
         <div class="course-card animate-fade-up" data-category="mtech" data-course="mtech-vlsi">
-          <div class="course-img-wrap">
-            <img src="https://www.msruas.ac.in/assets/frontend/images/oview-img-vlsi.webp" alt="VLSI" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
-          </div>
-          <div class="course-info">
-            <span class="badge badge-red">M.Tech • 2 Years</span>
-            <h3>M.Tech VLSI Design</h3>
-            <p>CMOS design, semiconductor tech &amp; HDL</p>
-            <div class="course-meta">
-              <span><i class="fas fa-users"></i> 18 Seats</span>
-              <span><i class="fas fa-clock"></i> 2 Years</span>
-            </div>
-          </div>
+          <div class="course-img-wrap"><img src="https://www.msruas.ac.in/assets/frontend/images/oview-img-vlsi.webp" alt="VLSI" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-red">M.Tech • 2 Years</span><h3>M.Tech VLSI Design</h3><p>CMOS design, semiconductor tech &amp; HDL</p><div class="course-meta"><span><i class="fas fa-users"></i> 18 Seats</span><span><i class="fas fa-clock"></i> 2 Years</span></div></div>
         </div>
-        <!-- MBA -->
         <div class="course-card animate-fade-up" data-category="other" data-course="mba">
-          <div class="course-img-wrap">
-            <img src="https://media.istockphoto.com/id/1159875854/photo/mba-with-man.jpg?s=612x612&w=0&k=20&c=fm3BxaCV0OksY-P-khvO7mv1jdWLYHFlYEPaHEvZlVo=" alt="MBA" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
+          <div class="course-img-wrap"><img src="https://media.istockphoto.com/id/1159875854/photo/mba-with-man.jpg?s=612x612&w=0&k=20&c=fm3BxaCV0OksY-P-khvO7mv1jdWLYHFlYEPaHEvZlVo=" alt="MBA" loading="lazy" /><div class="course-overlay"><i class="fas fa-eye"></i> View Details</div></div>
+          <div class="course-info"><span class="badge badge-gold">MBA • 2 Years</span><h3>Master of Business Administration</h3><p>Marketing, finance, HR &amp; industry projects</p><div class="course-meta"><span><i class="fas fa-users"></i> 60 Seats</span><span><i class="fas fa-clock"></i> 2 Years</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ADMISSION FORM ══ -->
+  <section class="section admission-section" id="admission">
+    <div class="container">
+      <h2 class="section-title light animate-fade-up"><i class="fas fa-file-alt"></i> Apply for Admission</h2>
+      <div class="title-underline animate-fade-up"></div>
+      <p class="section-subtitle light animate-fade-up">Fill in the form below to begin your application process</p>
+
+      <div class="admission-form-wrap animate-fade-up">
+        <!-- Step indicator -->
+        <div class="adm-steps">
+          <div class="adm-step active" data-step="1"><span class="adm-step-num">1</span><span class="adm-step-lbl">Personal Info</span></div>
+          <div class="adm-step-line"></div>
+          <div class="adm-step" data-step="2"><span class="adm-step-num">2</span><span class="adm-step-lbl">Academic Details</span></div>
+          <div class="adm-step-line"></div>
+          <div class="adm-step" data-step="3"><span class="adm-step-num">3</span><span class="adm-step-lbl">Course Selection</span></div>
+          <div class="adm-step-line"></div>
+          <div class="adm-step" data-step="4"><span class="adm-step-num">4</span><span class="adm-step-lbl">Review &amp; Submit</span></div>
+        </div>
+
+        <form id="admissionForm" novalidate>
+          <!-- STEP 1: Personal -->
+          <div class="adm-panel" id="adm-panel-1">
+            <h3 class="adm-panel-title"><i class="fas fa-user"></i> Personal Information</h3>
+
+            <!-- UG or PG toggle -->
+            <div class="adm-type-toggle">
+              <label class="adm-type-btn active" id="adm-ug-lbl">
+                <input type="radio" name="applicantType" value="UG" checked id="adm-ug" />
+                <i class="fas fa-university"></i> UG (B.Tech / Arts)
+              </label>
+              <label class="adm-type-btn" id="adm-pg-lbl">
+                <input type="radio" name="applicantType" value="PG" id="adm-pg" />
+                <i class="fas fa-graduation-cap"></i> PG (M.Tech / MBA)
+              </label>
+            </div>
+
+            <div class="adm-grid">
+              <div class="form-group"><label class="form-label"><i class="fas fa-user"></i> Full Name *</label><input type="text" id="adm-name" class="form-input" placeholder="Enter your full name" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-venus-mars"></i> Gender *</label>
+                <select id="adm-gender" class="form-select" required><option value="">Select Gender</option><option>Male</option><option>Female</option><option>Other</option></select>
+              </div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-birthday-cake"></i> Date of Birth *</label><input type="date" id="adm-dob" class="form-input" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-envelope"></i> Email Address *</label><input type="email" id="adm-email" class="form-input" placeholder="your@email.com" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label><input type="tel" id="adm-phone" class="form-input" placeholder="+91 99999 99999" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-tag"></i> Category *</label>
+                <select id="adm-category" class="form-select" required><option value="">Select Category</option><option>OC</option><option>BC</option><option>MBC</option><option>SC</option><option>ST</option></select>
+              </div>
+              <div class="form-group adm-full"><label class="form-label"><i class="fas fa-map-marker-alt"></i> Address *</label><textarea id="adm-address" class="form-textarea" rows="3" placeholder="Door No., Street, Area…" required></textarea></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-city"></i> City *</label><input type="text" id="adm-city" class="form-input" placeholder="City" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-map"></i> State *</label><input type="text" id="adm-state" class="form-input" placeholder="State" value="Tamil Nadu" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-mail-bulk"></i> Pincode *</label><input type="text" id="adm-pincode" class="form-input" placeholder="600127" required /></div>
+            </div>
+            <div class="adm-nav"><button type="button" class="btn btn-primary adm-next" onclick="admNext(1)">Next <i class="fas fa-arrow-right"></i></button></div>
           </div>
-          <div class="course-info">
-            <span class="badge badge-gold">MBA • 2 Years</span>
-            <h3>Master of Business Administration</h3>
-            <p>Marketing, finance, HR &amp; industry projects</p>
-            <div class="course-meta">
-              <span><i class="fas fa-users"></i> 60 Seats</span>
-              <span><i class="fas fa-clock"></i> 2 Years</span>
+
+          <!-- STEP 2: Academic -->
+          <div class="adm-panel" id="adm-panel-2" style="display:none;">
+            <h3 class="adm-panel-title"><i class="fas fa-graduation-cap"></i> Academic Details</h3>
+            <div class="adm-grid">
+              <div class="form-group"><label class="form-label"><i class="fas fa-percentage"></i> 10th Percentage *</label><input type="number" id="adm-tenth" class="form-input" placeholder="e.g. 92.5" min="0" max="100" step="0.01" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-school"></i> 10th School Name *</label><input type="text" id="adm-tenthSchool" class="form-input" placeholder="School name" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-calendar"></i> 10th Year of Passing *</label><input type="number" id="adm-tenthYear" class="form-input" placeholder="e.g. 2022" min="2000" max="2030" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-percentage"></i> 12th Percentage *</label><input type="number" id="adm-twelfth" class="form-input" placeholder="e.g. 88.5" min="0" max="100" step="0.01" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-school"></i> 12th School / College *</label><input type="text" id="adm-twelfthSchool" class="form-input" placeholder="School/College name" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-calendar"></i> 12th Year of Passing *</label><input type="number" id="adm-twelfthYear" class="form-input" placeholder="e.g. 2024" min="2000" max="2030" required /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-book"></i> 12th Stream *</label>
+                <select id="adm-stream" class="form-select" required><option value="">Select Stream</option><option>Science (PCM)</option><option>Science (PCB)</option><option>Commerce</option><option>Arts</option></select>
+              </div>
+            </div>
+
+            <!-- PG Section (hidden by default) -->
+            <div id="adm-pg-section" style="display:none;">
+              <h4 class="adm-sub-heading"><i class="fas fa-university"></i> UG Degree Details (for PG applicants)</h4>
+              <div class="adm-grid">
+                <div class="form-group"><label class="form-label">UG Degree *</label><input type="text" id="adm-ugDegree" class="form-input" placeholder="e.g. B.E. Computer Science" /></div>
+                <div class="form-group"><label class="form-label">UG College *</label><input type="text" id="adm-ugCollege" class="form-input" placeholder="College name" /></div>
+                <div class="form-group"><label class="form-label">UG Percentage *</label><input type="number" id="adm-ugPct" class="form-input" placeholder="e.g. 78.5" min="0" max="100" step="0.01" /></div>
+                <div class="form-group"><label class="form-label">UG Year of Passing</label><input type="number" id="adm-ugYear" class="form-input" placeholder="e.g. 2024" /></div>
+              </div>
+            </div>
+
+            <div class="adm-nav">
+              <button type="button" class="btn btn-outline" onclick="admBack(2)"><i class="fas fa-arrow-left"></i> Back</button>
+              <button type="button" class="btn btn-primary" onclick="admNext(2)">Next <i class="fas fa-arrow-right"></i></button>
             </div>
           </div>
-        </div>
-        <!-- Arts -->
-        <div class="course-card animate-fade-up" data-category="other" data-course="arts">
-          <div class="course-img-wrap">
-            <img src="https://t3.ftcdn.net/jpg/16/92/35/14/360_F_1692351410_kBjDpoScGMXZf0ZA28VEKTWLTV5KnO6P.jpg" alt="Arts" loading="lazy" />
-            <div class="course-overlay"><i class="fas fa-eye"></i> View Details</div>
-          </div>
-          <div class="course-info">
-            <span class="badge badge-green">Arts &amp; Humanities</span>
-            <h3>Arts and Humanities</h3>
-            <p>Critical thinking, communication &amp; cultural studies</p>
-            <div class="course-meta">
-              <span><i class="fas fa-book"></i> Multiple</span>
-              <span><i class="fas fa-clock"></i> 3 Years</span>
+
+          <!-- STEP 3: Course Selection -->
+          <div class="adm-panel" id="adm-panel-3" style="display:none;">
+            <h3 class="adm-panel-title"><i class="fas fa-book-open"></i> Course Preference</h3>
+            <div class="adm-grid">
+              <div class="form-group adm-full"><label class="form-label"><i class="fas fa-star"></i> First Preference Course *</label>
+                <select id="adm-course1" class="form-select" required>
+                  <option value="">Select Preferred Course</option>
+                  <optgroup label="B.Tech (UG)">
+                    <option>B.Tech Computer Science &amp; Engineering (CSE)</option>
+                    <option>B.Tech Artificial Intelligence &amp; Data Science (AIDS)</option>
+                    <option>B.Tech Cyber Security (CYBER)</option>
+                    <option>B.Tech Electronics &amp; Communication Engineering (ECE)</option>
+                    <option>B.Tech Electrical &amp; Electronics Engineering (EEE)</option>
+                    <option>B.Tech Mechanical Engineering (MECH)</option>
+                    <option>B.Tech Civil Engineering (CIVIL)</option>
+                  </optgroup>
+                  <optgroup label="M.Tech (PG)">
+                    <option>M.Tech Computer Science &amp; Engineering</option>
+                    <option>M.Tech VLSI Design</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option>Master of Business Administration (MBA)</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="form-group adm-full"><label class="form-label"><i class="fas fa-star-half-alt"></i> Second Preference (Optional)</label>
+                <select id="adm-course2" class="form-select">
+                  <option value="">Select (Optional)</option>
+                  <optgroup label="B.Tech (UG)">
+                    <option>B.Tech Computer Science &amp; Engineering (CSE)</option>
+                    <option>B.Tech Artificial Intelligence &amp; Data Science (AIDS)</option>
+                    <option>B.Tech Cyber Security (CYBER)</option>
+                    <option>B.Tech Electronics &amp; Communication Engineering (ECE)</option>
+                    <option>B.Tech Electrical &amp; Electronics Engineering (EEE)</option>
+                    <option>B.Tech Mechanical Engineering (MECH)</option>
+                    <option>B.Tech Civil Engineering (CIVIL)</option>
+                  </optgroup>
+                  <optgroup label="M.Tech (PG)"><option>M.Tech Computer Science &amp; Engineering</option><option>M.Tech VLSI Design</option></optgroup>
+                  <optgroup label="Other"><option>Master of Business Administration (MBA)</option></optgroup>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-file-alt"></i> Entrance Exam</label>
+                <select id="adm-entrance" class="form-select"><option value="">None / Not Applicable</option><option>TNEA</option><option>TANCET</option><option>GATE</option><option>Other</option></select>
+              </div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-trophy"></i> Entrance Score / Rank</label><input type="text" id="adm-entranceScore" class="form-input" placeholder="e.g. 1234 / 98.5 percentile" /></div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-ticket-alt"></i> Quota</label>
+                <select id="adm-quota" class="form-select"><option value="">Select Quota</option><option>Government (TNEA)</option><option>Management</option></select>
+              </div>
+              <div class="form-group"><label class="form-label"><i class="fas fa-running"></i> Extra Curricular</label><input type="text" id="adm-extra" class="form-input" placeholder="Sports, NCC, NSS etc." /></div>
+              <div class="form-group adm-check-group">
+                <label><input type="checkbox" id="adm-sports" /> &nbsp;Sports Achievement</label>
+                <label><input type="checkbox" id="adm-ncc" /> &nbsp;NCC Certificate</label>
+              </div>
+            </div>
+            <div class="adm-nav">
+              <button type="button" class="btn btn-outline" onclick="admBack(3)"><i class="fas fa-arrow-left"></i> Back</button>
+              <button type="button" class="btn btn-primary" onclick="admNext(3)">Review <i class="fas fa-arrow-right"></i></button>
             </div>
           </div>
-        </div>
+
+          <!-- STEP 4: Review & Submit -->
+          <div class="adm-panel" id="adm-panel-4" style="display:none;">
+            <h3 class="adm-panel-title"><i class="fas fa-check-double"></i> Review &amp; Submit</h3>
+            <div id="adm-review-content" class="adm-review"></div>
+            <div class="adm-declaration">
+              <label class="adm-decl-label">
+                <input type="checkbox" id="adm-declaration" required />
+                &nbsp;I hereby declare that all the information provided above is true and correct to the best of my knowledge. I understand that providing false information may lead to disqualification.
+              </label>
+            </div>
+            <div class="adm-nav">
+              <button type="button" class="btn btn-outline" onclick="admBack(4)"><i class="fas fa-arrow-left"></i> Back</button>
+              <button type="submit" class="btn btn-primary" id="adm-submitBtn">
+                <i class="fas fa-paper-plane"></i> Submit Application
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </section>
@@ -200,15 +278,9 @@
   <!-- COURSE DETAIL MODAL -->
   <div class="modal-overlay" id="courseModal">
     <div class="modal-box modal-box-lg">
-      <div class="modal-header">
-        <h3 id="modalTitle">Course Details</h3>
-        <button class="modal-close" id="modalCloseBtn" aria-label="Close">&times;</button>
-      </div>
+      <div class="modal-header"><h3 id="modalTitle">Course Details</h3><button class="modal-close" id="modalCloseBtn" aria-label="Close">&times;</button></div>
       <div class="modal-body">
-        <div class="modal-course-img-wrap">
-          <img id="modalImg" src="" alt="" />
-          <div class="modal-img-overlay"></div>
-        </div>
+        <div class="modal-course-img-wrap"><img id="modalImg" src="" alt="" /><div class="modal-img-overlay"></div></div>
         <div class="modal-meta-row">
           <span id="modalBadge" class="badge badge-blue"></span>
           <span id="modalSeats" class="badge badge-green"></span>
@@ -228,25 +300,19 @@
     <div class="footer-inner">
       <div class="footer-logo-row">
         <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
-        <div>
-          <p class="footer-name">Prince Dr K Vasudevan College</p>
-          <p class="footer-sub">of Engineering &amp; Technology</p>
-        </div>
+        <div><p class="footer-name">Prince Dr K Vasudevan College</p><p class="footer-sub">of Engineering &amp; Technology</p></div>
       </div>
       <div class="footer-social">
-        <a href="https://www.facebook.com/pdkvce" target="_blank" class="footer-social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/pdkvce" target="_blank" class="footer-social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.youtube.com/@pdkvce" target="_blank" class="footer-social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn" aria-label="Website"><i class="fas fa-globe"></i></a>
+        <a href="https://www.facebook.com/pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.youtube.com/@pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn"><i class="fas fa-globe"></i></a>
       </div>
       <div class="footer-divider"></div>
       <div class="footer-links">
-        <a href="index.html">Home</a>
-        <a href="Courses.html">Courses</a>
-        <a href="NoticeBoard.html">Notice Board</a>
-        <a href="Student.html">Students</a>
-        <a href="About.html">About Us</a>
+        <a href="index.html">Home</a><a href="Courses.html">Courses</a><a href="NoticeBoard.html">Notice Board</a>
+        <a href="Student.html">Students</a><a href="Teacher.html">Teachers</a><a href="Facilities.html">Facilities</a><a href="About.html">About Us</a>
       </div>
       <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
       <p class="footer-addr">Medavakkam-Mambakkam Main Road, Ponmar, Chennai - 600 127</p>
