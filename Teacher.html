@@ -1,314 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="description" content="Teacher Portal - Prince Dr K Vasudevan College" />
-  <meta name="theme-color" content="#1a237e" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Teacher Portal - Prince Dr K Vasudevan College</title>
-  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
-  <link rel="stylesheet" href="/shared.css" />
-  <link rel="stylesheet" href="/Teacher.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Teacher Portal — Prince Dr K Vasudevan College"/>
+  <meta name="theme-color" content="#06080f"/>
+  <title>Teacher Portal — PDKV College</title>
+  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon"/>
+  <link rel="stylesheet" href="/shared.css"/>
+  <link rel="stylesheet" href="/Teacher.css"/>
 </head>
-<body>
-  <div class="page-transition-overlay" id="pageTransition"></div>
+<body class="tc-page">
+<div class="page-transition-overlay" id="pageTransition"></div>
 
-  <!-- HEADER -->
-  <header class="site-header" id="siteHeader">
-    <div class="header-inner">
-      <div class="header-brand">
-        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
-        <span class="header-title">Prince Dr K Vasudevan College of Engineering &amp; Technology</span>
-      </div>
-      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-      <nav class="site-nav" id="siteNav">
-        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
-        <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
-        <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
-        <a href="Teacher.html" class="nav-link active"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
-        <a href="Facilities.html" class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
-        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
-        <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;">
-          <i class="fas fa-sign-in-alt"></i> Sign In
-        </button>
-        <span class="nav-user-chip global-header-user" style="display:none;"></span>
-        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828);">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
-      </nav>
+<!-- HEADER -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <div class="header-brand">
+      <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="header-logo"/>
+      <span class="header-title">Prince Dr K Vasudevan College of Engineering &amp; Technology</span>
     </div>
-  </header>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    <nav class="site-nav" id="siteNav">
+      <a href="index.html"       class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="Courses.html"     class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+      <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
+      <a href="Student.html"     class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+      <a href="Teacher.html"     class="nav-link active"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
+      <a href="Facilities.html"  class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
+      <a href="About.html"       class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+      <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+      <span   class="nav-user-chip global-header-user" style="display:none"></span>
+      <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828)"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </nav>
+  </div>
+</header>
 
-  <!-- PAGE HERO -->
-  <section class="page-hero tch-hero">
-    <div class="page-hero-overlay"></div>
-    <div class="page-hero-content">
-      <h1 class="animate-fade-up"><i class="fas fa-chalkboard-teacher"></i> Teacher Portal</h1>
-      <p class="animate-fade-up">Sign in to access your profile and department details</p>
-    </div>
-  </section>
+<!-- HERO -->
+<section class="tc-hero">
+  <div class="tc-hero-bg"></div>
+  <div class="tc-hero-inner">
+    <div class="tc-hero-pill animate-fade-up"><i class="fas fa-chalkboard-teacher"></i> Teacher Management Portal</div>
+    <h1 class="tc-hero-h1 animate-fade-up">Manage Classrooms,<br><span class="tc-hero-span">Mark Attendance</span></h1>
+    <p class="tc-hero-sub animate-fade-up">Sign in to access your profile, create classrooms &amp; record attendance</p>
+  </div>
+  <div class="tc-hero-line"></div>
+</section>
 
-  <!-- MAIN CONTENT -->
-  <section class="section tch-section">
-    <div class="container">
+<!-- MAIN -->
+<section class="tc-section">
 
-      <!-- NOT SIGNED IN -->
-      <div id="tch-notAuth" style="display:none;">
-        <div class="tch-auth-prompt animate-fade-up">
-          <div class="tch-auth-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-          <h2>Welcome, Faculty Member</h2>
-          <p>Please sign in with your registered email to access your teacher profile. Your details will be fetched based on your register number.</p>
-          <div class="tch-auth-actions">
-            <button class="btn btn-primary" id="tch-loginBtn">
+  <!-- LOGIN -->
+  <div id="secLogin" style="display:none">
+    <div class="tc-wrap">
+      <div class="tc-login-outer">
+        <div class="tc-glass tc-login-card">
+          <div class="tc-login-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+          <h2 class="tc-login-h2">Teacher Sign In</h2>
+          <p class="tc-login-hint">Enter your Register Number &amp; Password to access the portal.</p>
+          <div id="loginMsg" class="tc-msg tc-msg-err" style="display:none"></div>
+          <form id="loginForm" novalidate>
+            <div class="tc-fg">
+              <label class="tc-label"><i class="fas fa-id-badge"></i> Register Number</label>
+              <input id="inRegno" class="tc-input" placeholder="e.g. TCH001" autocomplete="username" required/>
+            </div>
+            <div class="tc-fg">
+              <label class="tc-label"><i class="fas fa-lock"></i> Password</label>
+              <input id="inPass" type="password" class="tc-input" placeholder="••••••••" autocomplete="current-password" required/>
+            </div>
+            <button type="submit" class="tc-btn tc-btn-primary tc-btn-full" id="loginBtn" style="margin-top:6px">
               <i class="fas fa-sign-in-alt"></i> Sign In
             </button>
-            <button class="btn btn-secondary" id="tch-signupBtn">
-              <i class="fas fa-user-plus"></i> Create Account
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- LOADING -->
-      <div id="tch-loading" style="display:none;">
-        <div class="tch-loading-wrap">
-          <div class="spinner"></div>
-          <p>Loading your profile…</p>
-        </div>
-      </div>
-
-      <!-- REGISTER FORM (not found in DB) -->
-      <div id="tch-regForm" style="display:none;">
-        <div class="tch-reg-wrap animate-fade-up">
-          <div class="tch-reg-header">
-            <div class="tch-reg-icon"><i class="fas fa-id-card"></i></div>
-            <h2>Complete Your Teacher Profile</h2>
-            <p>Your details were not found in our system. Please fill in the form below to register your profile.</p>
-          </div>
-          <form id="teacherProfileForm" class="tch-form" novalidate>
-            <div class="tch-form-grid">
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-id-badge"></i> Register Number *</label>
-                <input type="text" id="tc-regno" class="form-input" placeholder="e.g. TCH001" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
-                <input type="text" id="tc-name" class="form-input" placeholder="Dr. / Mr. / Ms. Full Name" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-envelope"></i> Email *</label>
-                <input type="email" id="tc-email" class="form-input" placeholder="your@email.com" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
-                <input type="tel" id="tc-phone" class="form-input" placeholder="+91 99999 99999" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-venus-mars"></i> Gender *</label>
-                <select id="tc-gender" class="form-select" required>
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-building"></i> Department *</label>
-                <select id="tc-dept" class="form-select" required>
-                  <option value="">Select Department</option>
-                  <option>Computer Science &amp; Engineering</option>
-                  <option>Artificial Intelligence &amp; Data Science</option>
-                  <option>Cyber Security</option>
-                  <option>Electronics &amp; Communication Engineering</option>
-                  <option>Electrical &amp; Electronics Engineering</option>
-                  <option>Mechanical Engineering</option>
-                  <option>Civil Engineering</option>
-                  <option>Mathematics</option>
-                  <option>Physics</option>
-                  <option>Chemistry</option>
-                  <option>English</option>
-                  <option>Master of Business Administration</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-user-tie"></i> Designation *</label>
-                <select id="tc-desig" class="form-select" required>
-                  <option value="">Select Designation</option>
-                  <option>Professor &amp; Head</option>
-                  <option>Professor</option>
-                  <option>Associate Professor</option>
-                  <option>Assistant Professor</option>
-                  <option>Senior Lecturer</option>
-                  <option>Lecturer</option>
-                  <option>Lab Instructor</option>
-                  <option>Teaching Assistant</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-graduation-cap"></i> Qualification *</label>
-                <input type="text" id="tc-qual" class="form-input" placeholder="e.g. M.E., Ph.D (CSE)" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-briefcase"></i> Experience</label>
-                <input type="text" id="tc-exp" class="form-input" placeholder="e.g. 8 Years" />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-calendar-alt"></i> Date of Joining</label>
-                <input type="date" id="tc-joining" class="form-input" />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-hashtag"></i> Employee ID</label>
-                <input type="text" id="tc-empid" class="form-input" placeholder="e.g. PDKV-TCH-001" />
-              </div>
-              <div class="form-group">
-                <label class="form-label"><i class="fas fa-flask"></i> Area of Specialization</label>
-                <input type="text" id="tc-specialization" class="form-input" placeholder="e.g. Machine Learning, Networks" />
-              </div>
-              <div class="form-group tch-full-col">
-                <label class="form-label"><i class="fas fa-book-open"></i> Subjects Handling</label>
-                <input type="text" id="tc-subjects" class="form-input" placeholder="e.g. Data Structures, DBMS, OS (comma separated)" />
-              </div>
-              <div class="form-group tch-full-col">
-                <label class="form-label"><i class="fas fa-map-marker-alt"></i> Address</label>
-                <textarea id="tc-address" class="form-textarea" rows="2" placeholder="Your residential address"></textarea>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary tch-submit-btn" id="tc-submitBtn">
-              <i class="fas fa-save"></i> Save My Profile
-            </button>
           </form>
+          <p style="margin-top:18px;font-size:.79rem;color:var(--tc-muted);text-align:center;line-height:1.7">
+            <i class="fas fa-info-circle" style="color:var(--tc-blue)"></i>
+            Credentials are issued by admin. Contact admin if you cannot sign in.
+          </p>
         </div>
       </div>
-
-      <!-- PROFILE DISPLAY -->
-      <div id="tch-profile" style="display:none;">
-
-        <!-- Profile Hero Card -->
-        <div class="tch-profile-hero animate-fade-up">
-          <div class="tch-profile-avatar">
-            <i class="fas fa-user-tie"></i>
-          </div>
-          <div class="tch-profile-main">
-            <h2 id="tp-name">—</h2>
-            <p class="tp-desig" id="tp-desig">—</p>
-            <p class="tp-dept" id="tp-dept">—</p>
-            <div class="tp-badges">
-              <span class="badge badge-blue" id="tp-regno-badge"></span>
-              <span class="badge badge-green" id="tp-qual-badge"></span>
-              <span class="badge badge-gold" id="tp-exp-badge"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Info Cards -->
-        <div class="tch-info-grid animate-fade-up">
-          <div class="tch-info-card">
-            <div class="tch-info-icon green"><i class="fas fa-envelope"></i></div>
-            <div class="tch-info-body">
-              <span class="tch-info-label">Email</span>
-              <span class="tch-info-value" id="tp-email">—</span>
-            </div>
-          </div>
-          <div class="tch-info-card">
-            <div class="tch-info-icon blue"><i class="fas fa-phone"></i></div>
-            <div class="tch-info-body">
-              <span class="tch-info-label">Phone</span>
-              <span class="tch-info-value" id="tp-phone">—</span>
-            </div>
-          </div>
-          <div class="tch-info-card">
-            <div class="tch-info-icon gold"><i class="fas fa-venus-mars"></i></div>
-            <div class="tch-info-body">
-              <span class="tch-info-label">Gender</span>
-              <span class="tch-info-value" id="tp-gender">—</span>
-            </div>
-          </div>
-          <div class="tch-info-card">
-            <div class="tch-info-icon purple"><i class="fas fa-calendar-alt"></i></div>
-            <div class="tch-info-body">
-              <span class="tch-info-label">Date of Joining</span>
-              <span class="tch-info-value" id="tp-joining">—</span>
-            </div>
-          </div>
-          <div class="tch-info-card">
-            <div class="tch-info-icon teal"><i class="fas fa-hashtag"></i></div>
-            <div class="tch-info-body">
-              <span class="tch-info-label">Employee ID</span>
-              <span class="tch-info-value" id="tp-empid">—</span>
-            </div>
-          </div>
-          <div class="tch-info-card">
-            <div class="tch-info-icon orange"><i class="fas fa-flask"></i></div>
-            <div class="tch-info-body">
-              <span class="tch-info-label">Specialization</span>
-              <span class="tch-info-value" id="tp-spec">—</span>
-            </div>
-          </div>
-          <div class="tch-info-card tch-full-col">
-            <div class="tch-info-icon red"><i class="fas fa-map-marker-alt"></i></div>
-            <div class="tch-info-body">
-              <span class="tch-info-label">Address</span>
-              <span class="tch-info-value" id="tp-address">—</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Subjects Section -->
-        <div class="tch-subjects-card animate-fade-up">
-          <h3><i class="fas fa-book-open"></i> Subjects Handling</h3>
-          <div id="tp-subjects" class="tch-subjects-list"></div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="tch-profile-actions animate-fade-up">
-          <button class="btn btn-outline" id="tch-editBtn">
-            <i class="fas fa-edit"></i> Edit Profile
-          </button>
-          <button class="btn" style="background:linear-gradient(135deg,#f44336,#c62828);color:white;" id="tch-logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Sign Out
-          </button>
-        </div>
-
-      </div>
-
     </div>
-  </section>
+  </div>
 
-  <!-- FOOTER -->
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-logo-row">
-        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
-        <div>
-          <p class="footer-name">Prince Dr K Vasudevan College</p>
-          <p class="footer-sub">of Engineering &amp; Technology</p>
-        </div>
-      </div>
-      <div class="footer-social">
-        <a href="https://www.facebook.com/pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.youtube.com/@pdkvce" target="_blank" class="footer-social-btn"><i class="fab fa-youtube"></i></a>
-        <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn"><i class="fas fa-globe"></i></a>
-      </div>
-      <div class="footer-divider"></div>
-      <div class="footer-links">
-        <a href="index.html">Home</a>
-        <a href="Courses.html">Courses</a>
-        <a href="NoticeBoard.html">Notice Board</a>
-        <a href="Student.html">Students</a>
-        <a href="Teacher.html">Teachers</a>
-        <a href="Facilities.html">Facilities</a>
-        <a href="About.html">About Us</a>
-      </div>
-      <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
-      <p class="footer-addr">Medavakkam-Mambakkam Main Road, Ponmar, Chennai - 600 127</p>
+  <!-- LOADING -->
+  <div id="secLoading" style="display:none">
+    <div class="tc-wrap"><div class="tc-loading-wrap"><div class="tc-ring"></div><p>Loading your portal…</p></div></div>
+  </div>
+
+  <!-- SETUP (rendered by JS) -->
+  <div id="secSetup" style="display:none"></div>
+
+  <!-- PROFILE (rendered by JS) -->
+  <div id="secProfile" style="display:none"></div>
+
+</section>
+
+<!-- MODALS CONTAINER -->
+<div id="tcModals"></div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo-row">
+      <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img"/>
+      <div><p class="footer-name">Prince Dr K Vasudevan College</p><p class="footer-sub">of Engineering &amp; Technology</p></div>
     </div>
-  </footer>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/pdkvce"   target="_blank" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/pdkvce"  target="_blank" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.youtube.com/@pdkvce"   target="_blank" class="footer-social-btn"><i class="fab fa-youtube"></i></a>
+      <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn"><i class="fas fa-globe"></i></a>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-links">
+      <a href="index.html">Home</a><a href="Courses.html">Courses</a><a href="NoticeBoard.html">Notice Board</a>
+      <a href="Student.html">Students</a><a href="Teacher.html">Teachers</a><a href="Facilities.html">Facilities</a><a href="About.html">About Us</a>
+    </div>
+    <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
+    <p class="footer-addr">Medavakkam-Mambakkam Main Road, Ponmar, Chennai - 600 127</p>
+  </div>
+</footer>
 
-  <script type="module" src="/Teacher.js"></script>
+<script type="module" src="/Teacher.js"></script>
 </body>
 </html>

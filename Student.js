@@ -1,15 +1,22 @@
-import { supabase } from './supabaseClient.js'
-import {
-  initStickyHeader, initHamburger, initScrollAnimations,
-  showToast, initAuth, openAuthModal, logoutUser,
-  getCurrentUser, getUserProfile, onAuthChange,
-  initRipple, initPageTransitions
-} from './shared.js'
+// ================================================================
+// Student.js — PDKV Student Portal
+// Login → student_credentials
+// Profile → student_information  (image → image_files/Student_images)
+// Attendance → attendance_information
+// Exams → exam_information
+// Session persists until manual logout (sessionStorage)
+// ================================================================
+import { supabase }                               from './supabaseClient.js'
+import { initStickyHeader, initHamburger, initScrollAnimations,
+         showToast, initAuth, openAuthModal, logoutUser,
+         getCurrentUser, initRipple, initPageTransitions } from './shared.js'
 
-const STORAGE_BUCKET = 'image_files'
-const STORAGE_FOLDER = 'Student_images'
+// ── constants ────────────────────────────────────────────────
+const BUCKET   = 'image_files'
+const FOLDER   = 'Student_images'
+const SESS_KEY = 'st_regno'
 
-const DEPT_OPTIONS = [
+const DEPTS = [
   'Computer Science & Engineering',
   'Artificial Intelligence & Data Science',
   'Cyber Security',
@@ -20,606 +27,591 @@ const DEPT_OPTIONS = [
   'Master of Business Administration',
   'M.Tech Computer Science & Engineering',
   'M.Tech VLSI Design',
-  'Mathematics', 'Physics', 'Chemistry', 'English'
+  'Mathematics','Physics','Chemistry','English'
 ]
 
-document.addEventListener('DOMContentLoaded', async () => {
-  initStickyHeader()
-  initHamburger()
-  initPageTransitions()
-  initScrollAnimations()
-  initRipple()
+// ── state ─────────────────────────────────────────────────────
+let _regno   = null
+let _rtCh    = null
 
+// ── boot ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  initStickyHeader(); initHamburger(); initPageTransitions(); initRipple()
+  initParticles()
   await initAuth()
 
   document.getElementById('headerLoginBtn')?.addEventListener('click', () => openAuthModal('login'))
-  document.querySelectorAll('.global-header-logout').forEach(btn => {
-    btn.addEventListener('click', async () => { await logoutUser() })
-  })
+  document.querySelectorAll('.global-header-logout').forEach(b => b.addEventListener('click', async () => logoutUser()))
 
-  document.getElementById('promptLoginBtn')?.addEventListener('click', () => openAuthModal('login'))
-  document.getElementById('promptSignupBtn')?.addEventListener('click', () => openAuthModal('signup'))
+  const saved = sessionStorage.getItem(SESS_KEY)
+  if (saved) { _regno = saved; await loadPortal(saved) }
+  else        showSec('login')
 
-  onAuthChange(async (user, profile) => {
-    await handleAuthState(user, profile)
-  })
-
-  const user = getCurrentUser()
-  const profile = getUserProfile()
-  await handleAuthState(user, profile)
+  document.getElementById('loginForm')?.addEventListener('submit', handleLogin)
+  initFadeUp()
 })
 
-// ── AUTH STATE ────────────────────────────────────────────────
-async function handleAuthState(user, profile) {
-  if (!user) { showSection('notLoggedIn'); return }
+// ── particles canvas ──────────────────────────────────────────
+function initParticles() {
+  const canvas = document.getElementById('stCanvas')
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  let W, H, pts
 
-  const regno = profile?.regno
-  if (!regno) {
-    showSection('noData')
-    document.getElementById('noDataMsg').textContent =
-      'Your account does not have a register number linked. Please contact administration.'
-    document.getElementById('noDataUserInfo').innerHTML =
-      `<p><i class="fas fa-envelope"></i> Logged in as: <strong>${user.email}</strong></p>`
-    return
+  const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight }
+  const colours = ['rgba(0,245,212,', 'rgba(59,130,246,', 'rgba(139,92,246,']
+
+  function P() {
+    this.reset = () => {
+      this.x = Math.random()*W; this.y = Math.random()*H
+      this.r = Math.random()*1.6+0.4
+      this.vx = (Math.random()-.5)*.28; this.vy = -Math.random()*.35-.08
+      this.a = Math.random()*.45+.12
+      this.c = colours[Math.floor(Math.random()*3)]
+    }
+    this.reset()
   }
+  const init = () => { resize(); pts = Array.from({length:75}, () => new P()) }
+  const draw = () => {
+    ctx.clearRect(0,0,W,H)
+    pts.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
+      ctx.fillStyle = p.c + p.a + ')'; ctx.fill()
+      p.x += p.vx; p.y += p.vy
+      if (p.x<-5||p.x>W+5||p.y<-5||p.y>H+5) p.reset()
+    })
+    requestAnimationFrame(draw)
+  }
+  init(); draw()
+  window.addEventListener('resize', resize)
+}
 
-  showSection('loading')
+function initFadeUp() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e,i) => {
+      if (e.isIntersecting) { setTimeout(() => e.target.classList.add('vis'), i*75); obs.unobserve(e.target) }
+    })
+  }, { threshold:.07, rootMargin:'0px 0px -18px 0px' })
+  document.querySelectorAll('.sp-up:not(.vis)').forEach(el => obs.observe(el))
+}
 
-  const { data: student, error } = await supabase
+// ── section switcher ──────────────────────────────────────────
+function showSec(id) {
+  ['login','loading','setup','profile'].forEach(s => {
+    const el = document.getElementById(`sec${cap(s)}`)
+    if (el) el.style.display = s===id ? 'block' : 'none'
+  })
+  setTimeout(initFadeUp, 80)
+}
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1)
+
+// ── login ─────────────────────────────────────────────────────
+async function handleLogin(e) {
+  e.preventDefault()
+  const regno = document.getElementById('inRegno')?.value?.trim().toUpperCase()
+  const pass  = document.getElementById('inPass')?.value
+  if (!regno||!pass) { showMsg('Please enter Register No. & Password.','err'); return }
+
+  const btn = document.getElementById('loginBtn')
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing In…'
+  hideMsg()
+
+  const { data, error } = await supabase
+    .from('student_credentials')
+    .select('*')
+    .eq('register_no', regno)
+    .maybeSingle()
+
+  if (error)          { showMsg('Database error — try again.','err');        resetBtn(btn); return }
+  if (!data)          { showMsg('Register number not found. Contact admin.','err'); resetBtn(btn); return }
+  if (data.password !== pass) { showMsg('Incorrect password.','err');        resetBtn(btn); return }
+
+  sessionStorage.setItem(SESS_KEY, regno)
+  _regno = regno
+  showToast(`Welcome! Signed in as ${regno}`, 'success')
+  await loadPortal(regno)
+  resetBtn(btn)
+}
+
+function showMsg(txt, type='err') {
+  const el = document.getElementById('loginMsg')
+  if (!el) return
+  el.className = `sp-msg sp-msg-${type}`
+  el.innerHTML = `<i class="fas fa-${type==='err'?'exclamation-circle':'check-circle'}"></i> ${txt}`
+  el.style.display = 'flex'
+}
+function hideMsg() { const el=document.getElementById('loginMsg'); if(el) el.style.display='none' }
+function resetBtn(b) { b.disabled=false; b.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In' }
+
+// public for HTML onclick
+window.stLogout = () => {
+  sessionStorage.removeItem(SESS_KEY)
+  _regno = null
+  if (_rtCh) { supabase.removeChannel(_rtCh); _rtCh=null }
+  showSec('login')
+  showToast('Logged out.','info')
+}
+
+// ── load portal ───────────────────────────────────────────────
+async function loadPortal(regno) {
+  showSec('loading')
+  const { data: stu } = await supabase
     .from('student_information')
     .select('*')
     .ilike('register_no', regno)
     .maybeSingle()
 
-  if (error) {
-    showToast('Error fetching records: ' + error.message, 'error')
-    showSection('noData')
-    return
-  }
-
-  if (!student) {
-    showSection('setupProfile')
-    renderSetupForm(user, profile)
-    return
-  }
-
-  showSection('profile')
-  await renderProfile(student, profile)
-  setupStudentRealtime(regno)
+  if (!stu) { showSec('setup'); renderSetup(regno) }
+  else       { showSec('profile'); await renderProfile(stu); setupRT(regno) }
 }
 
-// ── SECTION SWITCHER ──────────────────────────────────────────
-function showSection(which) {
-  const sections = ['notLoggedIn', 'loading', 'noData', 'profile', 'setupProfile']
-  sections.forEach(s => {
-    const el = document.getElementById(s + 'Section')
-    if (el) el.style.display = which === s ? 'block' : 'none'
+// ── image upload ──────────────────────────────────────────────
+async function uploadImg(fileInputId, key) {
+  const inp = document.getElementById(fileInputId)
+  const f = inp?.files?.[0]
+  if (!f) return null
+  const ext  = f.name.split('.').pop()
+  const path = `${FOLDER}/${key}_${Date.now()}.${ext}`
+  const { error } = await supabase.storage.from(BUCKET).upload(path, f, {upsert:true})
+  if (error) { showToast('Image upload failed: '+error.message,'error'); return null }
+  const { data:{publicUrl} } = supabase.storage.from(BUCKET).getPublicUrl(path)
+  return publicUrl
+}
+
+function bindPreview(fileId, wrapId, imgId, rmId) {
+  document.getElementById(fileId)?.addEventListener('change', () => {
+    const f = document.getElementById(fileId).files[0]; if (!f) return
+    const r = new FileReader()
+    r.onload = e => { document.getElementById(imgId).src=e.target.result; document.getElementById(wrapId).classList.add('show') }
+    r.readAsDataURL(f)
+  })
+  document.getElementById(rmId)?.addEventListener('click', () => {
+    document.getElementById(fileId).value=''
+    document.getElementById(imgId).src=''
+    document.getElementById(wrapId).classList.remove('show')
   })
 }
 
-// ── IMAGE UPLOAD HELPER ───────────────────────────────────────
-function buildImageInputHTML(idPrefix) {
-  return `
-  <div class="img-input-tabs">
-    <button type="button" class="img-input-tab active" data-target="${idPrefix}-url-panel"><i class="fas fa-link"></i> Paste URL</button>
-    <button type="button" class="img-input-tab" data-target="${idPrefix}-file-panel"><i class="fas fa-upload"></i> Upload File</button>
-  </div>
-  <div class="img-input-panel active" id="${idPrefix}-url-panel">
-    <input type="url" id="${idPrefix}_url" class="form-input" placeholder="https://... (paste image link)" />
-  </div>
-  <div class="img-input-panel" id="${idPrefix}-file-panel">
-    <div class="file-upload-area" id="${idPrefix}_upload_area">
-      <input type="file" id="${idPrefix}_file" accept="image/*" />
-      <span class="file-upload-icon"><i class="fas fa-cloud-upload-alt"></i></span>
-      <div class="file-upload-text"><strong>Click or drag &amp; drop</strong><br>JPG, PNG, GIF — max 5MB</div>
+// ── SETUP FORM ────────────────────────────────────────────────
+function renderSetup(regno) {
+  const c = document.getElementById('secSetup')
+  if (!c) return
+  const dOpts = DEPTS.map(d=>`<option>${d}</option>`).join('')
+
+  c.innerHTML = `
+  <div class="st-wrap">
+   <div class="st-setup-outer">
+    <div class="st-setup-header">
+      <div class="st-setup-icon"><i class="fas fa-id-card-alt"></i></div>
+      <h2 class="st-setup-h2">Complete Your Profile</h2>
+      <p class="st-setup-sub">Hi <strong style="color:var(--sp-cyan)">${esc(regno)}</strong>! Fill your details below. Attendance &amp; exam results will appear once your teacher records them.</p>
     </div>
-    <div class="img-preview-wrap" id="${idPrefix}_preview">
-      <img id="${idPrefix}_preview_img" src="" alt="Preview" />
-      <button type="button" class="img-preview-remove" id="${idPrefix}_remove"><i class="fas fa-times"></i></button>
-    </div>
-  </div>`
-}
+    <div class="sp-glass st-setup-card">
+      <form id="setupForm" novalidate>
+        <div class="sp-grid">
 
-function initImageInputTabs(idPrefix) {
-  const tabs = document.querySelectorAll(`[data-target^="${idPrefix}"]`)
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'))
-      document.querySelectorAll(`#${idPrefix}-url-panel, #${idPrefix}-file-panel`).forEach(p => p.classList.remove('active'))
-      tab.classList.add('active')
-      document.getElementById(tab.dataset.target)?.classList.add('active')
-    })
-  })
-
-  const fileInput = document.getElementById(`${idPrefix}_file`)
-  const previewWrap = document.getElementById(`${idPrefix}_preview`)
-  const previewImg = document.getElementById(`${idPrefix}_preview_img`)
-
-  fileInput?.addEventListener('change', () => {
-    const file = fileInput.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      previewImg.src = e.target.result
-      previewWrap.classList.add('show')
-    }
-    reader.readAsDataURL(file)
-  })
-
-  document.getElementById(`${idPrefix}_remove`)?.addEventListener('click', () => {
-    fileInput.value = ''
-    previewImg.src = ''
-    previewWrap.classList.remove('show')
-  })
-}
-
-async function resolveImageUrl(idPrefix, userId) {
-  const fileInput = document.getElementById(`${idPrefix}_file`)
-  if (fileInput?.files[0]) {
-    const file = fileInput.files[0]
-    const ext = file.name.split('.').pop()
-    const path = `${STORAGE_FOLDER}/${userId || Date.now()}.${ext}`
-    const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { upsert: true })
-    if (error) { showToast('Image upload failed: ' + error.message, 'error'); return null }
-    const { data: { publicUrl } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path)
-    return publicUrl
-  }
-  const urlInput = document.getElementById(`${idPrefix}_url`)
-  return urlInput?.value.trim() || null
-}
-
-// ── SETUP PROFILE FORM ────────────────────────────────────────
-function renderSetupForm(user, authProfile) {
-  const container = document.getElementById('setupProfileSection')
-  const deptOptions = DEPT_OPTIONS.map(d =>
-    `<option value="${d}" ${authProfile?.department === d ? 'selected' : ''}>${d}</option>`
-  ).join('')
-
-  container.innerHTML = `
-    <div class="setup-profile-wrap animate-fade-up">
-      <div class="setup-header">
-        <div class="setup-icon"><i class="fas fa-id-card"></i></div>
-        <h2>Complete Your Student Profile</h2>
-        <p>Fill in your details. Exam results &amp; attendance will be updated by admin.</p>
-      </div>
-      <form id="setupProfileForm" class="setup-form" novalidate>
-        <div class="setup-grid">
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
-            <input type="text" id="sp_name" class="form-input" value="${authProfile?.name || ''}" placeholder="Your full name" required />
+          <div class="sp-section-divider">
+            <span class="sp-section-divider-label"><i class="fas fa-user"></i> Personal</span>
+            <div class="sp-section-divider-line"></div>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-id-card"></i> Register Number *</label>
-            <input type="text" id="sp_regno" class="form-input" value="${authProfile?.regno || ''}" placeholder="e.g. 22CS0001" required />
+
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-id-badge"></i> Register No</label>
+            <input class="sp-input" value="${esc(regno)}" readonly/>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-venus-mars"></i> Gender *</label>
-            <select id="sp_gender" class="form-select" required>
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-user"></i> Full Name *</label>
+            <input id="sp_name" class="sp-input" placeholder="Your full name" required/>
+          </div>
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-envelope"></i> Email ID *</label>
+            <input id="sp_email" type="email" class="sp-input" placeholder="your@email.com" required/>
+          </div>
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-phone"></i> Phone Number *</label>
+            <input id="sp_phone" type="tel" class="sp-input" placeholder="+91 99999 99999" required/>
+          </div>
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-venus-mars"></i> Gender *</label>
+            <select id="sp_gender" class="sp-select" required>
               <option value="">Select Gender</option>
-              <option value="Male" ${authProfile?.gender === 'Male' ? 'selected' : ''}>Male</option>
-              <option value="Female" ${authProfile?.gender === 'Female' ? 'selected' : ''}>Female</option>
-              <option value="Other" ${authProfile?.gender === 'Other' ? 'selected' : ''}>Other</option>
+              <option>Male</option><option>Female</option><option>Other</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-book"></i> Department *</label>
-            <select id="sp_dept" class="form-select" required>
-              <option value="">Select Department</option>
-              ${deptOptions}
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-birthday-cake"></i> Date of Birth</label>
+            <input id="sp_dob" type="date" class="sp-input"/>
+          </div>
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-shield-alt"></i> Guardian Name</label>
+            <input id="sp_guardian" class="sp-input" placeholder="Parent / Guardian name"/>
+          </div>
+
+          <div class="sp-section-divider">
+            <span class="sp-section-divider-label"><i class="fas fa-graduation-cap"></i> Academic</span>
+            <div class="sp-section-divider-line"></div>
+          </div>
+
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-book"></i> Department *</label>
+            <select id="sp_dept" class="sp-select" required>
+              <option value="">Select Department</option>${dOpts}
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-layer-group"></i> Year *</label>
-            <select id="sp_year" class="form-select" required>
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fas fa-layer-group"></i> Year *</label>
+            <select id="sp_year" class="sp-select" required>
               <option value="">Select Year</option>
-              <option value="1">1st Year</option>
-              <option value="2">2nd Year</option>
-              <option value="3">3rd Year</option>
-              <option value="4">4th Year</option>
+              <option value="1">1st Year</option><option value="2">2nd Year</option>
+              <option value="3">3rd Year</option><option value="4">4th Year</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
-            <input type="tel" id="sp_phone" class="form-input" value="${authProfile?.phone || ''}" placeholder="+91 99999 99999" required />
+
+          <div class="sp-section-divider">
+            <span class="sp-section-divider-label"><i class="fas fa-link"></i> Online Profiles</span>
+            <div class="sp-section-divider-line"></div>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-envelope"></i> Email ID *</label>
-            <input type="email" id="sp_email" class="form-input" value="${user?.email || ''}" required />
+
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fab fa-linkedin"></i> LinkedIn</label>
+            <input id="sp_linkedin" type="url" class="sp-input" placeholder="https://linkedin.com/in/…"/>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-birthday-cake"></i> Date of Birth</label>
-            <input type="date" id="sp_dob" class="form-input" />
+          <div class="sp-form-group">
+            <label class="sp-label"><i class="fab fa-github"></i> GitHub</label>
+            <input id="sp_github" type="url" class="sp-input" placeholder="https://github.com/…"/>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fas fa-shield-alt"></i> Guardian Name</label>
-            <input type="text" id="sp_guardian" class="form-input" placeholder="Parent / Guardian name" />
+
+          <div class="sp-section-divider">
+            <span class="sp-section-divider-label"><i class="fas fa-map-marker-alt"></i> Address &amp; Photo</span>
+            <div class="sp-section-divider-line"></div>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fab fa-linkedin"></i> LinkedIn Profile</label>
-            <input type="url" id="sp_linkedin" class="form-input" placeholder="https://linkedin.com/in/..." />
+
+          <div class="sp-form-group sp-full">
+            <label class="sp-label"><i class="fas fa-home"></i> Address</label>
+            <textarea id="sp_address" class="sp-textarea" placeholder="Door No., Street, Area, City…"></textarea>
           </div>
-          <div class="form-group">
-            <label class="form-label"><i class="fab fa-github"></i> GitHub Profile</label>
-            <input type="url" id="sp_github" class="form-input" placeholder="https://github.com/..." />
+
+          <div class="sp-form-group sp-full">
+            <label class="sp-label"><i class="fas fa-camera"></i> Profile Photo <span style="opacity:.5;font-weight:400">(optional)</span></label>
+            <div class="sp-upload" id="spUploadArea">
+              <input type="file" id="sp_img" accept="image/*"/>
+              <span class="sp-upload-icon"><i class="fas fa-cloud-upload-alt"></i></span>
+              <div class="sp-upload-text"><strong>Click or drag &amp; drop</strong> your photo<br><small>JPG, PNG, WEBP — max 5 MB</small></div>
+            </div>
+            <div class="sp-img-pre" id="spImgPre"><img id="spImgPreImg" src="" alt=""/><button type="button" class="sp-img-rm" id="spImgRm"><i class="fas fa-times"></i></button></div>
           </div>
-          <div class="form-group setup-full-col">
-            <label class="form-label"><i class="fas fa-camera"></i> Profile Photo <span style="opacity:0.6;font-weight:400;">(optional)</span></label>
-            ${buildImageInputHTML('sp_img')}
+
+          <div class="sp-notice-strip sp-full">
+            <i class="fas fa-clock"></i>
+            <div><strong>Note:</strong> Your attendance &amp; exam results will appear in this portal once your teachers record them.</div>
           </div>
-        </div>
-        <div class="setup-notice">
-          <i class="fas fa-clock"></i>
-          <div><strong>Exam Results &amp; Attendance</strong> will be visible once admin enters your data.</div>
-        </div>
-        <button type="submit" class="btn btn-primary setup-submit" id="setupSubmitBtn">
+
+        </div><!-- grid -->
+        <button type="submit" class="sp-btn sp-btn-primary sp-btn-full" id="setupBtn" style="margin-top:8px">
           <i class="fas fa-save"></i> Save My Profile
         </button>
       </form>
-    </div>`
+    </div>
+   </div>
+  </div>`
 
-  initImageInputTabs('sp_img')
+  bindPreview('sp_img','spImgPre','spImgPreImg','spImgRm')
+  setTimeout(initFadeUp, 60)
 
-  document.getElementById('setupProfileForm').addEventListener('submit', async (e) => {
+  document.getElementById('setupForm').addEventListener('submit', async e => {
     e.preventDefault()
-    const btn = document.getElementById('setupSubmitBtn')
-    btn.disabled = true
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…'
+    const btn = document.getElementById('setupBtn')
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…'
 
-    const name     = document.getElementById('sp_name').value.trim()
-    const regno    = document.getElementById('sp_regno').value.trim()
-    const gender   = document.getElementById('sp_gender').value
-    const dept     = document.getElementById('sp_dept').value
-    const year     = document.getElementById('sp_year').value
-    const phone    = document.getElementById('sp_phone').value.trim()
-    const email    = document.getElementById('sp_email').value.trim()
-    const dob      = document.getElementById('sp_dob').value
-    const guardian = document.getElementById('sp_guardian').value.trim()
-    const linkedin = document.getElementById('sp_linkedin').value.trim()
-    const github   = document.getElementById('sp_github').value.trim()
+    const g = id => document.getElementById(id)?.value?.trim() || null
 
-    if (!name || !regno || !gender || !dept || !year || !phone || !email) {
-      showToast('Please fill all required fields (*)', 'error')
-      btn.disabled = false
-      btn.innerHTML = '<i class="fas fa-save"></i> Save My Profile'
-      return
+    const name   = g('sp_name'); const email = g('sp_email')
+    const phone  = g('sp_phone'); const gender = g('sp_gender')
+    const dept   = g('sp_dept');  const year   = g('sp_year')
+
+    if (!name||!email||!phone||!gender||!dept||!year) {
+      showToast('Fill all required fields (*)','warning')
+      btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save My Profile'; return
     }
 
-    const imageUrl = await resolveImageUrl('sp_img', user?.id)
+    const imgUrl = await uploadImg('sp_img', regno)
 
     const payload = {
-      register_no: regno, name, gender, department: dept,
-      year: parseInt(year), phone, email,
-      dob: dob || null, guardian_name: guardian || null,
-      linkedin: linkedin || null, github: github || null,
-      image_url: imageUrl || null
+      register_no: regno, name, email, phone, gender,
+      department: dept, year: parseInt(year),
+      dob:           g('sp_dob'),
+      guardian_name: g('sp_guardian'),
+      linkedin:      g('sp_linkedin'),
+      github:        g('sp_github'),
+      address:       g('sp_address'),
+      image_url:     imgUrl || null,
+      updated_at:    new Date().toISOString()
     }
 
-    const { error } = await supabase
-      .from('student_information')
-      .upsert(payload, { onConflict: 'register_no' })
+    const { error } = await supabase.from('student_information')
+      .upsert(payload, {onConflict:'register_no'})
 
-    if (error) {
-      showToast('Failed to save: ' + error.message, 'error')
-      btn.disabled = false
-      btn.innerHTML = '<i class="fas fa-save"></i> Save My Profile'
-      return
-    }
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save My Profile'
 
-    showToast('Profile saved successfully! 🎉', 'success')
-    const { data: student } = await supabase
-      .from('student_information')
-      .select('*')
-      .ilike('register_no', regno)
-      .maybeSingle()
+    if (error) { showToast('Failed: '+error.message,'error'); return }
 
-    if (student) {
-      showSection('profile')
-      await renderProfile(student, authProfile)
-      setupStudentRealtime(regno)
-    }
+    showToast('Profile saved! 🎉','success')
+    const { data:stu } = await supabase.from('student_information').select('*').ilike('register_no',regno).maybeSingle()
+    if (stu) { showSec('profile'); await renderProfile(stu); setupRT(regno) }
   })
-
-  setTimeout(() => initScrollAnimations(), 50)
 }
 
-// ── RENDER PROFILE (main) ─────────────────────────────────────
-async function renderProfile(student, authProfile) {
-  const yearSuffix = ['st','nd','rd','th'][Math.min((student.year || 1) - 1, 3)]
-  const photoSrc   = student.image_url
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=1a237e&color=fff&size=130`
-  const genderIcon = { Male:'fas fa-mars', Female:'fas fa-venus', Other:'fas fa-transgender' }[student.gender] || 'fas fa-user'
+// ── RENDER PROFILE ────────────────────────────────────────────
+async function renderProfile(stu) {
+  const c = document.getElementById('secProfile')
+  if (!c) return
 
-  document.getElementById('profileContent').innerHTML = `
-    <div class="profile-card">
-      <div class="profile-header">
-        <div class="profile-photo-wrap">
-          <img src="${photoSrc}" alt="${student.name}" class="profile-photo" />
-          <div class="profile-photo-ring"></div>
-        </div>
-        <div class="profile-name">${student.name}</div>
-        <span class="profile-regno">${student.register_no}</span>
-        ${student.department ? `<div class="profile-dept">${student.department} &bull; ${student.year}${yearSuffix} Year</div>` : ''}
-        ${student.gender ? `<div class="profile-gender"><i class="${genderIcon}"></i> ${student.gender}</div>` : ''}
+  const sfx = ['','st','nd','rd','th'][Math.min(stu.year||1,4)]||'th'
+  const photo = stu.image_url ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(stu.name||stu.register_no)}&background=00f5d4&color=020c1b&size=200&bold=true`
+  const gIco = {Male:'fas fa-mars',Female:'fas fa-venus',Other:'fas fa-transgender'}[stu.gender]||'fas fa-user'
+
+  c.innerHTML = `
+  <div class="st-wrap">
+   <div>
+    <!-- Hero -->
+    <div class="sp-glass st-prof-hero sp-up">
+      <div class="st-av-wrap">
+        <img src="${photo}" alt="${esc(stu.name)}" class="st-av"/>
+        <div class="st-av-ring"></div>
       </div>
-      <div class="profile-body">
-        <div class="profile-info-grid">
-          ${student.department ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fas fa-book"></i> Department</div><div class="profile-info-value">${student.department}</div></div>` : ''}
-          ${student.year      ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fas fa-layer-group"></i> Year</div><div class="profile-info-value">${student.year}${yearSuffix} Year</div></div>` : ''}
-          ${student.gender    ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fas fa-venus-mars"></i> Gender</div><div class="profile-info-value">${student.gender}</div></div>` : ''}
-          ${student.guardian_name ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fas fa-shield-alt"></i> Guardian</div><div class="profile-info-value">${student.guardian_name}</div></div>` : ''}
-          ${student.phone     ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fas fa-phone"></i> Phone</div><div class="profile-info-value">${student.phone}</div></div>` : ''}
-          ${student.email     ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fas fa-envelope"></i> Email</div><div class="profile-info-value">${student.email}</div></div>` : ''}
-          ${student.dob       ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fas fa-birthday-cake"></i> Date of Birth</div><div class="profile-info-value">${student.dob}</div></div>` : ''}
-          ${student.linkedin  ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fab fa-linkedin"></i> LinkedIn</div><div class="profile-info-value"><a href="${student.linkedin}" target="_blank"><i class="fas fa-external-link-alt"></i> View Profile</a></div></div>` : ''}
-          ${student.github    ? `<div class="profile-info-item"><div class="profile-info-label"><i class="fab fa-github"></i> GitHub</div><div class="profile-info-value"><a href="${student.github}" target="_blank"><i class="fas fa-external-link-alt"></i> View Profile</a></div></div>` : ''}
+      <div class="st-prof-info">
+        <div class="st-prof-name">${esc(stu.name||stu.register_no)}</div>
+        <div class="st-prof-regno">${esc(stu.register_no)}</div>
+        <div class="st-prof-dept">${esc(stu.department||'')}${stu.year?` &bull; ${stu.year}${sfx} Year`:''}</div>
+        <div class="st-badges">
+          ${stu.gender?`<span class="sp-badge sp-badge-cyan"><i class="${gIco}"></i> ${esc(stu.gender)}</span>`:''}
+          ${stu.department?`<span class="sp-badge sp-badge-blue"><i class="fas fa-book"></i> ${esc(stu.department.split(' ').pop())}</span>`:''}
+          ${stu.year?`<span class="sp-badge sp-badge-gold"><i class="fas fa-layer-group"></i> Year ${stu.year}</span>`:''}
         </div>
-
-        <!-- Attendance Section -->
-        <div id="attendanceSection"></div>
-
-        <!-- Exam Section -->
-        <div id="examSection"></div>
       </div>
-    </div>`
+    </div>
 
-  initScrollAnimations()
+    <!-- Actions -->
+    <div class="st-prof-actions sp-up">
+      <button class="sp-btn sp-btn-ghost" onclick="stEdit()"><i class="fas fa-edit"></i> Edit Profile</button>
+      <button class="sp-btn sp-btn-danger" onclick="stLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+    </div>
 
-  // Load attendance and exams in parallel
-  await Promise.all([
-    loadAttendance(student.register_no),
-    loadExamDetails(student.register_no)
-  ])
+    <!-- Info grid -->
+    <div class="st-info-grid sp-up">
+      ${ic('fas fa-envelope','spi-cyan','Email',stu.email)}
+      ${ic('fas fa-phone','spi-blue','Phone',stu.phone)}
+      ${stu.gender?ic('fas fa-venus-mars','spi-violet','Gender',stu.gender):''}
+      ${stu.dob?ic('fas fa-birthday-cake','spi-gold','Date of Birth',stu.dob):''}
+      ${stu.guardian_name?ic('fas fa-shield-alt','spi-green','Guardian',stu.guardian_name):''}
+      ${stu.address?ic('fas fa-map-marker-alt','spi-red','Address',stu.address):''}
+      ${stu.linkedin?icLink('fab fa-linkedin','spi-blue','LinkedIn',stu.linkedin):''}
+      ${stu.github?icLink('fab fa-github','spi-violet','GitHub',stu.github):''}
+    </div>
+
+    <!-- Attendance -->
+    <div id="attSec" class="sp-up"></div>
+
+    <!-- Exams -->
+    <div id="examSec" class="sp-up"></div>
+   </div>
+  </div>`
+
+  setTimeout(initFadeUp, 80)
+  await Promise.all([loadAtt(stu.register_no), loadExam(stu.register_no)])
 }
+
+function ic(icon, cls, label, val) {
+  if (!val) return ''
+  return `<div class="sp-glass st-info-card">
+    <div class="st-info-icon ${cls}"><i class="${icon}"></i></div>
+    <div class="st-info-body"><div class="st-info-lbl">${label}</div><div class="st-info-val">${esc(val)}</div></div>
+  </div>`
+}
+function icLink(icon, cls, label, href) {
+  return `<div class="sp-glass st-info-card">
+    <div class="st-info-icon ${cls}"><i class="${icon}"></i></div>
+    <div class="st-info-body"><div class="st-info-lbl">${label}</div>
+    <div class="st-info-val"><a href="${href}" target="_blank"><i class="fas fa-external-link-alt"></i> View Profile</a></div></div>
+  </div>`
+}
+
+window.stEdit = () => { if (_regno) { showSec('setup'); renderSetup(_regno) } }
 
 // ── ATTENDANCE ────────────────────────────────────────────────
-async function loadAttendance(registerNo) {
-  const container = document.getElementById('attendanceSection')
-  if (!container) return
+async function loadAtt(regno) {
+  const c = document.getElementById('attSec'); if (!c) return
 
-  const { data, error } = await supabase
-    .from('attendance_information')
-    .select('*')
-    .ilike('register_no', registerNo)
-    .maybeSingle()
+  const { data } = await supabase.from('attendance_information')
+    .select('*').ilike('register_no',regno).maybeSingle()
 
-  if (error || !data || (!data.total_days && !data.present_days)) {
-    container.innerHTML = `
-      <div class="pending-notice">
-        <div class="pending-icon"><i class="fas fa-calendar-times"></i></div>
-        <h4>Attendance Not Updated Yet</h4>
-        <p>Please wait while the admin updates your attendance records.</p>
-      </div>`
+  if (!data||(!data.total_days&&!data.present_days)) {
+    c.innerHTML = pendHTML('fas fa-calendar-times','rgba(59,130,246,0.12)','#93c5fd',
+      'Attendance Not Updated Yet','Your teacher hasn\'t recorded any sessions yet. Check back after classes begin.')
     return
   }
 
-  // Calculate everything from total_days and present_days
-  const totalDays   = parseInt(data.total_days)   || 0
-  const presentDays = parseInt(data.present_days) || 0
-  const absentDays  = Math.max(0, totalDays - presentDays)
-  const percentage  = totalDays > 0
-    ? ((presentDays / totalDays) * 100).toFixed(2)
-    : '0.00'
-  const pct = parseFloat(percentage)
+  const total   = +data.total_days   || 0
+  const present = +data.present_days || 0
+  const absent  = +data.absent_days  || Math.max(0,total-present)
+  const pct     = total>0 ? (present/total*100).toFixed(1) : '0.0'
+  const pNum    = parseFloat(pct)
 
-  // How many more days needed to reach 75%
-  let warningMsg = ''
-  if (pct < 75 && totalDays > 0) {
-    const daysNeeded = Math.ceil((0.75 * totalDays - presentDays) / 0.25)
-    warningMsg = `⚠️ Low attendance! You need to attend <strong>${Math.max(0, daysNeeded)}</strong> more consecutive classes to reach 75%.`
-  } else if (pct >= 75) {
-    warningMsg = `✅ Good standing! Your attendance meets the required 75% criteria.`
-  }
+  const col = pNum>=75?'var(--sp-green)':pNum>=65?'var(--sp-gold)':'var(--sp-red)'
+  const R=54, circ=2*Math.PI*R, dashoff=circ*(1-Math.min(pNum,100)/100)
 
-  const pctColor = pct >= 75 ? '#4CAF50' : pct >= 65 ? '#FF9800' : '#f44336'
-  const barWidth = Math.min(100, pct)
+  let warnTxt='', warnCls='saw-good'
+  if      (pNum>=75) { warnTxt=`✅ Good standing! Attendance meets the 75% requirement.` }
+  else if (pNum>=65) {
+    const need=Math.ceil((0.75*total-present)/0.25)
+    warnTxt=`⚠️ Low attendance! Attend <strong>${Math.max(0,need)}</strong> more consecutive classes to reach 75%.`
+    warnCls='saw-mid'
+  } else { warnTxt=`🚨 Critical attendance! Immediate improvement required.`; warnCls='saw-bad' }
 
-  container.innerHTML = `
-    <div class="attendance-card">
-      <h3><i class="fas fa-calendar-check"></i> Attendance Record</h3>
-      <div class="attendance-pct-wrap">
-        <div class="attendance-pct-circle" style="--pct-color:${pctColor};">
-          <svg viewBox="0 0 120 120" class="att-svg">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="10"/>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="${pctColor}"
-              stroke-width="10" stroke-linecap="round"
-              stroke-dasharray="${2 * Math.PI * 50}"
-              stroke-dashoffset="${2 * Math.PI * 50 * (1 - barWidth / 100)}"
-              style="transition:stroke-dashoffset 1s ease;transform:rotate(-90deg);transform-origin:center;"/>
-          </svg>
-          <div class="att-pct-inner">
-            <span class="att-pct-num">${percentage}%</span>
-            <span class="att-pct-lbl">Attendance</span>
-          </div>
-        </div>
-        <div class="attendance-stats">
-          <div class="att-stat">
-            <div class="att-stat-icon" style="background:linear-gradient(135deg,#4CAF50,#388E3C);">
-              <i class="fas fa-check"></i>
-            </div>
-            <span class="att-num">${presentDays}</span>
-            <span class="att-label">Days Present</span>
-          </div>
-          <div class="att-stat">
-            <div class="att-stat-icon" style="background:linear-gradient(135deg,#f44336,#c62828);">
-              <i class="fas fa-times"></i>
-            </div>
-            <span class="att-num">${absentDays}</span>
-            <span class="att-label">Days Absent</span>
-          </div>
-          <div class="att-stat">
-            <div class="att-stat-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0);">
-              <i class="fas fa-calendar-alt"></i>
-            </div>
-            <span class="att-num">${totalDays}</span>
-            <span class="att-label">Total Days</span>
-          </div>
+  const absArr = Array.isArray(data.absent_details)?data.absent_details:[]
+  const absHtml = absArr.length>0?`
+    <div class="st-abs-wrap">
+      <div class="st-abs-title"><i class="fas fa-times-circle"></i> Absent Sessions</div>
+      <div class="st-abs-chips">
+        ${absArr.slice(0,24).map(d=>`<span class="st-abs-chip"><i class="fas fa-calendar-times"></i>${d.date?new Date(d.date+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):d.date||'—'}${d.period?` · P${d.period}`:''}</span>`).join('')}
+        ${absArr.length>24?`<span class="st-abs-chip">+${absArr.length-24} more</span>`:''}
+      </div>
+    </div>`:''
+
+  c.innerHTML = `
+  <div class="sp-glass st-att-card">
+    <div class="st-att-heading"><i class="fas fa-calendar-check"></i> Attendance Record</div>
+    <div class="st-att-body">
+      <div class="st-donut-wrap">
+        <svg viewBox="0 0 124 124" class="st-donut-svg">
+          <circle cx="62" cy="62" r="${R}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+          <circle cx="62" cy="62" r="${R}" fill="none" stroke="${col}"
+            stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="${circ.toFixed(2)}"
+            stroke-dashoffset="${dashoff.toFixed(2)}"
+            style="transition:stroke-dashoffset 1.2s cubic-bezier(0.34,1.2,0.64,1);
+                   transform:rotate(-90deg);transform-origin:center;
+                   filter:drop-shadow(0 0 7px ${col}88)"/>
+        </svg>
+        <div class="st-donut-center">
+          <span class="st-donut-pct" style="color:${col}">${pct}%</span>
+          <span class="st-donut-lbl">Attendance</span>
         </div>
       </div>
-      ${warningMsg ? `<div class="att-warning-bar ${pct >= 75 ? 'att-warn-green' : 'att-warn-red'}">${warningMsg}</div>` : ''}
-    </div>`
+      <div class="st-att-stats">
+        ${statBox(present,'Present','fas fa-check','rgba(16,185,129,0.14)','var(--sp-green)','rgba(16,185,129,0.1)')}
+        ${statBox(absent,'Absent','fas fa-times','rgba(244,63,94,0.14)','var(--sp-red)','rgba(244,63,94,0.1)')}
+        ${statBox(total,'Total Days','fas fa-calendar-alt','rgba(59,130,246,0.14)','#93c5fd','rgba(59,130,246,0.1)')}
+      </div>
+    </div>
+    <div class="st-att-warn ${warnCls}">${warnTxt}</div>
+    ${absHtml}
+  </div>`
 }
 
-// ── EXAM DETAILS ──────────────────────────────────────────────
-async function loadExamDetails(registerNo) {
-  const container = document.getElementById('examSection')
-  if (!container) return
+function statBox(n,lbl,ico,icoBg,icoCol,cardBg) {
+  return `<div class="sp-glass st-att-stat" style="background:${cardBg}">
+    <div class="st-att-stat-ico" style="background:${icoBg};color:${icoCol}"><i class="${ico}"></i></div>
+    <span class="st-att-num" style="color:${icoCol}">${n}</span>
+    <span class="st-att-lbl">${lbl}</span>
+  </div>`
+}
 
-  const { data, error } = await supabase
-    .from('exam_information')
-    .select('*')
-    .ilike('register_no', registerNo)
-    .order('semester', { ascending: true })
-    .order('exam_type',  { ascending: true })
-    .order('subject_name', { ascending: true })
+// ── EXAM ──────────────────────────────────────────────────────
+async function loadExam(regno) {
+  const c = document.getElementById('examSec'); if (!c) return
 
-  if (error || !data || data.length === 0) {
-    container.innerHTML = `
-      <div class="pending-notice">
-        <div class="pending-icon"><i class="fas fa-hourglass-half"></i></div>
-        <h4>Exam Details Not Available Yet</h4>
-        <p>Please wait till the admin enters your exam details. Check back after your examinations.</p>
-      </div>`
+  const { data } = await supabase.from('exam_information')
+    .select('*').ilike('register_no',regno)
+    .order('semester',{ascending:true}).order('exam_type',{ascending:true}).order('subject_name',{ascending:true})
+
+  if (!data||!data.length) {
+    c.innerHTML = pendHTML('fas fa-file-alt','rgba(139,92,246,0.12)','#c4b5fd',
+      'Exam Results Not Available','Results will appear here after admin enters your marks.')
     return
   }
 
-  // Group: semester → exam_type → subjects
-  const grouped = {}
-  data.forEach(row => {
-    const sem = row.semester
-    const typ = row.exam_type
-    if (!grouped[sem]) grouped[sem] = {}
-    if (!grouped[sem][typ]) grouped[sem][typ] = []
-    grouped[sem][typ].push(row)
+  const groups={}
+  data.forEach(r => {
+    if(!groups[r.semester]) groups[r.semester]={}
+    if(!groups[r.semester][r.exam_type]) groups[r.semester][r.exam_type]=[]
+    groups[r.semester][r.exam_type].push(r)
   })
+  const sems = Object.keys(groups).map(Number).sort((a,b)=>a-b)
 
-  const semNums     = Object.keys(grouped).map(Number).sort((a,b) => a-b)
-  const examTypes   = ['CIAT1','CIAT2','Final Exam']
-  const examLabels  = { 'CIAT1': 'CIAT - 1', 'CIAT2': 'CIAT - 2', 'Final Exam': 'Final Examination' }
-  const examIcons   = { 'CIAT1':'fas fa-pencil-alt', 'CIAT2':'fas fa-pen-nib', 'Final Exam':'fas fa-graduation-cap' }
-  const examColors  = { 'CIAT1':'#2196F3', 'CIAT2':'#9C27B0', 'Final Exam':'#f44336' }
+  const typeCfg = {
+    'CIAT1':      {label:'CIAT – I',         ico:'fas fa-pencil-alt',     col:'#3b82f6'},
+    'CIAT2':      {label:'CIAT – II',        ico:'fas fa-pen-nib',        col:'#8b5cf6'},
+    'Final Exam': {label:'Final Examination',ico:'fas fa-graduation-cap', col:'#f43f5e'}
+  }
 
-  container.innerHTML = `
-    <div class="exam-container">
-      <h3 class="exam-main-title"><i class="fas fa-file-alt"></i> Exam Results</h3>
+  c.innerHTML = `
+  <div class="sp-glass st-exam-card">
+    <div class="st-exam-heading"><i class="fas fa-file-alt"></i> Exam Results</div>
+    <div class="st-sem-tabs">
+      ${sems.map((s,i)=>`<button class="st-sem-tab${i===0?' act':''}" data-sem="${s}" onclick="stSem(${s})">${s<5?`Sem ${s}`:`Semester ${s}`}</button>`).join('')}
+    </div>
+    ${sems.map((sem,si)=>`
+    <div id="sp${sem}" class="st-sem-panel${si>0?' hide':''}">
+      ${Object.keys(typeCfg).map(typ=>{
+        const rows=groups[sem]?.[typ]; if(!rows?.length) return ''
+        const cfg=typeCfg[typ]
+        const tot=rows.reduce((s,r)=>s+(+r.marks_obtained||0),0)
+        const maxTot=rows.reduce((s,r)=>s+(+r.max_marks||100),0)
+        const passN=rows.filter(r=>{const p=r.max_marks>0?r.marks_obtained/r.max_marks*100:0;return typ==='Final Exam'?p>=50:p>=40}).length
+        return `
+        <div class="st-exam-block" style="border-top:3px solid ${cfg.col}">
+          <div class="st-exam-block-hdr">
+            <div class="st-exam-block-ico" style="background:${cfg.col}22;color:${cfg.col}"><i class="${cfg.ico}"></i></div>
+            <div><div class="st-exam-block-name">${cfg.label}</div>
+            <div class="st-exam-block-meta">${passN}/${rows.length} Pass &bull; Avg: ${rows.length?(tot/rows.length).toFixed(1):0}/${(maxTot/rows.length).toFixed(0)}</div></div>
+          </div>
+          <div class="st-tbl-wrap"><table class="st-tbl">
+            <thead><tr><th>Subject</th><th>Code</th><th>Marks</th><th>Max</th><th>%</th><th>Status</th></tr></thead>
+            <tbody>${rows.map(r=>{
+              const mx=+r.max_marks||100,ob=+r.marks_obtained||0
+              const p=mx>0?(ob/mx*100).toFixed(1):'—'
+              const pass=typ==='Final Exam'?(ob/mx*100)>=50:(ob/mx*100)>=40
+              return `<tr><td class="st-sname">${esc(r.subject_name)}</td>
+              <td>${r.subject_code?`<span class="st-scode">${esc(r.subject_code)}</span>`:'—'}</td>
+              <td><strong>${ob}</strong></td><td>${mx}</td><td>${p}%</td>
+              <td><span class="st-chip ${pass?'st-chip-pass':'st-chip-fail'}"><i class="fas fa-${pass?'check':'times'}"></i>${pass?'Pass':'Fail'}</span></td></tr>`
+            }).join('')}</tbody>
+            <tfoot><tr><td colspan="2"><strong>Total</strong></td>
+            <td><strong>${tot.toFixed(1)}</strong></td><td>${maxTot.toFixed(0)}</td>
+            <td><strong>${maxTot>0?(tot/maxTot*100).toFixed(1):'—'}%</strong></td><td></td></tr></tfoot>
+          </table></div>
+        </div>`
+      }).join('')}
+    </div>`).join('')}
+  </div>`
 
-      <!-- Semester Tabs -->
-      <div class="exam-sem-tabs" id="examSemTabs">
-        ${semNums.map((s, i) => `
-          <button
-            class="exam-sem-tab ${i === 0 ? 'active' : ''}"
-            data-sem="${s}"
-            onclick="switchExamSem(${s})">
-            Sem ${s}
-          </button>`).join('')}
-      </div>
-
-      <!-- Semester Panels -->
-      ${semNums.map((sem, i) => `
-        <div class="exam-sem-panel ${i === 0 ? '' : 'hidden'}" id="sempanel-${sem}">
-          ${examTypes.map(typ => {
-            const subjects = grouped[sem]?.[typ]
-            if (!subjects || subjects.length === 0) return ''
-
-            const total    = subjects.reduce((s,r) => s + (parseFloat(r.marks_obtained) || 0), 0)
-            const maxTotal = subjects.reduce((s,r) => s + (parseFloat(r.max_marks) || 100), 0)
-            const avg      = subjects.length ? (total / subjects.length).toFixed(1) : '0'
-            const passCount = subjects.filter(r => {
-              const pct = r.max_marks > 0 ? (r.marks_obtained / r.max_marks * 100) : 0
-              return typ === 'Final Exam' ? pct >= 50 : pct >= 40
-            }).length
-
-            return `
-              <div class="exam-type-block" style="--et-color:${examColors[typ]};">
-                <div class="exam-type-header">
-                  <div class="exam-type-icon"><i class="${examIcons[typ]}"></i></div>
-                  <div class="exam-type-info">
-                    <span class="exam-type-name">${examLabels[typ]}</span>
-                    <span class="exam-type-stats">${passCount}/${subjects.length} Pass &nbsp;|&nbsp; Avg: ${avg}/${(maxTotal/subjects.length).toFixed(0)}</span>
-                  </div>
-                </div>
-                <div class="exam-subjects-table-wrap">
-                  <table class="exam-table">
-                    <thead>
-                      <tr>
-                        <th>Subject</th>
-                        <th>Code</th>
-                        <th>Marks</th>
-                        <th>Max</th>
-                        <th>%</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${subjects.map(sub => {
-                        const maxM   = parseFloat(sub.max_marks)  || 100
-                        const obtM   = parseFloat(sub.marks_obtained)
-                        const pctVal = maxM > 0 ? ((obtM / maxM) * 100).toFixed(1) : '—'
-                        const pass   = typ === 'Final Exam'
-                          ? (obtM / maxM * 100) >= 50
-                          : (obtM / maxM * 100) >= 40
-                        return `
-                          <tr>
-                            <td class="subj-name">${sub.subject_name}</td>
-                            <td><code class="subj-code">${sub.subject_code || '—'}</code></td>
-                            <td><strong>${obtM ?? '—'}</strong></td>
-                            <td>${maxM}</td>
-                            <td>${pctVal}%</td>
-                            <td>
-                              <span class="exam-status-chip ${pass ? 'pass' : 'fail'}">
-                                <i class="fas fa-${pass ? 'check' : 'times'}"></i>
-                                ${pass ? 'Pass' : 'Fail'}
-                              </span>
-                            </td>
-                          </tr>`
-                      }).join('')}
-                    </tbody>
-                    <tfoot>
-                      <tr class="exam-tfoot">
-                        <td colspan="2"><strong>Total</strong></td>
-                        <td><strong>${total.toFixed(1)}</strong></td>
-                        <td>${maxTotal.toFixed(0)}</td>
-                        <td><strong>${maxTotal > 0 ? (total/maxTotal*100).toFixed(1) : '—'}%</strong></td>
-                        <td></td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>`
-          }).join('')}
-        </div>`).join('')}
-    </div>`
-
-  // Expose globally for onclick
-  window.switchExamSem = function(semNum) {
-    document.querySelectorAll('.exam-sem-tab').forEach(t => {
-      t.classList.toggle('active', parseInt(t.dataset.sem) === semNum)
-    })
-    document.querySelectorAll('.exam-sem-panel').forEach(p => p.classList.add('hidden'))
-    document.getElementById(`sempanel-${semNum}`)?.classList.remove('hidden')
+  window.stSem = sem => {
+    document.querySelectorAll('.st-sem-tab').forEach(t=>t.classList.toggle('act',+t.dataset.sem===sem))
+    document.querySelectorAll('[id^="sp"]').forEach(p=>{ if(/^sp\d+$/.test(p.id)) p.classList.toggle('hide',p.id!=='sp'+sem) })
   }
 }
 
-// ── REALTIME SYNC ─────────────────────────────────────────────
-let _realtimeChannel = null
-function setupStudentRealtime(regno) {
-  if (_realtimeChannel) supabase.removeChannel(_realtimeChannel)
-  _realtimeChannel = supabase
-    .channel('student-realtime-' + regno)
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'student_information' },
-      async () => {
-        const { data: student } = await supabase
-          .from('student_information')
-          .select('*')
-          .ilike('register_no', regno)
-          .maybeSingle()
-        if (student) { showSection('profile'); await renderProfile(student, getUserProfile()) }
-      })
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'attendance_information' },
-      async () => { await loadAttendance(regno) })
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'exam_information' },
-      async () => { await loadExamDetails(regno) })
+// ── REALTIME ──────────────────────────────────────────────────
+function setupRT(regno) {
+  if (_rtCh) supabase.removeChannel(_rtCh)
+  _rtCh = supabase.channel('st-rt-'+regno)
+    .on('postgres_changes',{event:'*',schema:'public',table:'attendance_information'},
+      ()=>loadAtt(regno))
+    .on('postgres_changes',{event:'*',schema:'public',table:'exam_information'},
+      ()=>loadExam(regno))
     .subscribe()
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function pendHTML(ico,icoBg,icoCol,title,sub) {
+  return `<div class="st-pending">
+    <div class="st-pend-ico" style="background:${icoBg};color:${icoCol}"><i class="${ico}"></i></div>
+    <h4>${title}</h4><p>${sub}</p>
+  </div>`
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
