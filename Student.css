@@ -347,6 +347,7 @@ body {
   animation: ringPulse 3s ease-in-out infinite;
 }
 @keyframes ringPulse { 0%,100%{transform:scale(1);opacity:.6;}50%{transform:scale(1.08);opacity:1;} }
+.st-prof-info { flex: 1; text-align: center; }
 .st-prof-name {
   font-family: 'Space Grotesk', sans-serif;
   font-size: clamp(1.2rem,2.2vw,1.6rem); font-weight: 700; margin-bottom: 6px;
