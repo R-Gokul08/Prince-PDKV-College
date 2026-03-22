@@ -236,7 +236,8 @@ body.tc-page::before {
   box-shadow: 0 4px 18px rgba(245,158,11,.30);
 }
 #loginBtn{
-  padding: 5px 14px;
+  padding: 14px;
+  border: 2px solid rgba(245,158,11,.30);
   border-radius: 25px;
 }
 
