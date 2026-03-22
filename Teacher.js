@@ -156,30 +156,37 @@ async function uploadImg(fileInputId, folder, key) {
   const f   = inp?.files?.[0]
   if (!f) return null
   const ext  = f.name.split('.').pop().toLowerCase()
-  // Use register_no as the stable filename — same path every upload, always overrides old photo
-  const path = `${folder}/${key}.${ext}`
-  const { error } = await supabase.storage.from(BUCKET).upload(path, f, { upsert: true, contentType: f.type })
+  // Stable filename = register_no.ext — same path, upsert overwrites old photo
+  const storagePath = `${folder}/${key}.${ext}`
+  const { error } = await supabase.storage.from(BUCKET).upload(storagePath, f, { upsert: true, contentType: f.type })
   if (error) { showToast('Upload failed: ' + error.message, 'error'); return null }
-  // Add cache-busting param so browser shows the new image immediately
-  const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(path)
+  const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(storagePath)
+  // Cache-bust so browser does not serve stale image
   return publicUrl + '?t=' + Date.now()
 }
 
-// Try to find the teacher's photo in storage even if image_url is not saved in DB
+// Resolve teacher photo from DB url or storage listing (no unreliable HEAD requests)
 async function resolveTeacherPhoto(regno, savedUrl) {
-  if (savedUrl && savedUrl.startsWith('http')) return savedUrl
-
-  // Common extensions to try
-  for (const ext of ['jpg', 'jpeg', 'png', 'webp', 'gif']) {
-    const path = `${TCH_FOLD}/${regno}.${ext}`
-    const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(path)
-    // Check if file actually exists by doing a HEAD request
-    try {
-      const res = await fetch(publicUrl, { method: 'HEAD' })
-      if (res.ok) return publicUrl + '?t=' + Date.now()
-    } catch { /* continue */ }
+  // If DB has a URL already, refresh its cache-bust and return it
+  if (savedUrl && savedUrl.startsWith('http')) {
+    const base = savedUrl.split('?')[0]
+    return base + '?t=' + Date.now()
   }
-  // Fallback to initials avatar
+  // No DB url — try listing the Teacher_images folder filtered by this regno
+  try {
+    const { data: files, error } = await supabase.storage
+      .from(BUCKET)
+      .list(TCH_FOLD, { search: regno })
+    if (!error && files && files.length > 0) {
+      const match = files.find(f2 => f2.name && (f2.name.startsWith(regno + '.') || f2.name === regno))
+      if (match) {
+        const { data: { publicUrl } } = supabase.storage
+          .from(BUCKET)
+          .getPublicUrl(`${TCH_FOLD}/${match.name}`)
+        return publicUrl + '?t=' + Date.now()
+      }
+    }
+  } catch (_) { /* storage list failed — fall through to avatar */ }
   return null
 }
 
@@ -342,9 +349,19 @@ async function renderSetup(regno, existingData) {
     if (error) { showToast('Failed: ' + error.message, 'error'); return }
 
     showToast(isEdit ? 'Profile updated! ✅' : 'Profile saved! 🎉', 'success')
+
+    // Re-fetch the saved record from DB so we have all fields
     const { data: t } = await supabase.from('teacher_information')
       .select('*').ilike('register_no', regno).maybeSingle()
-    if (t) { _profile = t; showSec('profile'); await renderProfile(t) }
+
+    if (t) {
+      // If we just uploaded a new image, inject the fresh URL so renderProfile
+      // shows it immediately without waiting for storage listing
+      if (imgUrl) t.image_url = imgUrl
+      _profile = t
+      showSec('profile')
+      await renderProfile(t)
+    }
   })
 }
 
@@ -364,17 +381,25 @@ window.tcCancelEdit = () => {
 async function renderProfile(t) {
   const c = document.getElementById('secProfile'); if (!c) return
 
-  // Resolve photo: DB url → storage scan → initials avatar
-  const resolvedPhoto = await resolveTeacherPhoto(t.register_no, t.image_url)
   const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name || t.register_no)}&background=ff9f1c&color=060912&size=200&bold=true`
-  const photo = resolvedPhoto || fallbackPhoto
 
-  // If we found a photo in storage but DB doesn't have it saved, silently update DB
-  if (resolvedPhoto && resolvedPhoto !== t.image_url) {
-    supabase.from('teacher_information')
-      .update({ image_url: resolvedPhoto })
-      .ilike('register_no', t.register_no)
-      .then(() => {})
+  // If DB already has a URL (e.g. freshly injected after upload), use it immediately
+  // — no need for async storage listing which can be slow or fail
+  let photo
+  if (t.image_url && t.image_url.startsWith('http')) {
+    // Refresh cache-bust so browser always fetches the latest version
+    photo = t.image_url.split('?')[0] + '?t=' + Date.now()
+  } else {
+    // No URL in DB — try storage listing (first-time or URL lost)
+    const found = await resolveTeacherPhoto(t.register_no, null)
+    photo = found || fallbackPhoto
+    // Silently save the found URL back to DB for next time
+    if (found) {
+      supabase.from('teacher_information')
+        .update({ image_url: found })
+        .ilike('register_no', t.register_no)
+        .then(() => {})
+    }
   }
 
   const subjs = t.subjects ? t.subjects.split(',').map(s => s.trim()).filter(Boolean) : []
