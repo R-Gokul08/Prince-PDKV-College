@@ -6,28 +6,15 @@
   <meta name="theme-color" content="#1a237e" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Prince Dr K Vasudevan College of Engineering and Technology</title>
-<meta name="google-site-verification" content="vGkvUkBF4KP-HaNU9HOWx2xsJDgZPs-1j56k0q-Louo" />
+  <meta name="google-site-verification" content="vGkvUkBF4KP-HaNU9HOWx2xsJDgZPs-1j56k0q-Louo" />
   <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
   <link rel="stylesheet" href="/shared.css" />
   <link rel="stylesheet" href="/Home.css" />
-  <style>
-    /* Gallery video support */
-    .gallery-video { width:100%; height:100%; object-fit:cover; }
-    .gallery-video-badge {
-      position:absolute; bottom:10px; right:10px;
-      background:rgba(0,0,0,0.55); color:white;
-      border-radius:50%; width:32px; height:32px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:1rem; backdrop-filter:blur(4px);
-    }
-    .gallery-item { position:relative; }
-    .skeleton-gallery { background: linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%); background-size:200% 100%; animation:skeletonPulse 1.4s ease-in-out infinite; border-radius:var(--radius-md); aspect-ratio:4/3; }
-  </style>
 </head>
 <body>
   <div class="page-transition-overlay" id="pageTransition"></div>
 
-  <!-- ===== HEADER ===== -->
+  <!-- HEADER -->
   <header class="site-header" id="siteHeader">
     <div class="header-inner">
       <div class="header-brand">
@@ -38,13 +25,13 @@
         <span></span><span></span><span></span>
       </button>
       <nav class="site-nav" id="siteNav">
-        <a href="index.html" class="nav-link active"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="index.html"       class="nav-link active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html"     class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
         <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
-        <a href="Student.html" class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
-        <a href="Teacher.html" class="nav-link"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
-        <a href="Facilities.html" class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
-        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+        <a href="Student.html"     class="nav-link"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="Teacher.html"     class="nav-link"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
+        <a href="Facilities.html"  class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
+        <a href="About.html"       class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
         <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;">
           <i class="fas fa-sign-in-alt"></i> Sign In
         </button>
@@ -56,7 +43,7 @@
     </div>
   </header>
 
-  <!-- ===== HERO ===== -->
+  <!-- HERO -->
   <section class="hero-section">
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
@@ -76,7 +63,7 @@
       <p class="hero-subtitle animate-fade-up" id="heroTypewriter"></p>
       <div class="hero-actions animate-fade-up">
         <a href="Courses.html" class="btn btn-primary"><i class="fas fa-book-open"></i> Explore Courses</a>
-        <a href="About.html" class="btn btn-glass"><i class="fas fa-info-circle"></i> Learn More</a>
+        <a href="About.html"   class="btn btn-glass"><i class="fas fa-info-circle"></i> Learn More</a>
       </div>
       <div class="quick-stats animate-fade-up">
         <div class="stat-box">
@@ -109,7 +96,7 @@
     </svg>
   </div>
 
-  <!-- ===== ABOUT FACTS ===== -->
+  <!-- ABOUT FACTS -->
   <section class="section bg-gradient-light" id="about-section">
     <div class="container">
       <h2 class="section-title animate-fade-up">About Our Institution</h2>
@@ -139,19 +126,17 @@
     </div>
   </section>
 
-  <!-- ===== GALLERY (Loaded from Supabase College_images) ===== -->
+  <!-- CAMPUS GALLERY -->
   <section class="section bg-white">
     <div class="container">
       <h2 class="section-title animate-fade-up">Campus Gallery</h2>
       <p class="section-subtitle animate-fade-up">Live from our campus — images &amp; videos updated automatically</p>
       <div class="title-underline mb-large animate-fade-up"></div>
-      <div class="gallery-grid" id="galleryGrid">
-        <!-- Loaded dynamically from Supabase College_images bucket -->
-      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
     </div>
   </section>
 
-  <!-- ===== PLACEMENTS ===== -->
+  <!-- PLACEMENTS -->
   <section class="section placement-section">
     <div class="container">
       <h2 class="section-title light animate-fade-up">Placement Highlights</h2>
@@ -176,14 +161,12 @@
         <div class="recruiters-col animate-fade-up">
           <h3 class="recruiters-title">Top Recruiters</h3>
           <div class="recruiters-grid">
-            <!-- Using SVG logos from Wikipedia for reliability -->
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Tata_Consultancy_Services_Logo.svg" alt="TCS" loading="lazy" onerror="this.style.display='none'" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg" alt="Infosys" loading="lazy" onerror="this.style.display='none'" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a0/Wipro_Primary_Logo_Color_RGB.svg" alt="Wipro" loading="lazy" onerror="this.style.display='none'" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/2/27/HCL_Technologies_logo.svg" alt="HCL" loading="lazy" onerror="this.style.display='none'" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Accenture.svg/1200px-Accenture.svg.png" alt="Accenture" loading="lazy" onerror="this.style.display='none'" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Capgemini_logo.svg/1200px-Capgemini_logo.svg.png" alt="Capgemini" loading="lazy" onerror="this.style.display='none'" />
-            <!-- Text fallbacks for companies where SVG may not load -->
             <div class="recruiter-text-logo">Zoho</div>
             <div class="recruiter-text-logo">CTS</div>
             <div class="recruiter-text-logo">Tech Mahindra</div>
@@ -193,8 +176,7 @@
     </div>
   </section>
 
-
-  <!-- ===== CONTACT ===== -->
+  <!-- CONTACT -->
   <section class="section contact-section">
     <div class="container">
       <h2 class="section-title light animate-fade-up">Student Support</h2>
@@ -227,7 +209,7 @@
     </div>
   </section>
 
-  <!-- ===== FOOTER ===== -->
+  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-logo-row">
@@ -237,6 +219,14 @@
           <p class="footer-sub">of Engineering &amp; Technology</p>
         </div>
       </div>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/pdkvce"  target="_blank" class="footer-social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/pdkvce" target="_blank" class="footer-social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.youtube.com/@pdkvce"  target="_blank" class="footer-social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn" aria-label="Website"><i class="fas fa-globe"></i></a>
+      </div>
+      <div class="footer-divider"></div>
       <div class="footer-links">
         <a href="index.html">Home</a>
         <a href="Courses.html">Courses</a>

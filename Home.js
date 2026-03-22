@@ -1,5 +1,9 @@
 import { supabase } from './supabaseClient.js'
-import { initStickyHeader, initHamburger, initScrollAnimations, initCounters, initAuth, openAuthModal, logoutUser, updateHeaderAuthUI, initRipple, initTiltCards, initPageTransitions } from './shared.js'
+import {
+  initStickyHeader, initHamburger, initScrollAnimations,
+  initCounters, initAuth, openAuthModal, logoutUser,
+  initRipple, initTiltCards, initPageTransitions
+} from './shared.js'
 
 document.addEventListener('DOMContentLoaded', async () => {
   initStickyHeader()
@@ -7,10 +11,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   initPageTransitions()
   initRipple()
 
-  // Hero elements visible immediately
-  document.querySelectorAll('.hero-content .animate-fade-up').forEach(el => {
+  // Make hero elements visible immediately (before scroll observer fires)
+  document.querySelectorAll('.hero-content .animate-fade-up').forEach(el =>
     el.classList.add('visible')
-  })
+  )
 
   initScrollAnimations()
   initCounters()
@@ -19,90 +23,73 @@ document.addEventListener('DOMContentLoaded', async () => {
   startTypewriter()
   initParticles()
 
-  // Load gallery from Supabase
   await loadGallery()
-
   await initAuth()
 
-  document.getElementById('headerLoginBtn')?.addEventListener('click', () => openAuthModal('login'))
-  document.querySelectorAll('.global-header-logout').forEach(btn => {
-    btn.addEventListener('click', async () => { await logoutUser() })
-  })
+  document.getElementById('headerLoginBtn')
+    ?.addEventListener('click', () => openAuthModal('login'))
+
+  document.querySelectorAll('.global-header-logout')
+    .forEach(btn => btn.addEventListener('click', () => logoutUser()))
 })
 
-// ── GALLERY FROM SUPABASE ─────────────────────────────────
+// ── GALLERY ───────────────────────────────────────────────────
+const MEDIA_EXTS  = ['jpg','jpeg','png','gif','webp','svg','mp4','webm','mov']
+const VIDEO_EXTS  = ['mp4','webm','mov']
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=600&q=80'
+
+function getExt(name) { return name.split('.').pop().toLowerCase() }
+function isMedia(f)   { return MEDIA_EXTS.includes(getExt(f.name)) }
+function isVideo(f)   { return VIDEO_EXTS.includes(getExt(f.name)) }
+
+function buildMediaItems(files) {
+  return files.filter(isMedia).map(file => {
+    const { data: { publicUrl } } = supabase.storage
+      .from('image_files').getPublicUrl(`College_images/${file.name}`)
+    return { url: publicUrl, name: file.name, isVideo: isVideo(file) }
+  })
+}
+
 async function loadGallery() {
   const galleryGrid = document.getElementById('galleryGrid')
   if (!galleryGrid) return
 
-  // Show skeleton loading
-  galleryGrid.innerHTML = Array(8).fill(0).map(() => `
-    <div class="gallery-item skeleton-gallery">
-      <div class="skeleton" style="width:100%;height:100%;border-radius:var(--radius-md);"></div>
-    </div>`).join('')
+  // Show skeleton
+  galleryGrid.innerHTML = Array(8).fill(0).map(() =>
+    `<div class="gallery-item skeleton-gallery"></div>`
+  ).join('')
 
   try {
-    // List all files in College_images folder
-    const { data: files, error } = await supabase
-      .storage
+    const { data: files, error } = await supabase.storage
       .from('image_files')
-      .list('College_images', {
-        limit: 50,
-        sortBy: { column: 'created_at', order: 'desc' }
-      })
+      .list('College_images', { limit: 50, sortBy: { column: 'created_at', order: 'desc' } })
 
     if (error) throw error
 
-    if (!files || files.length === 0) {
-      // Fallback to default images if no files in bucket
+    const mediaItems = buildMediaItems(files || [])
+
+    if (mediaItems.length === 0) {
       renderDefaultGallery(galleryGrid)
       return
     }
-
-    // Filter only image and video files
-    const mediaFiles = files.filter(f => {
-      const ext = f.name.split('.').pop().toLowerCase()
-      return ['jpg','jpeg','png','gif','webp','svg','mp4','webm','mov'].includes(ext)
-    })
-
-    if (mediaFiles.length === 0) {
-      renderDefaultGallery(galleryGrid)
-      return
-    }
-
-    // Generate public URLs
-    const mediaItems = mediaFiles.map(file => {
-      const { data: { publicUrl } } = supabase
-        .storage
-        .from('image_files')
-        .getPublicUrl(`College_images/${file.name}`)
-      const ext = file.name.split('.').pop().toLowerCase()
-      const isVideo = ['mp4','webm','mov'].includes(ext)
-      return { url: publicUrl, name: file.name, isVideo }
-    })
 
     renderGallery(galleryGrid, mediaItems)
 
-    // Setup realtime-like polling (check for new uploads every 30s)
+    // Polling: compare lengths to detect new uploads
+    // FIX: track mediaItems.length in closure correctly
+    let lastCount = mediaItems.length
     setInterval(async () => {
-      const { data: newFiles } = await supabase
-        .storage
-        .from('image_files')
-        .list('College_images', { limit: 50, sortBy: { column: 'created_at', order: 'desc' } })
-      if (newFiles && newFiles.length !== mediaFiles.length) {
-        const newMediaItems = newFiles
-          .filter(f => {
-            const ext = f.name.split('.').pop().toLowerCase()
-            return ['jpg','jpeg','png','gif','webp','svg','mp4','webm','mov'].includes(ext)
-          })
-          .map(file => {
-            const { data: { publicUrl } } = supabase.storage.from('image_files').getPublicUrl(`College_images/${file.name}`)
-            const ext = file.name.split('.').pop().toLowerCase()
-            const isVideo = ['mp4','webm','mov'].includes(ext)
-            return { url: publicUrl, name: file.name, isVideo }
-          })
-        renderGallery(galleryGrid, newMediaItems)
-      }
+      try {
+        const { data: newFiles } = await supabase.storage
+          .from('image_files')
+          .list('College_images', { limit: 50, sortBy: { column: 'created_at', order: 'desc' } })
+        if (!newFiles) return
+        const newMedia = buildMediaItems(newFiles)
+        if (newMedia.length !== lastCount) {
+          lastCount = newMedia.length
+          renderGallery(galleryGrid, newMedia)
+        }
+      } catch (_) {}
     }, 30000)
 
   } catch (err) {
@@ -113,31 +100,32 @@ async function loadGallery() {
 
 function renderGallery(container, items) {
   container.innerHTML = items.map((item, i) => {
+    const altText = item.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
     if (item.isVideo) {
       return `
-        <div class="gallery-item animate-fade-up" style="animation-delay:${i * 0.07}s;">
-          <video autoplay muted loop playsinline class="gallery-video" style="width:100%;height:100%;object-fit:cover;">
+        <div class="gallery-item animate-fade-up" style="transition-delay:${i * 0.06}s;">
+          <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;">
             <source src="${item.url}" />
           </video>
           <div class="gallery-video-badge"><i class="fas fa-play-circle"></i></div>
         </div>`
     }
     return `
-      <div class="gallery-item animate-fade-up" style="animation-delay:${i * 0.07}s;">
-        <img src="${item.url}" alt="Campus - ${item.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=600&q=80'" />
+      <div class="gallery-item animate-fade-up" style="transition-delay:${i * 0.06}s;">
+        <img src="${item.url}" alt="Campus - ${altText}" loading="lazy"
+             onerror="this.src='${FALLBACK_IMG}'" />
       </div>`
   }).join('')
 
-  // Re-init scroll animations for new elements
+  // Trigger visible state for new items
   setTimeout(() => {
-    document.querySelectorAll('#galleryGrid .animate-fade-up:not(.visible)').forEach(el => {
-      el.classList.add('visible')
-    })
-  }, 100)
+    container.querySelectorAll('.animate-fade-up:not(.visible)')
+      .forEach(el => el.classList.add('visible'))
+  }, 80)
 }
 
 function renderDefaultGallery(container) {
-  const defaultImages = [
+  const defaults = [
     { url: 'https://www.princedrkvasudevan.com/image/img5.jpg', alt: 'Campus Building' },
     { url: 'https://www.princedrkvasudevan.com/image/img1.jpg', alt: 'Library' },
     { url: 'https://www.eduska.com/assets/user_photo/2621c4362ec6124fe7a6b731e5a23fb7.jpg', alt: 'Campus View' },
@@ -147,20 +135,18 @@ function renderDefaultGallery(container) {
     { url: 'https://images.shiksha.com/mediadata/images/1504601205phpnWD3OX.jpeg', alt: 'Lab Facilities' },
     { url: 'https://www.sikshapedia.com/public/data/colleges/prince-dr-k-vasudevan-college-of-engineering-and-technology-chennai-tamil-nadu/8U_CA2spqD.webp', alt: 'College Campus' }
   ]
-
-  container.innerHTML = defaultImages.map((img, i) => `
-    <div class="gallery-item animate-fade-up" style="animation-delay:${i * 0.07}s;">
-      <img src="${img.url}" alt="${img.alt}" loading="lazy" />
+  container.innerHTML = defaults.map((img, i) => `
+    <div class="gallery-item animate-fade-up" style="transition-delay:${i * 0.06}s;">
+      <img src="${img.url}" alt="${img.alt}" loading="lazy" onerror="this.src='${FALLBACK_IMG}'" />
     </div>`).join('')
 
   setTimeout(() => {
-    document.querySelectorAll('#galleryGrid .animate-fade-up:not(.visible)').forEach(el => {
-      el.classList.add('visible')
-    })
-  }, 100)
+    container.querySelectorAll('.animate-fade-up:not(.visible)')
+      .forEach(el => el.classList.add('visible'))
+  }, 80)
 }
 
-// ── TYPEWRITER ────────────────────────────────────────────
+// ── TYPEWRITER ────────────────────────────────────────────────
 function startTypewriter() {
   const el = document.getElementById('heroTypewriter')
   if (!el) return
@@ -171,60 +157,94 @@ function startTypewriter() {
     '14+ Years of Excellence • 65-Acre Campus • 2,452+ Students',
   ]
 
-  let phraseIdx = 0, charIdx = 0, deleting = false, pauseTick = 0
+  let phraseIdx = 0
+  let charIdx   = 0
+  let deleting  = false
+  let pauseTick = 0
+
   el.innerHTML = '<span class="typed-cursor"></span>'
 
   function tick() {
     const phrase = phrases[phraseIdx]
-    if (pauseTick > 0) { pauseTick--; setTimeout(tick, 60); return }
 
-    if (!deleting && charIdx <= phrase.length) {
+    if (pauseTick > 0) {
+      pauseTick--
+      setTimeout(tick, 60)
+      return
+    }
+
+    if (!deleting) {
+      // FIX: use <= so final character is shown before pause
       el.innerHTML = phrase.slice(0, charIdx) + '<span class="typed-cursor"></span>'
       charIdx++
-      if (charIdx > phrase.length) { pauseTick = 30; deleting = true }
-      setTimeout(tick, deleting ? 30 : 48)
-    } else if (deleting && charIdx >= 0) {
+      if (charIdx > phrase.length) {
+        pauseTick = 28
+        deleting  = true
+      }
+      setTimeout(tick, 52)
+    } else {
       el.innerHTML = phrase.slice(0, charIdx) + '<span class="typed-cursor"></span>'
       charIdx--
-      if (charIdx < 0) { deleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; charIdx = 0; pauseTick = 10 }
-      setTimeout(tick, 22)
+      if (charIdx < 0) {
+        deleting  = false
+        phraseIdx = (phraseIdx + 1) % phrases.length
+        charIdx   = 0
+        pauseTick = 8
+      }
+      setTimeout(tick, 24)
     }
   }
+
   setTimeout(tick, 1200)
 }
 
-// ── PARTICLE CANVAS ───────────────────────────────────────
+// ── PARTICLES ─────────────────────────────────────────────────
 function initParticles() {
   const canvas = document.getElementById('heroParticles')
   if (!canvas) return
   const ctx = canvas.getContext('2d')
   let W, H, particles
 
-  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight }
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth
+    H = canvas.height = canvas.offsetHeight
+  }
 
   function Particle() {
-    this.reset = function() {
-      this.x = Math.random() * W; this.y = Math.random() * H
-      this.r = Math.random() * 2.2 + 0.5
-      this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4 - 0.2
-      this.a = Math.random() * 0.6 + 0.2
+    this.reset = function () {
+      this.x  = Math.random() * W
+      this.y  = Math.random() * H
+      this.r  = Math.random() * 2.2 + 0.5
+      this.vx = (Math.random() - 0.5) * 0.4
+      this.vy = (Math.random() - 0.5) * 0.4 - 0.2
+      this.a  = Math.random() * 0.6 + 0.2
     }
     this.reset()
   }
 
-  function init() { resize(); particles = Array.from({ length: 90 }, () => new Particle()) }
+  function init() {
+    resize()
+    particles = Array.from({ length: 90 }, () => new Particle())
+  }
 
   function draw() {
     ctx.clearRect(0, 0, W, H)
     particles.forEach(p => {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(255,255,255,${p.a})`; ctx.fill()
-      p.x += p.vx; p.y += p.vy
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(255,255,255,${p.a})`
+      ctx.fill()
+      p.x += p.vx
+      p.y += p.vy
       if (p.x < -5 || p.x > W + 5 || p.y < -5 || p.y > H + 5) p.reset()
     })
     requestAnimationFrame(draw)
   }
 
-  init(); draw()
-  window.addEventListener('resize', resize)
+  init()
+  draw()
+
+  // FIX: debounce resize
+  let t
+  window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(resize, 120) })
 }

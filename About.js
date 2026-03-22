@@ -1,4 +1,8 @@
-import { initStickyHeader, initHamburger, initScrollAnimations, initCounters, initAuth, openAuthModal, logoutUser, initRipple, initTiltCards , initPageTransitions } from './shared.js'
+import {
+  initStickyHeader, initHamburger, initScrollAnimations,
+  initCounters, initAuth, openAuthModal, logoutUser,
+  initRipple, initTiltCards, initPageTransitions
+} from './shared.js'
 
 document.addEventListener('DOMContentLoaded', async () => {
   initStickyHeader()
@@ -11,8 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await initAuth()
 
-  document.getElementById('headerLoginBtn')?.addEventListener('click', () => openAuthModal('login'))
-  document.querySelectorAll('.global-header-logout').forEach(btn => {
-    btn.addEventListener('click', async () => { await logoutUser() })
-  })
+  document.getElementById('headerLoginBtn')
+    ?.addEventListener('click', () => openAuthModal('login'))
+
+  document.querySelectorAll('.global-header-logout')
+    .forEach(btn => btn.addEventListener('click', () => logoutUser()))
 })

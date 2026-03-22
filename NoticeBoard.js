@@ -1,5 +1,11 @@
 import { supabase } from './supabaseClient.js'
-import { initStickyHeader, initHamburger, initScrollAnimations, openModal, closeModal, initModalCloseHandlers, showToast, initAuth, openAuthModal, logoutUser, getCurrentUser, getUserProfile, onAuthChange, initRipple, showSkeletonNotices , initPageTransitions } from './shared.js'
+import {
+  initStickyHeader, initHamburger, initScrollAnimations,
+  openModal, closeModal, initModalCloseHandlers,
+  showToast, initAuth, openAuthModal, logoutUser,
+  getCurrentUser, getUserProfile, onAuthChange,
+  initRipple, showSkeletonNotices, initPageTransitions
+} from './shared.js'
 
 let notices       = []
 let currentFilter = 'all'
@@ -11,7 +17,7 @@ const TYPE_CONFIG = {
   notice: { emoji: '📢', label: 'Notice', color: '#2196F3', badgeClass: 'badge-blue'  }
 }
 
-// ── BOOT ──────────────────────────────────────────────────
+// ── BOOT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   initStickyHeader()
   initHamburger()
@@ -23,18 +29,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupRegisterForm()
   showSkeletonNotices()
 
-  // Init global auth
   await initAuth()
 
-  // Wire up header auth buttons
-  document.getElementById('headerLoginBtn')?.addEventListener('click', () => openAuthModal('login'))
-  document.querySelectorAll('.global-header-logout').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      await logoutUser()
-    })
-  })
+  document.getElementById('headerLoginBtn')
+    ?.addEventListener('click', () => openAuthModal('login'))
 
-  // Re-render notices when auth changes
+  document.querySelectorAll('.global-header-logout')
+    .forEach(btn => btn.addEventListener('click', () => logoutUser()))
+
+  // Re-render when auth state changes (login/logout)
   onAuthChange((user, profile) => {
     updateHeroGreeting(user, profile)
     renderNotices()
@@ -46,15 +49,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function updateHeroGreeting(user, profile) {
   const greeting = document.getElementById('userGreeting')
-  if (user && greeting) {
-    greeting.style.display = 'inline-flex'
-    greeting.textContent = `👋 Hi, ${profile?.name || user.email.split('@')[0]}!`
-  } else if (greeting) {
-    greeting.style.display = 'none'
+  if (!greeting) return
+  if (user) {
+    greeting.style.display  = 'inline-flex'
+    greeting.textContent    = `👋 Hi, ${profile?.name || user.email.split('@')[0]}!`
+  } else {
+    greeting.style.display  = 'none'
   }
 }
 
-// ── LOAD & RENDER ─────────────────────────────────────────
+// ── LOAD & RENDER ─────────────────────────────────────────────
 async function loadNotices() {
   const { data, error } = await supabase
     .from('notices_informations')
@@ -67,16 +71,20 @@ async function loadNotices() {
 }
 
 function renderNotices() {
+  const container   = document.getElementById('noticesList')
+  if (!container) return
   const currentUser = getCurrentUser()
-  const container = document.getElementById('noticesList')
-  let filtered = currentFilter === 'all' ? notices : notices.filter(n => n.type === currentFilter)
+
+  let filtered = currentFilter === 'all'
+    ? notices
+    : notices.filter(n => n.type === currentFilter)
 
   if (searchQuery) {
     const q = searchQuery.toLowerCase()
     filtered = filtered.filter(n =>
-      (n.title || '').toLowerCase().includes(q) ||
+      (n.title       || '').toLowerCase().includes(q) ||
       (n.description || '').toLowerCase().includes(q) ||
-      (n.type || '').toLowerCase().includes(q)
+      (n.type        || '').toLowerCase().includes(q)
     )
   }
 
@@ -84,7 +92,11 @@ function renderNotices() {
     container.innerHTML = `
       <div class="nb-empty">
         <div class="nb-empty-icon">📭</div>
-        <p>No ${searchQuery ? `results for "<strong>${searchQuery}</strong>"` : (currentFilter === 'all' ? '' : currentFilter + ' ') + 'notices found.'}.</p>
+        <p>No ${
+          searchQuery
+            ? `results for "<strong>${escHtml(searchQuery)}</strong>"`
+            : (currentFilter === 'all' ? '' : currentFilter + ' ') + 'notices found.'
+        }.</p>
       </div>`
     return
   }
@@ -93,14 +105,16 @@ function renderNotices() {
 }
 
 function buildCard(n, currentUser) {
-  const cfg   = TYPE_CONFIG[n.type] || TYPE_CONFIG.notice
-  const regs  = Array.isArray(n.registrations) ? n.registrations : []
-  const isReg = currentUser && regs.some(r => r.email === currentUser.email)
+  const cfg    = TYPE_CONFIG[n.type] || TYPE_CONFIG.notice
+  const regs   = Array.isArray(n.registrations) ? n.registrations : []
+  const isReg  = currentUser && regs.some(r => r.email === currentUser.email)
   const dateStr = n.date
-    ? new Date(n.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' })
+    ? new Date(n.date + 'T00:00:00').toLocaleDateString('en-IN', {
+        weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+      })
     : '—'
 
-  let btnHtml = ''
+  let btnHtml
   if (n.type === 'notice') {
     btnHtml = `<button class="notice-action-btn nb-view-btn" onclick="handleAction('${n.id}','notice')">
                  <i class="fas fa-eye"></i> View Details</button>`
@@ -126,7 +140,7 @@ function buildCard(n, currentUser) {
         <h3 class="notice-card-title">${escHtml(n.title)}</h3>
         <div class="notice-meta">
           <span><i class="fas fa-calendar"></i> ${dateStr}</span>
-          ${n.time ? `<span><i class="fas fa-clock"></i> ${n.time}</span>` : '<span><i class="fas fa-clock"></i> All Day</span>'}
+          <span><i class="fas fa-clock"></i> ${n.time || 'All Day'}</span>
         </div>
         <p class="notice-desc">${escHtml(n.description || '')}</p>
         ${btnHtml}
@@ -136,11 +150,11 @@ function buildCard(n, currentUser) {
 
 function escHtml(str) {
   return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-// ── FILTERS ───────────────────────────────────────────────
+// ── FILTERS ───────────────────────────────────────────────────
 function setupFilters() {
   document.querySelectorAll('.nb-filter').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -151,27 +165,29 @@ function setupFilters() {
     })
   })
 
-  // Live search
-  let searchDebounce
+  // Live search with debounce
+  let searchTimer
   document.getElementById('nbSearchInput')?.addEventListener('input', (e) => {
-    clearTimeout(searchDebounce)
-    searchDebounce = setTimeout(() => {
+    clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => {
       searchQuery = e.target.value.trim()
       renderNotices()
     }, 250)
   })
 }
 
-// ── REALTIME ──────────────────────────────────────────────
+// ── REALTIME ──────────────────────────────────────────────────
 function setupRealtime() {
   supabase
     .channel('nb-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'notices_informations' }, loadNotices)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'notices_informations'
+    }, loadNotices)
     .subscribe()
 }
 
-// ── ACTIONS ───────────────────────────────────────────────
-window.handleAction = function(id, type) {
+// ── ACTIONS ───────────────────────────────────────────────────
+window.handleAction = function (id, type) {
   if (type === 'notice') {
     const n = notices.find(x => x.id === id)
     if (!n) return
@@ -181,73 +197,119 @@ window.handleAction = function(id, type) {
   openRegisterModal(id)
 }
 
-window.openGlobalAuth = function() {
+window.openGlobalAuth = function () {
   openAuthModal('login')
 }
 
 function openRegisterModal(noticeId) {
   const currentUser = getCurrentUser()
   const userProfile = getUserProfile()
-  const notice = notices.find(n => n.id === noticeId)
+  const notice      = notices.find(n => n.id === noticeId)
   if (!notice) return
 
   const regs = Array.isArray(notice.registrations) ? notice.registrations : []
+
+  // Already registered check
   if (currentUser && regs.some(r => r.email === currentUser.email)) {
     showToast('You are already registered for this event!', 'info')
     return
   }
 
-  document.getElementById('regModalTitle').textContent = notice.title
-  document.getElementById('regDetails').textContent =
-    `📅 ${notice.date}  ${notice.time ? '⏰ ' + notice.time : ''}  |  👥 ${regs.length} already registered`
+  // Populate modal
+  const titleEl = document.getElementById('regModalTitle')
+  if (titleEl) titleEl.textContent = notice.title
 
-  const statusEl = document.getElementById('regStatus')
-  if (currentUser && userProfile) {
-    document.getElementById('regName').value  = userProfile.name  || ''
-    document.getElementById('regPhone').value = userProfile.phone || ''
-    document.getElementById('regRegno').value = userProfile.regno || ''
-    document.getElementById('regYear').value  = userProfile.year  || ''
-    statusEl.style.display = 'block'
-    statusEl.textContent = '✅ Details auto-filled from your profile. You can edit if needed.'
-  } else {
-    ['regName','regPhone','regRegno','regYear'].forEach(id => document.getElementById(id).value = '')
-    statusEl.style.display = 'none'
+  const detailsEl = document.getElementById('regDetails')
+  if (detailsEl) {
+    detailsEl.textContent = `📅 ${notice.date || '—'}  ${notice.time ? '⏰ ' + notice.time : ''}  |  👥 ${regs.length} already registered`
   }
 
-  document.getElementById('registerModal').dataset.noticeId = noticeId
+  const statusEl = document.getElementById('regStatus')
+
+  // FIX: null-check each field before setting value
+  const setField = (id, val) => {
+    const el = document.getElementById(id)
+    if (el) el.value = val || ''
+  }
+
+  if (currentUser && userProfile) {
+    setField('regName',  userProfile.name)
+    setField('regPhone', userProfile.phone)
+    setField('regRegno', userProfile.regno)
+    setField('regYear',  userProfile.year)
+    if (statusEl) {
+      statusEl.style.display = 'block'
+      statusEl.textContent   = '✅ Details auto-filled from your profile. You can edit if needed.'
+    }
+  } else {
+    setField('regName', ''); setField('regPhone', '')
+    setField('regRegno', ''); setField('regYear', '')
+    if (statusEl) statusEl.style.display = 'none'
+  }
+
+  const modal = document.getElementById('registerModal')
+  if (modal) modal.dataset.noticeId = noticeId
+
   openModal('registerModal')
 }
 
-// ── REGISTER FORM ─────────────────────────────────────────
+// ── REGISTER FORM ─────────────────────────────────────────────
 function setupRegisterForm() {
-  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  const form = document.getElementById('registerForm')
+  if (!form) return
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault()
     const currentUser = getCurrentUser()
-    const noticeId = document.getElementById('registerModal').dataset.noticeId
-    const notice   = notices.find(n => n.id === noticeId)
+    const modal       = document.getElementById('registerModal')
+    const noticeId    = modal?.dataset.noticeId
+    const notice      = notices.find(n => n.id === noticeId)
     if (!notice) return
 
-    const name  = document.getElementById('regName').value.trim()
-    const phone = document.getElementById('regPhone').value.trim()
-    const regno = document.getElementById('regRegno').value.trim()
-    const year  = document.getElementById('regYear').value.trim()
-    const email = currentUser ? currentUser.email : `${regno}@guest.pdkv`
+    const name  = document.getElementById('regName')?.value.trim()
+    const phone = document.getElementById('regPhone')?.value.trim()
+    const regno = document.getElementById('regRegno')?.value.trim()
+    const year  = document.getElementById('regYear')?.value.trim()
 
-    const regs = Array.isArray(notice.registrations) ? notice.registrations : []
+    // FIX: validate required fields before submitting
+    if (!name || !phone || !regno) {
+      showToast('Please fill Name, Phone and Register Number.', 'warning')
+      return
+    }
+
+    const email = currentUser ? currentUser.email : `${regno}@guest.pdkv`
+    const regs  = Array.isArray(notice.registrations) ? notice.registrations : []
+
+    // Duplicate check on both email and regno
     if (regs.some(r => r.email === email || r.regno === regno)) {
       showToast('You are already registered for this event!', 'warning')
       return
     }
 
-    const updatedRegs = [...regs, { name, phone, regno, year, email, registered_at: new Date().toISOString() }]
+    const submitBtn = form.querySelector('[type="submit"]')
+    if (submitBtn) {
+      submitBtn.disabled = true
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering…'
+    }
+
+    const updatedRegs = [
+      ...regs,
+      { name, phone, regno, year, email, registered_at: new Date().toISOString() }
+    ]
+
     const { error } = await supabase
       .from('notices_informations')
       .update({ registrations: updatedRegs })
       .eq('id', noticeId)
 
+    if (submitBtn) {
+      submitBtn.disabled = false
+      submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Registration'
+    }
+
     if (error) { showToast('Registration failed: ' + error.message, 'error'); return }
 
-    showToast(`Successfully registered for "${notice.title}"!`, 'success')
+    showToast(`Successfully registered for "${notice.title}"! 🎉`, 'success')
     closeModal('registerModal')
     await loadNotices()
   })
