@@ -240,6 +240,7 @@ body.tc-page::before {
   border: 2px solid rgba(245,158,11,.30);
   border-radius: 25px;
   width: 100%;
+  font-weight: bold;
 }
 
 .tb-pri:hover, .tc-btn-primary:hover {
