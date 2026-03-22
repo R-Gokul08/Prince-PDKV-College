@@ -1,124 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Student Portal — Prince Dr K Vasudevan College"/>
-  <meta name="theme-color" content="#040812"/>
-  <title>Student Portal — PDKV College</title>
-  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon"/>
-  <link rel="stylesheet" href="/shared.css"/>
-  <link rel="stylesheet" href="/Student.css"/>
+  <meta charset="UTF-8" />
+  <meta name="description" content="Student Portal — Prince Dr K Vasudevan College" />
+  <meta name="theme-color" content="#020c1b" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal - Prince Dr K Vasudevan College</title>
+  <link rel="shortcut icon" href="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" type="image/x-icon" />
+  <link rel="stylesheet" href="/shared.css" />
+  <link rel="stylesheet" href="/Student.css" />
 </head>
-<body class="st-page">
-<div class="page-transition-overlay" id="pageTransition"></div>
+<body>
+  <div class="page-transition-overlay" id="pageTransition"></div>
 
-<!-- HEADER -->
-<header class="site-header" id="siteHeader">
-  <div class="header-inner">
-    <div class="header-brand">
-      <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="header-logo"/>
-      <span class="header-title">Prince Dr K Vasudevan College of Engineering &amp; Technology</span>
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV Logo" class="header-logo" />
+        <span class="header-title">Prince Dr K Vasudevan College of Engineering &amp; Technology</span>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="Courses.html" class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
+        <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
+        <a href="Student.html" class="nav-link active"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+        <a href="Teacher.html" class="nav-link"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
+        <a href="Facilities.html" class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
+        <a href="About.html" class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+        <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none;">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <span class="nav-user-chip global-header-user" style="display:none;"></span>
+        <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828);">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </nav>
     </div>
-    <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
-    <nav class="site-nav" id="siteNav">
-      <a href="index.html"       class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="Courses.html"     class="nav-link"><i class="fas fa-book"></i><span>Courses</span></a>
-      <a href="NoticeBoard.html" class="nav-link"><i class="fas fa-bell"></i><span>Notice Board</span></a>
-      <a href="Student.html"     class="nav-link active"><i class="fas fa-user-graduate"></i><span>Students</span></a>
-      <a href="Teacher.html"     class="nav-link"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
-      <a href="Facilities.html"  class="nav-link"><i class="fas fa-building"></i><span>Facilities</span></a>
-      <a href="About.html"       class="nav-link"><i class="fas fa-info-circle"></i><span>About Us</span></a>
-      <button class="nav-auth-btn global-header-auth" id="headerLoginBtn" style="display:none"><i class="fas fa-sign-in-alt"></i> Sign In</button>
-      <span   class="nav-user-chip global-header-user" style="display:none"></span>
-      <button class="nav-auth-btn global-header-logout" style="display:none;background:linear-gradient(135deg,#f44336,#c62828)"><i class="fas fa-sign-out-alt"></i> Logout</button>
-    </nav>
-  </div>
-</header>
+  </header>
 
-<!-- HERO -->
-<section class="st-hero">
-  <div class="st-hero-bg"></div>
-  <canvas class="st-hero-canvas" id="stCanvas"></canvas>
-  <div class="st-hero-inner">
-    <div class="st-hero-pill animate-fade-up"><i class="fas fa-user-graduate"></i> Student Academic Portal</div>
-    <h1 class="st-hero-h1 animate-fade-up">Your Academic<br><span class="st-hero-span">Universe Awaits</span></h1>
-    <p class="st-hero-sub animate-fade-up">Sign in with your Register Number to access attendance &amp; exam results</p>
-  </div>
-  <div class="st-hero-line"></div>
-</section>
+  <!-- HERO -->
+  <section class="page-hero st-hero">
+    <div class="st-hero-overlay"></div>
+    <canvas id="stCanvas"></canvas>
+    <div class="st-hero-content">
+      <h1 class="animate-fade-up"><i class="fas fa-user-graduate"></i> Student Portal</h1>
+      <p class="animate-fade-up">Sign in to view your profile, attendance &amp; results</p>
+    </div>
+  </section>
 
-<!-- MAIN -->
-<section class="st-section">
+  <!-- MAIN -->
+  <section class="section st-section">
+    <div class="container st-container">
 
-  <!-- LOGIN -->
-  <div id="secLogin" style="display:none">
-    <div class="st-wrap">
-      <div class="st-login-outer">
-        <div class="sp-glass st-login-card">
-          <div class="st-login-icon"><i class="fas fa-user-lock"></i></div>
-          <h2 class="st-login-h2">Student Sign In</h2>
-          <p class="st-login-hint">Enter your Register Number &amp; Password to access your portal.</p>
-          <div id="loginMsg" class="sp-msg sp-msg-err" style="display:none"></div>
-          <form id="loginForm" novalidate>
-            <div class="sp-form-group">
-              <label class="sp-label"><i class="fas fa-id-card"></i> Register Number</label>
-              <input type="text" id="inRegno" class="sp-input" placeholder="e.g. 22CS0001" autocomplete="username" required/>
-            </div>
-            <div class="sp-form-group">
-              <label class="sp-label"><i class="fas fa-lock"></i> Password</label>
-              <input type="password" id="inPass" class="sp-input" placeholder="••••••••" autocomplete="current-password" required/>
-            </div>
-            <button type="submit" class="sp-btn sp-btn-primary sp-btn-full" id="loginBtn" style="margin-top:6px">
-              <i class="fas fa-sign-in-alt"></i> Sign In
-            </button>
-          </form>
-          <p style="margin-top:20px;font-size:0.8rem;color:var(--sp-muted);text-align:center;line-height:1.7">
-            <i class="fas fa-info-circle" style="color:var(--sp-blue)"></i>
-            Credentials are set by admin. Contact admin if you cannot log in.
-          </p>
+      <!-- LOGIN -->
+      <div id="secLogin" style="display:block;">
+        <div class="st-login-wrap sp-up vis">
+          <div class="sp-glass st-login-card">
+            <div class="st-login-logo"><i class="fas fa-user-graduate"></i></div>
+            <h2 class="st-login-title">Student Sign In</h2>
+            <p class="st-login-sub">Sign in with your Register Number &amp; Password</p>
+            <form id="loginForm" novalidate>
+              <div class="sp-fg">
+                <label>Register Number *</label>
+                <input id="inRegno" class="sp-inp" placeholder="e.g. 22CS0001" required autocomplete="off" style="text-transform:uppercase;" />
+              </div>
+              <div class="sp-fg">
+                <label>Password *</label>
+                <input id="inPass" class="sp-inp" type="password" placeholder="••••••••" required />
+              </div>
+              <div id="loginMsg" class="sp-msg"></div>
+              <button type="submit" class="sp-btn sp-btn-primary sp-btn-full" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+              </button>
+            </form>
+            <p style="margin-top:18px;font-size:0.82rem;color:var(--sp-muted);text-align:center;">
+              <i class="fas fa-info-circle"></i>
+              Don't have a password? Contact your college administrator.
+            </p>
+          </div>
         </div>
       </div>
+
+      <!-- LOADING -->
+      <div id="secLoading" style="display:none;">
+        <div class="st-loading-wrap sp-up vis">
+          <div class="st-spinner"></div>
+          <p>Loading your portal…</p>
+        </div>
+      </div>
+
+      <!-- SETUP PROFILE -->
+      <div id="secSetup" style="display:none;"></div>
+
+      <!-- PROFILE -->
+      <div id="secProfile" style="display:none;"></div>
+
     </div>
-  </div>
+  </section>
 
-  <!-- LOADING -->
-  <div id="secLoading" style="display:none">
-    <div class="st-wrap"><div class="sp-loading"><div class="sp-ring"></div><p>Loading your portal…</p></div></div>
-  </div>
-
-  <!-- SETUP FORM (rendered by JS) -->
-  <div id="secSetup" style="display:none"></div>
-
-  <!-- PROFILE (rendered by JS) -->
-  <div id="secProfile" style="display:none"></div>
-
-</section>
-
-<!-- FOOTER -->
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-logo-row">
-      <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img"/>
-      <div><p class="footer-name">Prince Dr K Vasudevan College</p><p class="footer-sub">of Engineering &amp; Technology</p></div>
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo-row">
+        <img src="https://yt3.googleusercontent.com/ytc/AIdro_k_qv60q5J-ADkI2QNCezEuT1zrK5KTSCIZMtIrhxphKU8=s900-c-k-c0x00ffffff-no-rj" alt="PDKV" class="footer-logo-img" />
+        <div>
+          <p class="footer-name">Prince Dr K Vasudevan College</p>
+          <p class="footer-sub">of Engineering &amp; Technology</p>
+        </div>
+      </div>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/pdkvce" target="_blank" class="footer-social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/pdkvce" target="_blank" class="footer-social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.youtube.com/@pdkvce" target="_blank" class="footer-social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn" aria-label="Website"><i class="fas fa-globe"></i></a>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="Courses.html">Courses</a>
+        <a href="NoticeBoard.html">Notice Board</a>
+        <a href="Student.html">Students</a>
+        <a href="Teacher.html">Teachers</a>
+        <a href="Facilities.html">Facilities</a>
+        <a href="About.html">About Us</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
+      <p class="footer-addr">Medavakkam-Mambakkam Main Road, Ponmar, Chennai - 600 127</p>
     </div>
-    <div class="footer-social">
-      <a href="https://www.facebook.com/pdkvce"   target="_blank" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.instagram.com/pdkvce"  target="_blank" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
-      <a href="https://www.youtube.com/@pdkvce"   target="_blank" class="footer-social-btn"><i class="fab fa-youtube"></i></a>
-      <a href="https://www.linkedin.com/school/prince-dr-k-vasudevan-college" target="_blank" class="footer-social-btn"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://www.princedrkvasudevan.com" target="_blank" class="footer-social-btn"><i class="fas fa-globe"></i></a>
-    </div>
-    <div class="footer-divider"></div>
-    <div class="footer-links">
-      <a href="index.html">Home</a><a href="Courses.html">Courses</a><a href="NoticeBoard.html">Notice Board</a>
-      <a href="Student.html">Students</a><a href="Teacher.html">Teachers</a><a href="Facilities.html">Facilities</a><a href="About.html">About Us</a>
-    </div>
-    <p class="footer-copy">&copy; 2026 Prince Dr K Vasudevan College of Engineering &amp; Technology &nbsp;|&nbsp; TNEA Code: 4116</p>
-    <p class="footer-addr">Medavakkam-Mambakkam Main Road, Ponmar, Chennai - 600 127</p>
-  </div>
-</footer>
+  </footer>
 
-<script type="module" src="/Student.js"></script>
+  <script type="module" src="/Student.js"></script>
 </body>
 </html>
