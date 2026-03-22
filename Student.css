@@ -172,6 +172,22 @@ body {
 .sp-inp option { background: #0d1b35; }
 .sp-ta { resize: vertical; min-height: 70px; }
 
+/* Existing photo preview on edit */
+.sp-existing-photo {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; margin-bottom: 10px;
+  background: rgba(0,245,212,0.06);
+  border: 1px solid rgba(0,245,212,0.2);
+  border-radius: var(--sp-r);
+}
+.sp-existing-photo img {
+  width: 52px; height: 52px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--sp-cyan);
+}
+.sp-existing-photo span {
+  font-size: 0.82rem; color: var(--sp-muted);
+}
+
 /* Upload area */
 .sp-upload-area {
   position: relative; border: 2px dashed var(--sp-border2);

@@ -184,56 +184,70 @@ function bindPreview(fileId,wrapId,imgId,rmId) {
 }
 
 // ── SETUP FORM ────────────────────────────────────────────────
-function renderSetup(regno) {
+// existingData is passed when editing, null when first-time setup
+async function renderSetup(regno, existingData = null) {
+  // If editing and no existing data provided, fetch it
+  if (!existingData) {
+    const { data } = await supabase.from('student_information')
+      .select('*').ilike('register_no', regno).maybeSingle()
+    existingData = data || null
+  }
+
+  const isEdit = !!existingData
+  const d = existingData || {}
+
   const c=document.getElementById('secSetup'); if(!c) return
-  const dOpts=DEPTS.map(d=>`<option>${d}</option>`).join('')
+  const dOpts=DEPTS.map(dept=>`<option ${d.department===dept?'selected':''}>${dept}</option>`).join('')
+  const yearOpts=[1,2,3,4].map(y=>`<option value="${y}" ${d.year==y?'selected':''}>${y==='1'?'1st':y==='2'?'2nd':y==='3'?'3rd':'4th'} Year</option>`).join('')
+  const gOpts=['Male','Female','Other'].map(g=>`<option ${d.gender===g?'selected':''}>${g}</option>`).join('')
+
   c.innerHTML=`
   <div class="st-wrap sp-up vis">
     <div class="sp-glass st-setup-card">
       <div class="st-setup-hdr">
         <div class="st-setup-ico"><i class="fas fa-id-card"></i></div>
-        <h2>Complete Your Profile</h2>
-        <p>Fill in your details to access the portal</p>
+        <h2>${isEdit ? 'Edit Your Profile' : 'Complete Your Profile'}</h2>
+        <p>${isEdit ? 'Update your details below' : 'Fill in your details to access the portal'}</p>
       </div>
       <form id="setupForm">
         <div class="st-form-grid">
           <div class="sp-fg"><label>Register Number *</label>
             <input id="sp_regno" class="sp-inp" value="${esc(regno)}" readonly/></div>
           <div class="sp-fg"><label>Full Name *</label>
-            <input id="sp_name" class="sp-inp" placeholder="Your full name" required/></div>
+            <input id="sp_name" class="sp-inp" value="${esc(d.name||'')}" placeholder="Your full name" required/></div>
           <div class="sp-fg"><label>Email ID *</label>
-            <input id="sp_email" class="sp-inp" type="email" placeholder="your@email.com" required/></div>
+            <input id="sp_email" class="sp-inp" type="email" value="${esc(d.email||'')}" placeholder="your@email.com" required/></div>
           <div class="sp-fg"><label>Phone Number *</label>
-            <input id="sp_phone" class="sp-inp" type="tel" placeholder="+91 99999 99999" required/></div>
+            <input id="sp_phone" class="sp-inp" type="tel" value="${esc(d.phone||'')}" placeholder="+91 99999 99999" required/></div>
           <div class="sp-fg"><label>Gender *</label>
             <select id="sp_gender" class="sp-inp">
               <option value="">Select Gender</option>
-              <option>Male</option><option>Female</option><option>Other</option>
+              ${gOpts}
             </select></div>
           <div class="sp-fg"><label>Department *</label>
             <select id="sp_dept" class="sp-inp"><option value="">Select Department</option>${dOpts}</select></div>
           <div class="sp-fg"><label>Year *</label>
             <select id="sp_year" class="sp-inp">
               <option value="">Select Year</option>
-              <option value="1">1st Year</option><option value="2">2nd Year</option>
-              <option value="3">3rd Year</option><option value="4">4th Year</option>
+              ${yearOpts}
             </select></div>
           <div class="sp-fg"><label>Date of Birth</label>
-            <input id="sp_dob" class="sp-inp" type="date"/></div>
+            <input id="sp_dob" class="sp-inp" type="date" value="${esc(d.dob||'')}"/></div>
           <div class="sp-fg"><label>Guardian Name</label>
-            <input id="sp_guardian" class="sp-inp" placeholder="Parent / Guardian name"/></div>
+            <input id="sp_guardian" class="sp-inp" value="${esc(d.guardian_name||'')}" placeholder="Parent / Guardian name"/></div>
           <div class="sp-fg"><label>LinkedIn Profile</label>
-            <input id="sp_linkedin" class="sp-inp" type="url" placeholder="https://linkedin.com/in/..."/></div>
+            <input id="sp_linkedin" class="sp-inp" type="url" value="${esc(d.linkedin||'')}" placeholder="https://linkedin.com/in/..."/></div>
           <div class="sp-fg"><label>GitHub Profile</label>
-            <input id="sp_github" class="sp-inp" type="url" placeholder="https://github.com/..."/></div>
+            <input id="sp_github" class="sp-inp" type="url" value="${esc(d.github||'')}" placeholder="https://github.com/..."/></div>
           <div class="sp-fg sp-fg-full"><label>Address</label>
-            <textarea id="sp_address" class="sp-inp sp-ta" rows="2" placeholder="Your address"></textarea></div>
+            <textarea id="sp_address" class="sp-inp sp-ta" rows="2" placeholder="Your address">${esc(d.address||'')}</textarea></div>
           <div class="sp-fg sp-fg-full">
-            <label>Profile Photo <span class="sp-opt">(optional)</span></label>
+            <label>Profile Photo <span class="sp-opt">(optional — leave blank to keep existing)</span></label>
+            ${d.image_url ? `<div class="sp-existing-photo"><img src="${esc(d.image_url)}" alt="Current photo" onerror="this.parentElement.style.display='none'"/><span>Current photo</span></div>` : ''}
             <div class="sp-upload-area" id="sp_upload_area">
               <input type="file" id="sp_file" accept="image/*"/>
               <i class="fas fa-cloud-upload-alt sp-upload-ico"></i>
-              <div class="sp-upload-txt"><strong>Click or drag & drop</strong><br>JPG, PNG — max 5MB</div>
+              <div class="sp-upload-txt"><strong>Click or drag & drop to change photo</strong><br>JPG, PNG — max 5MB</div>
             </div>
             <div class="sp-preview-wrap" id="sp_preview_wrap">
               <img id="sp_preview_img" src="" alt="Preview"/>
@@ -241,8 +255,9 @@ function renderSetup(regno) {
             </div>
           </div>
         </div>
+        ${isEdit ? '<button type="button" class="sp-btn sp-btn-ghost sp-btn-full" style="margin-top:10px;" onclick="stCancelEdit()"><i class=\"fas fa-arrow-left\"></i> Cancel</button>' : ''}
         <button type="submit" class="sp-btn sp-btn-primary sp-btn-full" id="setupBtn">
-          <i class="fas fa-save"></i> Save Profile
+          <i class="fas fa-save"></i> ${isEdit ? 'Update Profile' : 'Save Profile'}
         </button>
       </form>
     </div>
@@ -253,7 +268,7 @@ function renderSetup(regno) {
   document.getElementById('setupForm').addEventListener('submit', async e => {
     e.preventDefault()
     const btn=document.getElementById('setupBtn')
-    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…'
+    btn.disabled=true; btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> ${isEdit?'Updating…':'Saving…'}`
 
     const name    = document.getElementById('sp_name').value.trim()
     const email   = document.getElementById('sp_email').value.trim()
@@ -269,25 +284,32 @@ function renderSetup(regno) {
 
     if (!name||!email||!phone||!gender||!dept||!year) {
       showToast('Please fill all required (*) fields.','error')
-      btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save Profile'; return
+      btn.disabled=false; btn.innerHTML=`<i class="fas fa-save"></i> ${isEdit?'Update Profile':'Save Profile'}`; return
     }
 
-    const imgUrl = await uploadImg('sp_file', ST_FOLDER, regno)
+    // Only upload new image if user selected a file; otherwise keep existing
+    let imgUrl = d.image_url || null
+    const fileInput = document.getElementById('sp_file')
+    if (fileInput?.files?.[0]) {
+      const newUrl = await uploadImg('sp_file', ST_FOLDER, regno)
+      if (newUrl) imgUrl = newUrl
+    }
 
     const { error } = await supabase.from('student_information').upsert({
-      register_no:regno, name, email, phone, gender,
-      department:dept, year:parseInt(year), dob:dob||null,
-      guardian_name:guardian||null, linkedin:linkedin||null,
-      github:github||null, address:address||null,
-      image_url: imgUrl || null
+      register_no: regno, name, email, phone, gender,
+      department: dept, year: parseInt(year), dob: dob||null,
+      guardian_name: guardian||null, linkedin: linkedin||null,
+      github: github||null, address: address||null,
+      image_url: imgUrl,
+      updated_at: new Date().toISOString()
     },{ onConflict:'register_no' })
 
     if (error) {
       showToast('Save failed: '+error.message,'error')
-      btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save Profile'; return
+      btn.disabled=false; btn.innerHTML=`<i class="fas fa-save"></i> ${isEdit?'Update Profile':'Save Profile'}`; return
     }
 
-    showToast('Profile saved! 🎉','success')
+    showToast(isEdit ? 'Profile updated successfully! ✅' : 'Profile saved! 🎉','success')
     const { data:stu } = await supabase.from('student_information')
       .select('*').ilike('register_no',regno).maybeSingle()
     if (stu) { showSec('profile'); await renderProfile(stu); setupRT(regno) }
@@ -295,7 +317,23 @@ function renderSetup(regno) {
 }
 
 // ── EDIT PROFILE ──────────────────────────────────────────────
-window.stEdit = () => { if (_regno) { showSec('setup'); renderSetup(_regno) } }
+window.stEdit = async () => {
+  if (!_regno) return
+  showSec('loading')
+  const { data:stu } = await supabase.from('student_information')
+    .select('*').ilike('register_no', _regno).maybeSingle()
+  showSec('setup')
+  await renderSetup(_regno, stu || null)
+}
+
+window.stCancelEdit = async () => {
+  if (!_regno) return
+  showSec('loading')
+  const { data:stu } = await supabase.from('student_information')
+    .select('*').ilike('register_no', _regno).maybeSingle()
+  if (stu) { showSec('profile'); await renderProfile(stu); setupRT(_regno) }
+  else showSec('login')
+}
 
 // ── RENDER PROFILE ────────────────────────────────────────────
 async function renderProfile(stu) {

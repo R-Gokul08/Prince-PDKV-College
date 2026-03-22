@@ -57,7 +57,8 @@ function initFU(){
 
 function showSec(id){
   ['login','loading','setup','profile'].forEach(s=>{
-    const el=document.getElementById('sec_'+s);if(el)el.style.display=s===id?'block':'none'
+    const key = 'sec' + s.charAt(0).toUpperCase() + s.slice(1)
+    const el=document.getElementById(key);if(el)el.style.display=s===id?'block':'none'
   })
   setTimeout(initFU,75)
 }
@@ -65,8 +66,8 @@ function showSec(id){
 // ── LOGIN ─────────────────────────────────────────────────────
 async function doLogin(e){
   e.preventDefault()
-  const regno=document.getElementById('inR')?.value?.trim().toUpperCase()
-  const pass =document.getElementById('inP')?.value
+  const regno=document.getElementById('inRegno')?.value?.trim().toUpperCase()
+  const pass =document.getElementById('inPass')?.value
   if(!regno||!pass){setMsg('Enter Register No. & Password','err');return}
   const btn=document.getElementById('loginBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing In…';clearMsg()
 
@@ -79,8 +80,8 @@ async function doLogin(e){
   await loadPortal(regno);rb(btn)
 }
 
-function setMsg(t,tp){const e=document.getElementById('lMsg');if(!e)return;e.className=`tc-msg tc-${tp}`;e.innerHTML=`<i class="fas fa-${tp==='err'?'exclamation-circle':'check-circle'}"></i> ${t}`;e.style.display='flex'}
-function clearMsg(){const e=document.getElementById('lMsg');if(e)e.style.display='none'}
+function setMsg(t,tp){const e=document.getElementById('loginMsg');if(!e)return;e.className=`tc-msg tc-${tp}`;e.innerHTML=`<i class="fas fa-${tp==='err'?'exclamation-circle':'check-circle'}"></i> ${t}`;e.style.display='flex'}
+function clearMsg(){const e=document.getElementById('loginMsg');if(e)e.style.display='none'}
 function rb(b){b.disabled=false;b.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In'}
 
 window.tcLogout=()=>{sessionStorage.removeItem(SESS_KEY);_regno=null;_profile=null;showSec('login');showToast('Logged out.','info')}
@@ -109,49 +110,60 @@ function bindPrev(fId,wId,iId,rmId){
 async function loadPortal(regno){
   showSec('loading')
   const {data:t}=await supabase.from('teacher_information').select('*').ilike('register_no',regno).maybeSingle()
-  if(!t){showSec('setup');renderSetup(regno)}
+  if(!t){await renderSetup(regno, null)}
   else{_profile=t;showSec('profile');await renderProfile(t)}
 }
 
 // ── SETUP FORM ────────────────────────────────────────────────
-function renderSetup(regno){
-  const c=document.getElementById('sec_setup');if(!c)return
-  const dO=DEPTS.map(d=>`<option>${d}</option>`).join('')
-  const dsO=DESIGS.map(d=>`<option>${d}</option>`).join('')
+async function renderSetup(regno, existingData = null){
+  if (!existingData) {
+    const {data} = await supabase.from('teacher_information')
+      .select('*').ilike('register_no',regno).maybeSingle()
+    existingData = data || null
+  }
+  const isEdit = !!existingData
+  const d = existingData || {}
+
+  const c=document.getElementById('secSetup');if(!c)return
+  const dO =DEPTS.map(dep =>`<option ${d.department===dep ?'selected':''}>${dep}</option>`).join('')
+  const dsO=DESIGS.map(des=>`<option ${d.designation===des?'selected':''}>${des}</option>`).join('')
+  const gO =['Male','Female','Other'].map(g=>`<option ${d.gender===g?'selected':''}>${g}</option>`).join('')
+
   c.innerHTML=`
   <div class="tc-wrap"><div class="tc-setup-outer">
     <div class="tc-setup-hdr">
       <div class="tc-setup-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-      <h2 class="tc-setup-h2">Complete Your Profile</h2>
-      <p class="tc-setup-sub">Hi <strong style="color:var(--tamb)">${esc(regno)}</strong>! Fill your details to activate the portal.</p>
+      <h2 class="tc-setup-h2">${isEdit?'Edit Your Profile':'Complete Your Profile'}</h2>
+      <p class="tc-setup-sub">Hi <strong style="color:var(--tamb)">${esc(regno)}</strong>! ${isEdit?'Update your details below.':'Fill your details to activate the portal.'}</p>
     </div>
     <div class="tg tc-setup-card">
      <form id="setupForm" novalidate>
       <div class="tgrid">
         <div class="tdiv"><span class="tdiv-lbl"><i class="fas fa-user"></i> Personal</span><div class="tdiv-line"></div></div>
         <div class="tg-fg"><label class="tl"><i class="fas fa-id-badge"></i> Register No</label><input class="ti" value="${esc(regno)}" readonly/></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-user"></i> Full Name *</label><input id="f_name" class="ti" placeholder="Dr. / Mr. / Ms. Full Name" required/></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-envelope"></i> Email *</label><input id="f_email" type="email" class="ti" placeholder="your@email.com" required/></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-phone"></i> Phone *</label><input id="f_phone" type="tel" class="ti" placeholder="+91 99999 99999" required/></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-user"></i> Full Name *</label><input id="f_name" class="ti" value="${esc(d.name||'')}" placeholder="Dr. / Mr. / Ms. Full Name" required/></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-envelope"></i> Email *</label><input id="f_email" type="email" class="ti" value="${esc(d.email||'')}" placeholder="your@email.com" required/></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-phone"></i> Phone *</label><input id="f_phone" type="tel" class="ti" value="${esc(d.phone||'')}" placeholder="+91 99999 99999" required/></div>
         <div class="tg-fg"><label class="tl"><i class="fas fa-venus-mars"></i> Gender *</label>
-          <select id="f_gender" class="ts" required><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-calendar-alt"></i> Date of Joining</label><input id="f_joining" type="date" class="ti"/></div>
+          <select id="f_gender" class="ts" required><option value="">Select</option>${gO}</select></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-calendar-alt"></i> Date of Joining</label><input id="f_joining" type="date" class="ti" value="${esc(d.joining_date||'')}"/></div>
 
         <div class="tdiv"><span class="tdiv-lbl"><i class="fas fa-graduation-cap"></i> Professional</span><div class="tdiv-line"></div></div>
         <div class="tg-fg"><label class="tl"><i class="fas fa-building"></i> Department *</label>
           <select id="f_dept" class="ts" required><option value="">Select</option>${dO}</select></div>
         <div class="tg-fg"><label class="tl"><i class="fas fa-user-tie"></i> Designation *</label>
           <select id="f_desig" class="ts" required><option value="">Select</option>${dsO}</select></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-award"></i> Qualification *</label><input id="f_qual" class="ti" placeholder="e.g. M.E., Ph.D" required/></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-briefcase"></i> Experience</label><input id="f_exp" class="ti" placeholder="e.g. 8 Years"/></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-flask"></i> Specialization</label><input id="f_spec" class="ti" placeholder="e.g. Machine Learning"/></div>
-        <div class="tg-fg"><label class="tl"><i class="fas fa-hashtag"></i> Employee ID</label><input id="f_empid" class="ti" placeholder="e.g. PDKV-TCH-001"/></div>
-        <div class="tg-fg tgfull"><label class="tl"><i class="fas fa-book-open"></i> Subjects Handling</label><input id="f_subjects" class="ti" placeholder="e.g. Data Structures, DBMS (comma separated)"/></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-award"></i> Qualification *</label><input id="f_qual" class="ti" value="${esc(d.qualification||'')}" placeholder="e.g. M.E., Ph.D" required/></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-briefcase"></i> Experience</label><input id="f_exp" class="ti" value="${esc(d.experience||'')}" placeholder="e.g. 8 Years"/></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-flask"></i> Specialization</label><input id="f_spec" class="ti" value="${esc(d.specialization||'')}" placeholder="e.g. Machine Learning"/></div>
+        <div class="tg-fg"><label class="tl"><i class="fas fa-hashtag"></i> Employee ID</label><input id="f_empid" class="ti" value="${esc(d.employee_id||'')}" placeholder="e.g. PDKV-TCH-001"/></div>
+        <div class="tg-fg tgfull"><label class="tl"><i class="fas fa-book-open"></i> Subjects Handling</label><input id="f_subjects" class="ti" value="${esc(d.subjects||'')}" placeholder="e.g. Data Structures, DBMS (comma separated)"/></div>
 
         <div class="tdiv"><span class="tdiv-lbl"><i class="fas fa-map-marker-alt"></i> Address &amp; Photo</span><div class="tdiv-line"></div></div>
-        <div class="tg-fg tgfull"><label class="tl"><i class="fas fa-home"></i> Address</label><textarea id="f_addr" class="tta" placeholder="Your residential address"></textarea></div>
+        <div class="tg-fg tgfull"><label class="tl"><i class="fas fa-home"></i> Address</label><textarea id="f_addr" class="tta" placeholder="Your residential address">${esc(d.address||'')}</textarea></div>
         <div class="tg-fg tgfull">
-          <label class="tl"><i class="fas fa-camera"></i> Profile Photo <span style="opacity:.4;font-weight:400">(optional — stored in image_files/Teacher_images)</span></label>
+          <label class="tl"><i class="fas fa-camera"></i> Profile Photo <span style="opacity:.4;font-weight:400">(optional${isEdit?' — leave blank to keep existing':''})</span></label>
+          ${d.image_url ? `<div class="tc-existing-photo" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.1)"><img src="${esc(d.image_url)}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--tamb)" onerror="this.parentElement.style.display='none'"/><span style="font-size:.82rem;color:var(--tc-muted)">Current photo — upload new to replace</span></div>` : ''}
           <div class="tc-upload" id="tUpArea"><input type="file" id="f_img" accept="image/*"/>
             <span class="tc-upload-ico"><i class="fas fa-cloud-upload-alt"></i></span>
             <div class="tc-upload-txt"><strong>Click or drag &amp; drop</strong><br><small>JPG, PNG — max 5 MB</small></div>
@@ -159,7 +171,8 @@ function renderSetup(regno){
           <div class="tc-img-prev" id="tImgPrev"><img id="tImgPrevImg" src="" alt=""/><button type="button" class="tc-img-rm" id="tImgRm"><i class="fas fa-times"></i></button></div>
         </div>
       </div>
-      <button type="submit" class="tb tb-pri tb-full" id="setupBtn" style="margin-top:8px"><i class="fas fa-save"></i> Save My Profile</button>
+      ${isEdit?`<button type="button" class="tb tb-ghost tb-full" style="margin-top:8px" onclick="tcCancelEdit()"><i class="fas fa-arrow-left"></i> Cancel</button>`:''}
+      <button type="submit" class="tb tb-pri tb-full" id="setupBtn" style="margin-top:8px"><i class="fas fa-save"></i> ${isEdit?'Update My Profile':'Save My Profile'}</button>
      </form>
     </div>
    </div></div>`
@@ -169,25 +182,30 @@ function renderSetup(regno){
 
   document.getElementById('setupForm').addEventListener('submit',async e=>{
     e.preventDefault()
-    const btn=document.getElementById('setupBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…'
+    const btn=document.getElementById('setupBtn');btn.disabled=true;btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> ${isEdit?'Updating…':'Saving…'}`
     const g=id=>document.getElementById(id)?.value?.trim()||null
     const name=g('f_name'),email=g('f_email'),phone=g('f_phone'),gender=g('f_gender'),dept=g('f_dept'),desig=g('f_desig'),qual=g('f_qual')
-    if(!name||!email||!phone||!gender||!dept||!desig||!qual){showToast('Fill required fields (*)','warning');btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save My Profile';return}
+    if(!name||!email||!phone||!gender||!dept||!desig||!qual){showToast('Fill required fields (*)','warning');btn.disabled=false;btn.innerHTML=`<i class="fas fa-save"></i> ${isEdit?'Update My Profile':'Save My Profile'}`;return}
 
-    // FIX: upload to Teacher_images and get public URL
-    const imgUrl=await uploadImg('f_img',TCH_FOLD,regno)
+    // Keep existing image if no new file uploaded
+    let imgUrl = d.image_url || null
+    const fileInput = document.getElementById('f_img')
+    if (fileInput?.files?.[0]) {
+      const newUrl = await uploadImg('f_img', TCH_FOLD, regno)
+      if (newUrl) imgUrl = newUrl
+    }
 
     const {error}=await supabase.from('teacher_information').upsert({
       register_no:regno,name,email,phone,gender,department:dept,designation:desig,qualification:qual,
       experience:g('f_exp'),specialization:g('f_spec'),employee_id:g('f_empid'),subjects:g('f_subjects'),
       joining_date:g('f_joining'),address:g('f_addr'),
-      image_url:imgUrl||null,  // full public URL stored directly
+      image_url: imgUrl,
       updated_at:new Date().toISOString()
     },{onConflict:'register_no'})
 
-    btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save My Profile'
+    btn.disabled=false;btn.innerHTML=`<i class="fas fa-save"></i> ${isEdit?'Update My Profile':'Save My Profile'}`
     if(error){showToast('Failed: '+error.message,'error');return}
-    showToast('Profile saved! 🎉','success')
+    showToast(isEdit?'Profile updated! ✅':'Profile saved! 🎉','success')
     const {data:t}=await supabase.from('teacher_information').select('*').ilike('register_no',regno).maybeSingle()
     if(t){_profile=t;showSec('profile');await renderProfile(t)}
   })
@@ -195,7 +213,7 @@ function renderSetup(regno){
 
 // ── RENDER PROFILE ────────────────────────────────────────────
 async function renderProfile(t){
-  const c=document.getElementById('sec_profile');if(!c)return
+  const c=document.getElementById('secProfile');if(!c)return
 
   // FIX: use image_url directly (already a full public URL from Supabase storage)
   const photo=t.image_url&&t.image_url.startsWith('http')
@@ -264,7 +282,16 @@ async function renderProfile(t){
 
 function tci(ico,cls,lbl,val){if(!val)return '';return `<div class="tg tc-info-card"><div class="tc-info-ico ${cls}"><i class="${ico}"></i></div><div><div class="tc-info-lbl">${lbl}</div><div class="tc-info-val">${esc(val)}</div></div></div>`}
 
-window.tcEdit=()=>{if(_regno){showSec('setup');renderSetup(_regno)}}
+window.tcEdit=async ()=>{
+  if(!_regno) return
+  showSec('loading')
+  await renderSetup(_regno, _profile || null)
+}
+
+window.tcCancelEdit=()=>{
+  if(!_regno) return
+  showSec('profile')
+}
 
 // ── ATTENDANCE MANAGER ────────────────────────────────────────
 function renderAttMgr(){
