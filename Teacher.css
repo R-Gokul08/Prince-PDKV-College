@@ -235,6 +235,10 @@ body.tc-page::before {
   color: #0b0f1a;
   box-shadow: 0 4px 18px rgba(245,158,11,.30);
 }
+#loginBtn{
+  padding: 2px;
+  border-radius: 25px;
+}
 
 .tb-pri:hover, .tc-btn-primary:hover {
   transform: translateY(-3px) scale(1.03);
