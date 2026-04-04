@@ -8,7 +8,7 @@ import { supabase } from './supabaseClient.js'
 import {
   initStickyHeader, initHamburger, initScrollAnimations,
   showToast, initAuth, openAuthModal, logoutUser,
-  getCurrentUser, initRipple, initPageTransitions
+  getCurrentUser, initRipple, initPageTransitions, initPasswordToggles
 } from './shared.js'
 
 const BUCKET     = 'image_files'
@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     .forEach(b => b.addEventListener('click', () => logoutUser()))
 
   initAuth()
+  initPasswordToggles(document.getElementById('secLogin'))
   initFadeUp()
 })
 
@@ -139,7 +140,7 @@ async function handleLogin(e) {
   e.preventDefault()
   const regno = document.getElementById('inRegno')?.value?.trim().toUpperCase()
   const pass  = document.getElementById('inPass')?.value
-  if (!regno || !pass) { showMsg('Please enter Register No. & Password.', 'err'); return }
+  if (!regno || !pass) { showMsg('Please enter Register No. & Password.', 'err'); showToast('Please enter Register No. & Password.', 'warning'); return }
 
   const btn = document.getElementById('loginBtn')
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In…'
@@ -153,9 +154,9 @@ async function handleLogin(e) {
 
   btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In'
 
-  if (credRes.error)                    { showMsg('Database error — try again.', 'err'); return }
-  if (!credRes.data)                    { showMsg('Register number not found. Contact admin.', 'err'); return }
-  if (credRes.data.password !== pass)   { showMsg('Incorrect password.', 'err'); return }
+  if (credRes.error)                    { showMsg('Database error — try again.', 'err'); showToast('Database error — try again.', 'error'); return }
+  if (!credRes.data)                    { showMsg('Register number not found. Contact admin.', 'err'); showToast('Register number not found.', 'error'); return }
+  if (credRes.data.password !== pass)   { showMsg('Incorrect password.', 'err'); showToast('Incorrect password.', 'error'); return }
 
   sessionStorage.setItem(SESS_KEY, regno)
   _regno = regno

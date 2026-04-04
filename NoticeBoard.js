@@ -268,7 +268,7 @@ function setupRegisterForm() {
 
     const name  = document.getElementById('regName')?.value.trim()
     const phone = document.getElementById('regPhone')?.value.trim()
-    const regno = document.getElementById('regRegno')?.value.trim()
+    const regno = document.getElementById('regRegno')?.value.trim().toUpperCase()
     const year  = document.getElementById('regYear')?.value.trim()
 
     // FIX: validate required fields before submitting
@@ -281,8 +281,18 @@ function setupRegisterForm() {
     const regs  = Array.isArray(notice.registrations) ? notice.registrations : []
 
     // Duplicate check on both email and regno
-    if (regs.some(r => r.email === email || r.regno === regno)) {
+ if (regs.some(r => r.email === email || r.regno === regno)) {
       showToast('You are already registered for this event!', 'warning')
+      return
+    }
+
+    // Access control: regno must exist in student_credentials or teacher_credentials
+    const [studentCred, teacherCred] = await Promise.all([
+      supabase.from('student_credentials').select('register_no').eq('register_no', regno).maybeSingle(),
+      supabase.from('teacher_credentials').select('register_no').eq('register_no', regno).maybeSingle()
+    ])
+    if ((!studentCred.data && !teacherCred.data) || studentCred.error || teacherCred.error) {
+      showToast('You have no access to register this event or program.', 'error')
       return
     }
 

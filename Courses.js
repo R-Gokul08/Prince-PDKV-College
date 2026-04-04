@@ -139,6 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   })
 
   initAdmissionForm()
+  initAdmissionStatus()
 })
 
 // ── COURSE MODAL ──────────────────────────────────────────────
@@ -343,18 +344,27 @@ function initAdmissionForm() {
       return
     }
 
-    const { error } = await supabase.from('admission_information').insert(payload)
+      const { data: savedApp, error } = await supabase
+      .from('admission_information')
+      .insert(payload)
+      .select('name,email,phone,course_pref_1,status,created_at')
+      .single()
 
-    if (error) {
-      showToast('Submission failed: ' + error.message, 'error')
+    if (error || !savedApp) {
+      showToast('Submission failed: ' + (error?.message || 'Unknown error'), 'error')
       if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application' }
       return
     }
 
     // FIX: escape user data in success HTML to prevent XSS
-    const safeName  = esc(payload.name)
-    const safeEmail = esc(payload.email)
+    const safeName  = esc(savedApp.name || payload.name)
+    const safeEmail = esc(savedApp.email || payload.email)
     const appId     = 'PDKV-' + Date.now().toString().slice(-8)
+    const safeCourse = esc(savedApp.course_pref_1 || payload.course_pref_1 || '—')
+    const safeStatus = esc(savedApp.status || 'Pending')
+    const safeDate = savedApp.created_at
+      ? new Date(savedApp.created_at).toLocaleString('en-IN')
+      : new Date().toLocaleString('en-IN')
 
     const formWrap = document.querySelector('.admission-form-wrap')
     if (formWrap) {
@@ -365,6 +375,16 @@ function initAdmissionForm() {
           <p>Thank you <strong>${safeName}</strong>! Your application has been received.
              Our admissions team will contact you at <strong>${safeEmail}</strong> within 2–3 working days.</p>
           <div class="adm-success-id">Application ID: ${appId}</div>
+          <div class="adm-status-cards" style="margin-top:16px;text-align:left;max-width:620px;margin-inline:auto;">
+            <article class="adm-status-card">
+              <div><strong>Applicant:</strong> ${safeName}</div>
+              <div><strong>Email:</strong> ${safeEmail}</div>
+              <div><strong>Phone:</strong> ${esc(savedApp.phone || payload.phone || '—')}</div>
+              <div><strong>Course:</strong> ${safeCourse}</div>
+              <div><strong>Submitted:</strong> ${safeDate}</div>
+              <div><strong>Status:</strong> <span class="badge badge-gold">${safeStatus}</span></div>
+            </article>
+          </div>
           <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
             <a href="index.html" class="btn btn-primary"><i class="fas fa-home"></i> Go to Home</a>
             <a href="Courses.html" class="btn btn-outline" style="color:var(--primary)">
@@ -443,4 +463,57 @@ function initAdmissionForm() {
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
   }
+}
+
+function initAdmissionStatus() {
+  const form = document.getElementById('admStatusForm')
+  const out = document.getElementById('admStatusResult')
+  if (!form || !out) return
+
+  const escapeHtml = (s) => String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const email = document.getElementById('admStatusEmail')?.value?.trim().toLowerCase()
+    const phone = document.getElementById('admStatusPhone')?.value?.trim()
+    if (!email || !phone) {
+      showToast('Please enter email and phone number.', 'warning')
+      return
+    }
+
+    out.innerHTML = '<p class="adm-status-loading"><i class="fas fa-spinner fa-spin"></i> Checking application history…</p>'
+
+    const { data, error } = await supabase
+      .from('admission_information')
+      .select('name,email,phone,course_pref_1,status,created_at')
+      .eq('email', email)
+      .eq('phone', phone)
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    if (error) {
+      out.innerHTML = '<p class="adm-status-empty">Unable to check now. Please try again.</p>'
+      return
+    }
+
+    if (!data || !data.length) {
+      out.innerHTML = '<p class="adm-status-empty">No admission form filled before.</p>'
+      return
+    }
+
+    out.innerHTML = `
+      <div class="adm-status-cards">
+        ${data.map((row) => `
+          <article class="adm-status-card">
+            <div><strong>${escapeHtml(row.name || '—')}</strong></div>
+            <div>${escapeHtml(row.email || '—')}</div>
+            <div>Course: ${escapeHtml(row.course_pref_1 || '—')}</div>
+            <div>Submitted: ${new Date(row.created_at).toLocaleString('en-IN')}</div>
+            <span class="badge ${String(row.status || '').toLowerCase() === 'approved' ? 'badge-green' : 'badge-gold'}">${escapeHtml(row.status || 'Pending')}</span>
+          </article>
+        `).join('')}
+      </div>`
+  })
 }

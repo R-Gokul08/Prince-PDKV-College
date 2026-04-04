@@ -13,7 +13,7 @@ import { supabase } from './supabaseClient.js'
 import {
   initStickyHeader, initHamburger, initScrollAnimations,
   showToast, initAuth, openAuthModal, logoutUser,
-  getCurrentUser, initRipple, initPageTransitions
+  getCurrentUser, initRipple, initPageTransitions, initPasswordToggles
 } from './shared.js'
 
 const BUCKET   = 'image_files'
@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     .forEach(b => b.addEventListener('click', () => logoutUser()))
 
   initAuth()
+  initPasswordToggles(document.getElementById('secLogin'))
   initFU()
 })
 
@@ -106,7 +107,7 @@ async function doLogin(e) {
   e.preventDefault()
   const regno = document.getElementById('inRegno')?.value?.trim().toUpperCase()
   const pass  = document.getElementById('inPass')?.value
-  if (!regno || !pass) { setMsg('Enter Register No. & Password', 'err'); return }
+  if (!regno || !pass) { setMsg('Enter Register No. & Password', 'err'); showToast('Enter Register No. & Password', 'warning'); return }
 
   const btn = document.getElementById('loginBtn')
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In…'
@@ -119,8 +120,8 @@ async function doLogin(e) {
 
   btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In'
 
-  if (credRes.error || !credRes.data)      { setMsg('Register number not found.', 'err'); return }
-  if (credRes.data.password !== pass)       { setMsg('Incorrect password.', 'err'); return }
+  if (credRes.error || !credRes.data)      { setMsg('Register number not found.', 'err'); showToast('Register number not found.', 'error'); return }
+  if (credRes.data.password !== pass)       { setMsg('Incorrect password.', 'err'); showToast('Incorrect password.', 'error'); return }
 
   sessionStorage.setItem(SESS_KEY, regno)
   _regno = regno
@@ -368,7 +369,7 @@ async function renderSetup(regno, existingData) {
 // ── EDIT / CANCEL ─────────────────────────────────────────────
 window.tcEdit = async () => {
   if (!_regno) return
-  showSec('loading')
+  showSec('setup')
   await renderSetup(_regno, _profile || null)
 }
 
@@ -684,9 +685,13 @@ window.openRoom = async id => {
   const stus  = _stus.filter(s => (room.student_regnos || []).includes(s.register_no))
   // Any logged-in teacher can mark attendance and edit any classroom
   const isMine = true
+  const cutoffDate = new Date()
+  cutoffDate.setDate(cutoffDate.getDate() - 2)
+  const cutoffISO = cutoffDate.toISOString().split('T')[0]
 
   const { data: sessions = [] } = await supabase.from('attendance_sessions')
     .select('*').eq('classroom_id', id)
+    .gte('session_date', cutoffISO)
     .order('session_date', { ascending: false }).order('period').limit(20)
 
   const sessRows = sessions.length

@@ -303,6 +303,8 @@ body.tc-page::before {
   padding: 11px 15px; border-radius: 11px;
   font-size: .86rem; font-weight: 600; margin-bottom: 16px;
   animation: tcMsgIn .4s ease both;
+  justify-content: center; text-align: center;
+  box-shadow: 0 10px 24px rgba(2,6,23,.26);
 }
 @keyframes tcMsgIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 
