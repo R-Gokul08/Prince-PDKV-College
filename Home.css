@@ -17,7 +17,7 @@
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover no-repeat;
+  background: url('College_Image.png') center/cover no-repeat;
   animation: heroPan 22s ease-in-out infinite alternate;
   transform-origin: center;
 }
