@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ── GALLERY ───────────────────────────────────────────────────
 const MEDIA_EXTS  = ['jpg','jpeg','png','gif','webp','svg','mp4','webm','mov']
 const VIDEO_EXTS  = ['mp4','webm','mov']
-const FALLBACK_IMG = 'https://gemini.google.com/share/92de10e3071d'
+const FALLBACK_IMG = 'College_Image.png'
 
 function getExt(name) { return name.split('.').pop().toLowerCase() }
 function isMedia(f)   { return MEDIA_EXTS.includes(getExt(f.name)) }
