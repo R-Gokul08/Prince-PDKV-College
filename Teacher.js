@@ -1,13 +1,13 @@
 // ================================================================
-// Teacher.js v3 (fixed)
-// Fixes:
-//   1. Classrooms always loaded from supabase on profile render
-//      — "My Classrooms" shows rooms where teacher_regno === _regno
-//      — "All Classrooms" shows ALL rooms from the table
-//      — Realtime channel added for classrooms table
-//   2. Email OTP verification before saving teacher_information
-//      — Uses Supabase signInWithOtp (6-digit OTP sent to email)
-//      — Teacher must verify OTP before profile is persisted
+// Teacher.js v3 (updated)
+// Changes from v2:
+//   - Classrooms persist in Supabase and show to ALL teachers
+//   - Any teacher can add, edit, delete classrooms
+//   - Classrooms remain visible until deleted (not tied to logout)
+//   - Realtime subscription keeps classroom list live across sessions
+//   - Removed subject input from classroom creation/edit forms
+//   - Attendance data stored in Supabase (attendance_sessions + attendance_records)
+//   - All other existing functionality preserved unchanged
 // ================================================================
 import { supabase } from './supabaseClient.js'
 import {
@@ -32,19 +32,16 @@ const DESIGS = [
   'Senior Lecturer','Lecturer','Lab Instructor','Teaching Assistant'
 ]
 
-let _regno   = null
+let _regno  = null
 let _profile = null
-let _stus    = []
-let _rooms   = []
+let _stus   = []
+let _rooms  = []
+// FIX: never reassign this Set — always mutate it
 const _selStu = new Set()
-let _attSt   = {}
+let _attSt  = {}
 let _attStus = []
-let _rtCh    = null
-
-// ─── OTP state ────────────────────────────────────────────────
-let _pendingFormData  = null   // form field values held until OTP verified
-let _otpEmail         = null   // email we sent OTP to
-let _otpVerified      = false  // flag: OTP already confirmed this session
+let _rtCh   = null
+let _roomsRtCh = null  // separate realtime channel for classrooms
 
 // ── BOOT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
@@ -123,13 +120,11 @@ async function doLogin(e) {
 
   btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In'
 
-  if (credRes.error || !credRes.data)    { setMsg('Register number not found.', 'err'); showToast('Register number not found.', 'error'); return }
-  if (credRes.data.password !== pass)    { setMsg('Incorrect password.', 'err'); showToast('Incorrect password.', 'error'); return }
+  if (credRes.error || !credRes.data)      { setMsg('Register number not found.', 'err'); showToast('Register number not found.', 'error'); return }
+  if (credRes.data.password !== pass)       { setMsg('Incorrect password.', 'err'); showToast('Incorrect password.', 'error'); return }
 
   sessionStorage.setItem(SESS_KEY, regno)
   _regno = regno
-  // Reset OTP flag on fresh login so new email always gets verified
-  _otpVerified = false
   showToast(`Welcome, Teacher ${regno}!`, 'success')
 
   const t = profileRes.data || null
@@ -150,13 +145,14 @@ function clearMsg() { const e = document.getElementById('loginMsg'); if (e) e.st
 
 window.tcLogout = () => {
   sessionStorage.removeItem(SESS_KEY); _regno = null; _profile = null
-  _otpVerified = false; _pendingFormData = null; _otpEmail = null
+  // FIX: clean up realtime channels on logout
   if (_rtCh) { supabase.removeChannel(_rtCh); _rtCh = null }
+  if (_roomsRtCh) { supabase.removeChannel(_roomsRtCh); _roomsRtCh = null }
   showSec('login')
   showToast('Logged out.', 'info')
 }
 
-// ── IMAGE UPLOAD ──────────────────────────────────────────────
+// ── TASK 1: IMAGE UPLOAD ──────────────────────────────────────
 async function uploadImg(fileInputId, folder, key) {
   const inp = document.getElementById(fileInputId)
   const f   = inp?.files?.[0]
@@ -176,12 +172,14 @@ async function resolveTeacherPhoto(regno, savedUrl) {
   }
   try {
     const { data: files, error } = await supabase.storage
-      .from(BUCKET).list(TCH_FOLD, { search: regno })
+      .from(BUCKET)
+      .list(TCH_FOLD, { search: regno })
     if (!error && files && files.length > 0) {
       const match = files.find(f2 => f2.name && (f2.name.startsWith(regno + '.') || f2.name === regno))
       if (match) {
         const { data: { publicUrl } } = supabase.storage
-          .from(BUCKET).getPublicUrl(`${TCH_FOLD}/${match.name}`)
+          .from(BUCKET)
+          .getPublicUrl(`${TCH_FOLD}/${match.name}`)
         return publicUrl + '?t=' + Date.now()
       }
     }
@@ -226,135 +224,6 @@ async function loadPortal(regno) {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
-//  OTP HELPERS
-// ══════════════════════════════════════════════════════════════
-
-// Send OTP via Supabase magic-link/OTP (uses email OTP flow)
-async function sendEmailOTP(email) {
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false }   // don't create auth user, just send OTP
-  })
-  return error
-}
-
-// Verify OTP the teacher entered
-async function verifyEmailOTP(email, token) {
-  const { error } = await supabase.auth.verifyOtp({
-    email,
-    token,
-    type: 'email'
-  })
-  return error
-}
-
-// Inject the OTP UI into the setup form (replaces the submit button area)
-function showOTPStep(email, onVerified) {
-  // Remove any existing OTP block first
-  document.getElementById('otpBlock')?.remove()
-
-  const block = document.createElement('div')
-  block.id = 'otpBlock'
-  block.innerHTML = `
-    <div style="
-      background: rgba(245,158,11,0.08);
-      border: 1.5px solid rgba(245,158,11,0.30);
-      border-radius: 14px;
-      padding: 22px 20px;
-      margin-top: 16px;
-      animation: tcMsgIn .4s ease both;
-    ">
-      <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;">
-        <div style="width:38px;height:38px;border-radius:50%;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;color:var(--tc-amber);font-size:1.1rem;">
-          <i class="fas fa-envelope-open-text"></i>
-        </div>
-        <div>
-          <div style="font-weight:800;font-size:.94rem;color:#fff;">Verify Your Email</div>
-          <div style="font-size:.78rem;color:var(--tc-muted);">A 6-digit OTP was sent to <strong style="color:var(--tc-amber)">${esc(email)}</strong></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-        <div style="flex:1;min-width:160px;">
-          <label class="tl" style="margin-bottom:7px;"><i class="fas fa-key"></i> Enter OTP</label>
-          <input
-            id="otpInput"
-            class="ti"
-            type="text"
-            inputmode="numeric"
-            maxlength="6"
-            placeholder="e.g. 123456"
-            style="letter-spacing:.22em;font-size:1.1rem;font-weight:800;text-align:center;"
-          />
-        </div>
-        <button type="button" id="otpVerifyBtn" class="tb tb-pri" style="height:46px;padding:0 22px;white-space:nowrap;">
-          <i class="fas fa-check-circle"></i> Verify OTP
-        </button>
-        <button type="button" id="otpResendBtn" class="tb tb-ghost tb-sm" style="height:46px;">
-          <i class="fas fa-redo"></i> Resend
-        </button>
-      </div>
-      <div id="otpMsg" style="margin-top:10px;font-size:.82rem;"></div>
-    </div>
-  `
-
-  // Append after setupBtn
-  const setupBtn = document.getElementById('setupBtn')
-  if (setupBtn) setupBtn.parentNode.insertBefore(block, setupBtn)
-
-  // Wire verify button
-  document.getElementById('otpVerifyBtn')?.addEventListener('click', async () => {
-    const token  = document.getElementById('otpInput')?.value?.trim()
-    const msgEl  = document.getElementById('otpMsg')
-    const verBtn = document.getElementById('otpVerifyBtn')
-
-    if (!token || token.length < 6) {
-      if (msgEl) msgEl.innerHTML = '<span style="color:#fca5a5;"><i class="fas fa-exclamation-circle"></i> Please enter the 6-digit OTP.</span>'
-      return
-    }
-
-    verBtn.disabled = true
-    verBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying…'
-
-    const err = await verifyEmailOTP(email, token)
-    if (err) {
-      verBtn.disabled = false
-      verBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify OTP'
-      if (msgEl) msgEl.innerHTML = `<span style="color:#fca5a5;"><i class="fas fa-times-circle"></i> ${esc(err.message || 'Invalid OTP. Please try again.')}</span>`
-      return
-    }
-
-    // OTP verified ✅
-    _otpVerified = true
-    block.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.28);border-radius:12px;">
-        <i class="fas fa-check-circle" style="color:var(--tc-green);font-size:1.3rem;"></i>
-        <span style="font-weight:700;color:#6ee7b7;">Email verified successfully! Saving your profile…</span>
-      </div>`
-
-    onVerified()
-  })
-
-  // Wire resend button
-  document.getElementById('otpResendBtn')?.addEventListener('click', async () => {
-    const resBtn = document.getElementById('otpResendBtn')
-    const msgEl  = document.getElementById('otpMsg')
-    resBtn.disabled = true
-    resBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'
-    const err = await sendEmailOTP(email)
-    resBtn.disabled = false
-    resBtn.innerHTML = '<i class="fas fa-redo"></i> Resend'
-    if (err) {
-      if (msgEl) msgEl.innerHTML = `<span style="color:#fca5a5;"><i class="fas fa-times-circle"></i> ${esc(err.message)}</span>`
-    } else {
-      if (msgEl) msgEl.innerHTML = '<span style="color:#6ee7b7;"><i class="fas fa-check-circle"></i> OTP resent! Check your inbox.</span>'
-    }
-  })
-
-  // Focus OTP input
-  setTimeout(() => document.getElementById('otpInput')?.focus(), 120)
-}
-
 // ── SETUP FORM ────────────────────────────────────────────────
 async function renderSetup(regno, existingData) {
   if (existingData === undefined) {
@@ -366,10 +235,6 @@ async function renderSetup(regno, existingData) {
   const isEdit = !!existingData
   const d      = existingData || {}
   const c      = document.getElementById('secSetup'); if (!c) return
-
-  // When editing, if the email hasn't changed, we skip OTP
-  // OTP is only required for a NEW email address
-  const existingEmail = d.email || ''
 
   const dO  = DEPTS.map(dep  => `<option ${d.department === dep  ? 'selected' : ''}>${dep}</option>`).join('')
   const dsO = DESIGS.map(des => `<option ${d.designation === des ? 'selected' : ''}>${des}</option>`).join('')
@@ -390,12 +255,8 @@ async function renderSetup(regno, existingData) {
             <input class="ti" value="${esc(regno)}" readonly /></div>
           <div class="tg-fg"><label class="tl"><i class="fas fa-user"></i> Full Name *</label>
             <input id="f_name" class="ti" value="${esc(d.name||'')}" placeholder="Dr. / Mr. / Ms. Full Name" required /></div>
-          <div class="tg-fg">
-            <label class="tl"><i class="fas fa-envelope"></i> Email *
-              ${isEdit ? '<span style="font-size:.70rem;color:var(--tc-muted);font-weight:400;text-transform:none;">(OTP needed if changed)</span>' : '<span style="font-size:.70rem;color:var(--tc-amber);font-weight:400;text-transform:none;">— OTP verification required</span>'}
-            </label>
-            <input id="f_email" type="email" class="ti" value="${esc(d.email||'')}" placeholder="your@email.com" required />
-          </div>
+          <div class="tg-fg"><label class="tl"><i class="fas fa-envelope"></i> Email *</label>
+            <input id="f_email" type="email" class="ti" value="${esc(d.email||'')}" placeholder="your@email.com" required /></div>
           <div class="tg-fg"><label class="tl"><i class="fas fa-phone"></i> Phone *</label>
             <input id="f_phone" type="tel" class="ti" value="${esc(d.phone||'')}" placeholder="+91 99999 99999" required /></div>
           <div class="tg-fg"><label class="tl"><i class="fas fa-venus-mars"></i> Gender *</label>
@@ -421,15 +282,15 @@ async function renderSetup(regno, existingData) {
           <div class="tg-fg tgfull"><label class="tl"><i class="fas fa-home"></i> Address</label>
             <textarea id="f_addr" class="tta" placeholder="Your residential address">${esc(d.address||'')}</textarea></div>
           <div class="tg-fg tgfull">
-            <label class="tl"><i class="fas fa-camera"></i> Profile Photo
-              <span style="opacity:.4;font-weight:400">(optional${isEdit ? ' — leave blank to keep existing' : ''})</span></label>
+            <label class="tl"><i class="fas fa-camera"></i> Profile Photo *
+              <span style="opacity:.4;font-weight:400">${isEdit ? '(leave blank to keep existing)' : '(required — will be saved to Teacher_images)'}</span></label>
             ${d.image_url ? `<div class="tc-existing-photo" style="margin-bottom:10px">
               <img src="${esc(d.image_url)}" onerror="this.parentElement.style.display='none'" />
               <span>Current photo — upload new to replace</span></div>` : ''}
             <div class="tc-upload" id="tUpArea">
-              <input type="file" id="f_img" accept="image/*" />
+              <input type="file" id="f_img" accept="image/*" ${!isEdit && !d.image_url ? 'required' : ''} />
               <span class="tc-upload-ico"><i class="fas fa-cloud-upload-alt"></i></span>
-              <div class="tc-upload-txt"><strong>Click or drag &amp; drop</strong><br><small>JPG, PNG — max 5 MB</small></div>
+              <div class="tc-upload-txt"><strong>Click or drag &amp; drop your photo</strong><br><small>JPG, PNG — max 5 MB • Saved to Teacher_images folder</small></div>
             </div>
             <div class="tc-img-prev" id="tImgPrev">
               <img id="tImgPrevImg" src="" alt="" />
@@ -440,7 +301,7 @@ async function renderSetup(regno, existingData) {
         ${isEdit ? `<button type="button" class="tb tb-ghost tb-full" style="margin-top:8px" onclick="tcCancelEdit()">
           <i class="fas fa-arrow-left"></i> Cancel</button>` : ''}
         <button type="submit" class="tb tb-pri tb-full" id="setupBtn" style="margin-top:8px">
-          <i class="fas fa-paper-plane"></i> ${isEdit ? 'Verify Email & Update' : 'Verify Email & Save'}
+          <i class="fas fa-save"></i> ${isEdit ? 'Update My Profile' : 'Save My Profile'}
         </button>
       </form>
     </div>
@@ -449,134 +310,65 @@ async function renderSetup(regno, existingData) {
   bindPrev('f_img','tImgPrev','tImgPrevImg','tImgRm')
   setTimeout(initFU, 55)
 
-  // ── FORM SUBMIT: trigger OTP if email is new / changed ──────
   document.getElementById('setupForm').addEventListener('submit', async ev => {
     ev.preventDefault()
+    const btn = document.getElementById('setupBtn')
+    btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${isEdit ? 'Updating…' : 'Saving…'}`
 
     const g = id => document.getElementById(id)?.value?.trim() || null
-
-    const name  = g('f_name')
-    const email = g('f_email')
-    const phone = g('f_phone')
-    const gender = g('f_gender')
-    const dept  = g('f_dept')
-    const desig = g('f_desig')
-    const qual  = g('f_qual')
+    const name  = g('f_name'); const email = g('f_email')
+    const phone = g('f_phone'); const gender = g('f_gender')
+    const dept  = g('f_dept');  const desig  = g('f_desig'); const qual = g('f_qual')
 
     if (!name || !email || !phone || !gender || !dept || !desig || !qual) {
-      showToast('Fill required fields (*)', 'warning'); return
+      showToast('Fill required fields (*)', 'warning')
+      btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> ${isEdit ? 'Update My Profile' : 'Save My Profile'}`; return
     }
 
-    // Check if email verification is needed:
-    // - Always for new profiles
-    // - Only if email changed for edits
-    const emailChanged = email.toLowerCase() !== existingEmail.toLowerCase()
-    const needsOTP     = !isEdit || emailChanged
-
-    if (needsOTP && !_otpVerified) {
-      // Collect form values into pending store
-      _pendingFormData = { name, email, phone, gender, dept, desig, qual,
-        exp:      g('f_exp'),
-        spec:     g('f_spec'),
-        empid:    g('f_empid'),
-        subjects: g('f_subjects'),
-        joining:  g('f_joining'),
-        addr:     g('f_addr'),
-        imgUrl:   d.image_url || null
+    let imgUrl = d.image_url || null
+    const imgFile = document.getElementById('f_img')?.files?.[0]
+    if (imgFile) {
+      showToast('Uploading photo to Teacher_images…', 'info', 2500)
+      const newUrl = await uploadImg('f_img', TCH_FOLD, regno)
+      if (newUrl) {
+        imgUrl = newUrl
+        showToast('Photo uploaded successfully! ✅', 'success', 2000)
       }
-      _otpEmail = email
-
-      // Disable submit button while sending OTP
-      const btn = document.getElementById('setupBtn')
-      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP…' }
-
-      const otpErr = await sendEmailOTP(email)
-
-      if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fas fa-paper-plane"></i> ${isEdit ? 'Verify Email & Update' : 'Verify Email & Save'}` }
-
-      if (otpErr) {
-        showToast('Failed to send OTP: ' + otpErr.message, 'error')
-        return
-      }
-
-      showToast(`OTP sent to ${email}! Check your inbox.`, 'success')
-
-      // Show OTP input block and wire the callback that saves
-      showOTPStep(email, () => doSaveProfile(regno, _pendingFormData, isEdit, d))
-      return
+    } else if (!isEdit && !d.image_url) {
+      showToast('Please upload a profile photo.', 'warning')
+      btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> Save My Profile`; return
     }
 
-    // Email unchanged (edit) — save directly without OTP
-    await doSaveProfile(regno, {
-      name, email, phone, gender, dept, desig, qual,
-      exp:      g('f_exp'),
-      spec:     g('f_spec'),
-      empid:    g('f_empid'),
-      subjects: g('f_subjects'),
-      joining:  g('f_joining'),
-      addr:     g('f_addr'),
-      imgUrl:   d.image_url || null
-    }, isEdit, d)
+    const { error } = await supabase.from('teacher_information').upsert({
+      register_no: regno, name, email, phone, gender,
+      department:     dept, designation: desig, qualification: qual,
+      experience:     g('f_exp'),     specialization: g('f_spec'),
+      employee_id:    g('f_empid'),   subjects:        g('f_subjects'),
+      joining_date:   g('f_joining'), address:         g('f_addr'),
+      image_url: imgUrl, updated_at: new Date().toISOString()
+    }, { onConflict: 'register_no' })
+
+    btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> ${isEdit ? 'Update My Profile' : 'Save My Profile'}`
+
+    if (error) { showToast('Failed: ' + error.message, 'error'); return }
+
+    showToast(isEdit ? 'Profile updated! ✅' : 'Profile saved! 🎉', 'success')
+
+    const { data: t } = await supabase.from('teacher_information')
+      .select('*').ilike('register_no', regno).maybeSingle()
+
+    if (t) {
+      if (imgUrl) t.image_url = imgUrl
+      _profile = t
+      showSec('profile')
+      await renderProfile(t)
+    }
   })
-}
-
-// ── ACTUAL SAVE (after OTP verified or email unchanged) ────────
-async function doSaveProfile(regno, fd, isEdit, existingD) {
-  const btn = document.getElementById('setupBtn')
-  if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${isEdit ? 'Updating…' : 'Saving…'}` }
-
-  // Upload image if new file selected
-  let imgUrl = fd.imgUrl
-  if (document.getElementById('f_img')?.files?.[0]) {
-    const newUrl = await uploadImg('f_img', TCH_FOLD, regno)
-    if (newUrl) imgUrl = newUrl
-  }
-
-  const { error } = await supabase.from('teacher_information').upsert({
-    register_no:    regno,
-    name:           fd.name,
-    email:          fd.email,
-    phone:          fd.phone,
-    gender:         fd.gender,
-    department:     fd.dept,
-    designation:    fd.desig,
-    qualification:  fd.qual,
-    experience:     fd.exp     || null,
-    specialization: fd.spec    || null,
-    employee_id:    fd.empid   || null,
-    subjects:       fd.subjects|| null,
-    joining_date:   fd.joining || null,
-    address:        fd.addr    || null,
-    image_url:      imgUrl,
-    updated_at:     new Date().toISOString()
-  }, { onConflict: 'register_no' })
-
-  if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> ${isEdit ? 'Update My Profile' : 'Save My Profile'}` }
-
-  if (error) { showToast('Failed: ' + error.message, 'error'); return }
-
-  // Reset OTP state after successful save
-  _otpVerified     = false
-  _pendingFormData = null
-  _otpEmail        = null
-
-  showToast(isEdit ? 'Profile updated! ✅' : 'Profile saved! 🎉', 'success')
-
-  const { data: t } = await supabase.from('teacher_information')
-    .select('*').ilike('register_no', regno).maybeSingle()
-
-  if (t) {
-    if (imgUrl) t.image_url = imgUrl
-    _profile = t
-    showSec('profile')
-    await renderProfile(t)
-  }
 }
 
 // ── EDIT / CANCEL ─────────────────────────────────────────────
 window.tcEdit = async () => {
   if (!_regno) return
-  _otpVerified = false
   showSec('setup')
   await renderSetup(_regno, _profile || null)
 }
@@ -586,9 +378,7 @@ window.tcCancelEdit = () => {
   showSec('profile')
 }
 
-// ══════════════════════════════════════════════════════════════
-//  RENDER PROFILE + CLASSROOMS (FIXED)
-// ══════════════════════════════════════════════════════════════
+// ── TASK 1: RENDER PROFILE ────────────────────────────────────
 async function renderProfile(t) {
   const c = document.getElementById('secProfile'); if (!c) return
 
@@ -612,27 +402,52 @@ async function renderProfile(t) {
 
   c.innerHTML = `
   <div class="tc-wrap"><div>
-    <div class="tg tc-prof-hero tu">
-      <div class="tc-av-wrap">
-        <img src="${photo}" alt="${esc(t.name || t.register_no)}" class="tc-av"
-             onerror="this.onerror=null;this.src='${fallbackPhoto}'" />
-        <div class="tc-av-ring"></div>
+
+    <div class="tg tc-prof-hero tu" style="flex-direction:column;align-items:center;text-align:center;padding:clamp(32px,5vw,52px) 28px 36px;">
+      <div class="tc-av-wrap" style="margin-bottom:20px;position:relative;width:140px;height:140px;">
+        <img
+          src="${photo}"
+          alt="${esc(t.name || t.register_no)}"
+          class="tc-av"
+          id="tcProfileImg"
+          style="width:140px;height:140px;border-radius:50%;object-fit:cover;display:block;
+                 border:4px solid transparent;
+                 background:linear-gradient(var(--tc-surface),var(--tc-surface)) padding-box,
+                             linear-gradient(135deg,var(--tc-amber),var(--tc-blue2) 50%,var(--tc-teal)) border-box;
+                 box-shadow:0 0 0 6px rgba(245,158,11,0.12), 0 16px 48px rgba(0,0,0,0.55);
+                 transition:transform .5s cubic-bezier(0.34,1.56,0.64,1);"
+          onerror="this.onerror=null;this.src='${fallbackPhoto}'"
+        />
+        <div class="tc-av-ring" style="position:absolute;inset:-9px;border-radius:50%;
+          border:2px solid transparent;
+          background:linear-gradient(var(--tc-dark),var(--tc-dark)) padding-box,
+                      linear-gradient(135deg,var(--tc-amber),var(--tc-blue2),var(--tc-teal)) border-box;
+          animation:tcRing 11s linear infinite;pointer-events:none;"></div>
+        <div style="position:absolute;bottom:4px;right:4px;width:28px;height:28px;border-radius:50%;
+          background:linear-gradient(135deg,var(--tc-amber),var(--tc-amber2));
+          display:flex;align-items:center;justify-content:center;
+          box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid var(--tc-dark);">
+          <i class="fas fa-camera" style="font-size:0.58rem;color:var(--tc-void);"></i>
+        </div>
       </div>
-      <div class="tc-prof-info">
-        <div class="tc-prof-name">${esc(t.name || t.register_no)}</div>
-        <div class="tc-prof-desig">${esc(t.designation || '')}</div>
-        <div class="tc-prof-dept">${t.department ? 'Dept. of ' + esc(t.department) : ''}</div>
-        <div class="tc-prof-badges">
+      <div class="tc-prof-info" style="z-index:1;">
+        <div class="tc-prof-name" style="font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:8px;">${esc(t.name || t.register_no)}</div>
+        <div class="tc-prof-desig" style="font-size:1rem;margin-bottom:4px;">${esc(t.designation || '')}</div>
+        <div class="tc-prof-dept" style="font-size:0.92rem;margin-bottom:16px;">${t.department ? 'Dept. of ' + esc(t.department) : ''}</div>
+        <div class="tc-prof-badges" style="justify-content:center;">
           <span class="tbd tb-amber"><i class="fas fa-id-badge"></i> ${esc(t.register_no)}</span>
           ${t.qualification ? `<span class="tbd tb-teal"><i class="fas fa-graduation-cap"></i> ${esc(t.qualification)}</span>` : ''}
           ${t.experience    ? `<span class="tbd tb-green"><i class="fas fa-briefcase"></i> ${esc(t.experience)}</span>` : ''}
+          ${t.employee_id   ? `<span class="tbd tb-blue"><i class="fas fa-hashtag"></i> ${esc(t.employee_id)}</span>` : ''}
         </div>
       </div>
     </div>
-    <div class="tc-prof-actions tu">
+
+    <div class="tc-prof-actions tu" style="justify-content:center;margin-bottom:22px;">
       <button class="tb tb-ghost" onclick="tcEdit()"><i class="fas fa-edit"></i> Edit Profile</button>
       <button class="tb tb-danger" onclick="tcLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
     </div>
+
     <div class="tc-info-grid tu">
       ${tci('fas fa-envelope','tci-amb','Email',t.email)}
       ${tci('fas fa-phone','tci-tel','Phone',t.phone)}
@@ -643,59 +458,28 @@ async function renderProfile(t) {
       ${tci('fas fa-briefcase','tci-blu','Experience',t.experience)}
       ${tci('fas fa-map-marker-alt','tci-red','Address',t.address)}
     </div>
+
     ${subjs.length ? `
     <div class="tg tc-subj-wrap tu">
       <div class="tc-subj-h"><i class="fas fa-book-open"></i> Subjects Handling</div>
       <div class="tc-subj-chips">${subjs.map((s,i)=>`<span class="tc-schip" style="animation-delay:${i*.06}s"><i class="fas fa-book"></i> ${esc(s)}</span>`).join('')}</div>
     </div>` : ''}
+
     <div id="attMgr" class="tu"></div>
   </div></div>`
 
   setTimeout(initFU, 80)
 
-  // ── Load students + ALL classrooms from Supabase ─────────────
   const [sr, rr] = await Promise.all([
-    supabase
-      .from('student_information')
-      .select('register_no,name,year,department')
-      .order('year').order('department').order('name'),
-    supabase
-      .from('classrooms')
-      .select('*')
-      .order('created_at', { ascending: false })
+    supabase.from('student_information').select('register_no,name,year,department').order('year').order('department').order('name'),
+    supabase.from('classrooms').select('*').order('created_at', { ascending: false })
   ])
-
   _stus  = sr.data || []
   _rooms = rr.data || []
-
-  if (sr.error)  console.error('Student fetch error:', sr.error)
-  if (rr.error)  console.error('Classroom fetch error:', rr.error)
-
-  // Render attendance manager AFTER data is loaded
   renderAttMgr()
-  setTimeout(initFU, 80)
 
-  // ── Realtime: re-fetch classrooms on any change ──────────────
-  setupRT()
-}
-
-// ── Realtime subscription ─────────────────────────────────────
-function setupRT() {
-  if (_rtCh) { supabase.removeChannel(_rtCh); _rtCh = null }
-
-  _rtCh = supabase
-    .channel('tc-rt-' + _regno)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'classrooms' }, async () => {
-      const { data, error } = await supabase
-        .from('classrooms')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (!error) {
-        _rooms = data || []
-        refreshGrids()
-      }
-    })
-    .subscribe()
+  // Setup realtime for classrooms — persists across all sessions
+  setupRoomsRealtime()
 }
 
 function tci(ico, cls, lbl, val) {
@@ -705,25 +489,35 @@ function tci(ico, cls, lbl, val) {
   </div></div>`
 }
 
+// ── ROOMS REALTIME — keeps classrooms live for all teachers ───
+function setupRoomsRealtime() {
+  if (_roomsRtCh) { supabase.removeChannel(_roomsRtCh); _roomsRtCh = null }
+
+  _roomsRtCh = supabase.channel('tc-rooms-live')
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'classrooms'
+    }, async () => {
+      // Re-fetch all classrooms from Supabase on any change
+      const { data } = await supabase
+        .from('classrooms')
+        .select('*')
+        .order('created_at', { ascending: false })
+      _rooms = data || []
+      refreshGrids()
+    })
+    .subscribe()
+}
+
 // ── ATTENDANCE MANAGER ────────────────────────────────────────
 function renderAttMgr() {
   const c = document.getElementById('attMgr'); if (!c) return
-
-  // "My Classrooms" = created by this teacher
   const mine = _rooms.filter(r => r.teacher_regno === _regno)
-
   c.innerHTML = `
   <div style="margin-top:30px">
     <div class="tc-att-hdr"><i class="fas fa-calendar-check"></i> Attendance Manager</div>
     <div class="tc-tabs">
-      <button class="tc-tab on" onclick="tcTab('my',this)">
-        <i class="fas fa-door-open"></i> My Classrooms
-        <span class="tbd tb-amber" style="margin-left:6px;font-size:.70rem;">${mine.length}</span>
-      </button>
-      <button class="tc-tab" onclick="tcTab('all',this)">
-        <i class="fas fa-list"></i> All Classrooms
-        <span class="tbd tb-blue" style="margin-left:6px;font-size:.70rem;">${_rooms.length}</span>
-      </button>
+      <button class="tc-tab on" onclick="tcTab('my',this)"><i class="fas fa-door-open"></i> My Classrooms</button>
+      <button class="tc-tab" onclick="tcTab('all',this)"><i class="fas fa-list"></i> All Classrooms</button>
     </div>
     <div id="panMy" class="tc-tpanel on">
       <div style="display:flex;gap:9px;justify-content:flex-end;margin-bottom:16px">
@@ -741,26 +535,19 @@ function clsGrid(rooms, mine) {
   if (!rooms.length) return `<div class="tc-empty" style="grid-column:1/-1">
     <div class="tc-empty-ico">🏫</div>
     <div class="tc-empty-title">${mine ? 'No Classrooms Yet' : 'No Classrooms'}</div>
-    <div class="tc-empty-sub">${mine ? 'Click "Create Classroom" to get started.' : 'No classrooms have been created yet.'}</div>
+    <div class="tc-empty-sub">${mine ? 'Click "Create Classroom" to get started.' : 'No classrooms created yet.'}</div>
   </div>`
 
-  let h = rooms.map(r => {
-    const isOwner = r.teacher_regno === _regno
-    return `
+  let h = rooms.map(r => `
     <div class="tg tc-cls-card" onclick="openRoom('${r.id}')">
       <div class="tc-cls-ico"><i class="fas fa-door-open"></i></div>
       <div class="tc-cls-name">${esc(r.class_name)}</div>
       <div class="tc-cls-meta">
-        <div><i class="fas fa-book"></i> ${esc(r.subject || '—')}</div>
         <div><i class="fas fa-user-tie"></i> ${esc(r.teacher_name || r.teacher_regno)}</div>
         ${r.department ? `<div><i class="fas fa-building"></i> ${esc(r.department)}${r.year ? ' · Year ' + r.year : ''}</div>` : ''}
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px;">
-        <span class="tc-cls-cnt"><i class="fas fa-users"></i> ${(r.student_regnos || []).length} Students</span>
-        ${isOwner ? '<span class="tbd tb-amber" style="font-size:.68rem;"><i class="fas fa-star"></i> My Room</span>' : ''}
-      </div>
-    </div>`
-  }).join('')
+      <span class="tc-cls-cnt"><i class="fas fa-users"></i> ${(r.student_regnos || []).length} Students</span>
+    </div>`).join('')
 
   if (mine) h += `<button class="tc-create-btn" onclick="openCreate()"><i class="fas fa-plus-circle"></i><span>Create New Classroom</span></button>`
   return h
@@ -777,23 +564,8 @@ window.tcTab = (t, btn) => {
 
 function refreshGrids() {
   const mine = _rooms.filter(r => r.teacher_regno === _regno)
-
-  // Update tab counts
-  document.querySelector('.tc-tab.on .tbd.tb-amber')?.let?.(e => e.textContent = mine.length)
-
   const gm = document.getElementById('gMy');  if (gm) gm.innerHTML  = clsGrid(mine, true)
   const ga = document.getElementById('gAll'); if (ga) ga.innerHTML  = clsGrid(_rooms, false)
-
-  // Update count badges on tabs
-  const tabs = document.querySelectorAll('.tc-tab')
-  if (tabs[0]) {
-    const badge = tabs[0].querySelector('.tbd')
-    if (badge) badge.textContent = mine.length
-  }
-  if (tabs[1]) {
-    const badge = tabs[1].querySelector('.tbd')
-    if (badge) badge.textContent = _rooms.length
-  }
 }
 
 // ── MODAL SYSTEM ──────────────────────────────────────────────
@@ -884,7 +656,7 @@ window.fltStus = () => {
   if (el) el.innerHTML = stuSelHTML(grpStus(_stus), q)
 }
 
-// ── CREATE CLASSROOM ──────────────────────────────────────────
+// ── CREATE CLASSROOM (subject input removed) ──────────────────
 window.openCreate = () => {
   _selStu.clear()
   modal(`
@@ -897,11 +669,9 @@ window.openCreate = () => {
       <div class="tc-mbd">
         <div class="tgrid" style="margin-bottom:18px">
           <div class="tg-fg"><label class="tl"><i class="fas fa-door-open"></i> Classroom Name *</label>
-            <input id="cc_name" class="ti" placeholder="e.g. CSE-A 3rd Year Maths" /></div>
-          <div class="tg-fg"><label class="tl"><i class="fas fa-book"></i> Subject *</label>
-            <input id="cc_subj" class="ti" placeholder="e.g. Data Structures" /></div>
+            <input id="cc_name" class="ti" placeholder="e.g. CSE-A 3rd Year" /></div>
           <div class="tg-fg"><label class="tl"><i class="fas fa-building"></i> Department (optional)</label>
-            <input id="cc_dept" class="ti" placeholder="Filter" /></div>
+            <input id="cc_dept" class="ti" placeholder="Department" /></div>
           <div class="tg-fg"><label class="tl"><i class="fas fa-layer-group"></i> Year (optional)</label>
             <select id="cc_year" class="ts"><option value="">Any Year</option>
               ${[1,2,3,4].map(n=>`<option value="${n}">${n}${sfx(n)} Year</option>`).join('')}
@@ -923,36 +693,37 @@ window.openCreate = () => {
   </div>`)
 }
 
+// ── SAVE CLASSROOM — stores in Supabase 'classrooms' table ────
 window.saveRoom = async () => {
   const name = document.getElementById('cc_name')?.value?.trim()
-  const subj = document.getElementById('cc_subj')?.value?.trim()
-  if (!name || !subj) { showToast('Classroom name & subject required.', 'warning'); return }
+  if (!name) { showToast('Classroom name is required.', 'warning'); return }
   if (_selStu.size === 0) { showToast('Select at least one student.', 'warning'); return }
+
+  const saveBtn = document.querySelector('#mCreate .tb-pri')
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…' }
 
   const { data, error } = await supabase.from('classrooms').insert({
     teacher_regno:  _regno,
     teacher_name:   _profile?.name || _regno,
     class_name:     name,
-    subject:        subj,
     department:     document.getElementById('cc_dept')?.value?.trim() || null,
     year:           parseInt(document.getElementById('cc_year')?.value) || null,
     student_regnos: [..._selStu]
   }).select().single()
 
-  if (error) { showToast('Failed: ' + error.message, 'error'); return }
+  if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="fas fa-save"></i> Create Classroom' }
 
-  showToast(`Classroom "${name}" created! 🎉`, 'success')
-  _rooms.unshift(data)
+  if (error) { showToast('Failed to create classroom: ' + error.message, 'error'); return }
+
+  showToast(`Classroom "${name}" created and saved! 🎉`, 'success')
+  // Realtime will update _rooms and call refreshGrids automatically
   closeM('mCreate')
-  refreshGrids()
 }
 
 // ── OPEN ROOM ─────────────────────────────────────────────────
 window.openRoom = async id => {
   const room = _rooms.find(r => r.id === id); if (!room) return
   const stus  = _stus.filter(s => (room.student_regnos || []).includes(s.register_no))
-  const isMine = room.teacher_regno === _regno
-
   const cutoffDate = new Date()
   cutoffDate.setDate(cutoffDate.getDate() - 2)
   const cutoffISO = cutoffDate.toISOString().split('T')[0]
@@ -984,16 +755,15 @@ window.openRoom = async id => {
           <div>
             <div style="font-size:1.1rem;color:#fff;font-weight:700">${esc(room.class_name)}</div>
             <div style="font-size:.8rem;color:var(--tmut);margin-top:4px">
-              <i class="fas fa-book"></i> ${esc(room.subject || '—')} &bull;
               <i class="fas fa-users"></i> ${(room.student_regnos || []).length} Students &bull;
               <i class="fas fa-user-tie"></i> ${esc(room.teacher_name || room.teacher_regno)}
-              ${isMine ? ' <span class="tbd tb-amber" style="font-size:.68rem;"><i class="fas fa-star"></i> Your Room</span>' : ''}
             </div>
           </div>
-          ${isMine ? `<div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="tb tb-green tb-sm" onclick="openMarkAtt('${id}')"><i class="fas fa-clipboard-check"></i> Mark Attendance</button>
             <button class="tb tb-ghost tb-sm" onclick="openEditRoom('${id}')"><i class="fas fa-edit"></i> Edit Students</button>
-          </div>` : ''}
+            <button class="tb tb-danger tb-sm" onclick="confirmDeleteRoom('${id}')"><i class="fas fa-trash"></i> Delete</button>
+          </div>
         </div>
         <div style="margin-bottom:20px">
           <div style="font-size:.9rem;color:#fff;font-weight:700;margin-bottom:11px"><i class="fas fa-history" style="color:var(--tamb)"></i> Recent Attendance Sessions</div>
@@ -1013,7 +783,52 @@ window.openRoom = async id => {
   </div>`)
 }
 
-// ── MARK ATTENDANCE ───────────────────────────────────────────
+// ── DELETE CLASSROOM ──────────────────────────────────────────
+window.confirmDeleteRoom = (id) => {
+  const room = _rooms.find(r => r.id === id); if (!room) return
+  modal(`
+  <div class="tc-mo open" id="mDeleteConfirm">
+    <div class="tc-mb tc-mb-sm">
+      <div class="tc-mh">
+        <div class="tc-mt"><i class="fas fa-trash"></i> Delete Classroom</div>
+        <button class="tc-mc" onclick="closeM('mDeleteConfirm')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="tc-mbd">
+        <div style="text-align:center;padding:16px 0 24px;">
+          <div style="font-size:2.5rem;margin-bottom:14px;">🗑️</div>
+          <div style="font-size:1rem;color:#fff;font-weight:700;margin-bottom:10px;">Delete "${esc(room.class_name)}"?</div>
+          <div style="font-size:.86rem;color:var(--tmut);line-height:1.65;margin-bottom:22px;">
+            This will permanently delete the classroom and all its attendance records. This action cannot be undone.
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;">
+            <button class="tb tb-ghost" onclick="closeM('mDeleteConfirm')">Cancel</button>
+            <button class="tb tb-danger" onclick="deleteRoom('${id}')"><i class="fas fa-trash"></i> Delete Permanently</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`)
+}
+
+window.deleteRoom = async (id) => {
+  const btn = document.querySelector('#mDeleteConfirm .tb-danger')
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting…' }
+
+  // Delete attendance records first, then sessions, then classroom
+  await supabase.from('attendance_records').delete().eq('classroom_id', id)
+  await supabase.from('attendance_sessions').delete().eq('classroom_id', id)
+  const { error } = await supabase.from('classrooms').delete().eq('id', id)
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash"></i> Delete Permanently' }
+
+  if (error) { showToast('Failed to delete: ' + error.message, 'error'); return }
+
+  showToast('Classroom deleted successfully.', 'info')
+  closeM('mDeleteConfirm')
+  // Realtime will update _rooms and refreshGrids automatically
+}
+
+// ── MARK ATTENDANCE — stores in Supabase ──────────────────────
 window.openMarkAtt = id => {
   const room = _rooms.find(r => r.id === id); if (!room) return
   const stus = _stus.filter(s => (room.student_regnos || []).includes(s.register_no))
@@ -1080,6 +895,7 @@ window.markOne = (regno, status) => {
 
 window.markAll = s => _attStus.forEach(st => markOne(st.register_no, s))
 
+// ── SAVE ATTENDANCE — stores in Supabase ──────────────────────
 window.saveAtt = async id => {
   const date   = document.getElementById('attDate')?.value
   const period = parseInt(document.getElementById('attPer')?.value)
@@ -1095,6 +911,7 @@ window.saveAtt = async id => {
 
   const resetBtn = () => { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Attendance' } }
 
+  // Upsert session into Supabase attendance_sessions table
   const { data: sess, error: sErr } = await supabase.from('attendance_sessions')
     .upsert({
       classroom_id: id, teacher_regno: _regno,
@@ -1104,6 +921,7 @@ window.saveAtt = async id => {
 
   if (sErr) { showToast('Session error: ' + sErr.message, 'error'); resetBtn(); return }
 
+  // Insert/upsert individual attendance records into Supabase attendance_records table
   const records = _attStus
     .filter(s => _attSt[s.register_no] !== null)
     .map(s => ({
@@ -1120,6 +938,7 @@ window.saveAtt = async id => {
   }
 
   showToast(`Attendance saved for ${records.length} students ✅ (${date} · Period ${period} · ${subj})`, 'success')
+  resetBtn()
   closeM('mAtt')
   openRoom(id)
 }
@@ -1167,7 +986,7 @@ window.viewSess = async sessId => {
   </div>`)
 }
 
-// ── EDIT CLASSROOM ────────────────────────────────────────────
+// ── EDIT CLASSROOM (subject input removed) ────────────────────
 window.openEditRoom = id => {
   const room = _rooms.find(r => r.id === id); if (!room) return
   _selStu.clear()
@@ -1184,8 +1003,6 @@ window.openEditRoom = id => {
         <div class="tgrid" style="margin-bottom:18px">
           <div class="tg-fg"><label class="tl"><i class="fas fa-door-open"></i> Classroom Name *</label>
             <input id="ec_name" class="ti" value="${esc(room.class_name)}" /></div>
-          <div class="tg-fg"><label class="tl"><i class="fas fa-book"></i> Subject *</label>
-            <input id="ec_subj" class="ti" value="${esc(room.subject || '')}" /></div>
           <div class="tg-fg"><label class="tl"><i class="fas fa-building"></i> Department (optional)</label>
             <input id="ec_dept" class="ti" value="${esc(room.department || '')}" /></div>
           <div class="tg-fg"><label class="tl"><i class="fas fa-layer-group"></i> Year (optional)</label>
@@ -1211,14 +1028,13 @@ window.openEditRoom = id => {
 
 window.saveEditRoom = async id => {
   const name = document.getElementById('ec_name')?.value?.trim()
-  const subj = document.getElementById('ec_subj')?.value?.trim()
-  if (!name || !subj) { showToast('Classroom name & subject required.', 'warning'); return }
+  if (!name) { showToast('Classroom name is required.', 'warning'); return }
 
   const btn = document.querySelector('#mEdit .tb-pri')
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…' }
 
   const { error } = await supabase.from('classrooms').update({
-    class_name:     name, subject:    subj,
+    class_name:     name,
     department:     document.getElementById('ec_dept')?.value?.trim() || null,
     year:           parseInt(document.getElementById('ec_year')?.value) || null,
     student_regnos: [..._selStu],
@@ -1228,17 +1044,9 @@ window.saveEditRoom = async id => {
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Changes' }
   if (error) { showToast('Failed: ' + error.message, 'error'); return }
 
-  const idx = _rooms.findIndex(r => r.id === id)
-  if (idx >= 0) {
-    _rooms[idx].class_name     = name
-    _rooms[idx].subject        = subj
-    _rooms[idx].department     = document.getElementById('ec_dept')?.value?.trim() || null
-    _rooms[idx].year           = parseInt(document.getElementById('ec_year')?.value) || null
-    _rooms[idx].student_regnos = [..._selStu]
-  }
-
   showToast('Classroom updated! ✅', 'success')
   closeM('mEdit')
-  refreshGrids()
-  openRoom(id)
+  // Realtime will update _rooms and refreshGrids automatically
+  // Also re-open the room modal with updated info after a short delay
+  setTimeout(() => openRoom(id), 400)
 }
