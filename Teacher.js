@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-=======
 // ================================================================
 // Teacher.js — Fixed Version
 // Fix 1: Always load classrooms from Supabase after login/profile render
 // Fix 2: Email OTP verification before saving teacher profile
 // Fix 3: Classroom cards properly clickable + realtime updates
 // ================================================================
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
 import { supabase } from './supabaseClient.js'
 import {
   initStickyHeader, initHamburger,
@@ -37,12 +34,8 @@ let _rooms   = []
 const _selStu = new Set()
 let _attSt   = {}
 let _attStus = []
-<<<<<<< HEAD
-let _rtCh    = null
-=======
 let _rtCh    = null
 let _roomsRtCh = null
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
 
 // OTP state
 let _pendingOtp   = null
@@ -530,38 +523,16 @@ function clearMsg() { const e = document.getElementById('loginMsg'); if (e) e.st
 window.tcLogout = () => {
   sessionStorage.removeItem(SESS_KEY); _regno = null; _profile = null
   if (_rtCh) { supabase.removeChannel(_rtCh); _rtCh = null }
+  if (_roomsRtCh) { supabase.removeChannel(_roomsRtCh); _roomsRtCh = null }
   showSec('login')
   showToast('Logged out.', 'info')
 }
 
-<<<<<<< HEAD
-// ── IMAGE UPLOAD ──────────────────────────────────────────────
-// Always uploads to image_files/Teacher_images/<regno>.<ext>
-// Returns the public URL with cache-buster
-async function uploadTeacherImg(fileInputId, regno) {
-=======
 // ── IMAGE UPLOAD ──────────────────────────────────────────────
 async function uploadTeacherImg(fileInputId, regno) {
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
   const inp = document.getElementById(fileInputId)
   const f   = inp?.files?.[0]
   if (!f) return null
-<<<<<<< HEAD
-
-  const ext  = f.name.split('.').pop().toLowerCase() || 'jpg'
-  // Stable filename: regno.ext — upsert always overwrites the same file
-  const storagePath = `${TCH_FOLD}/${regno}.${ext}`
-
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(storagePath, f, { upsert: true, contentType: f.type })
-
-  if (error) {
-    showToast('Photo upload failed: ' + error.message, 'error')
-    return null
-  }
-
-=======
 
   const ext  = f.name.split('.').pop().toLowerCase() || 'jpg'
   const storagePath = `${TCH_FOLD}/${regno}.${ext}`
@@ -575,17 +546,11 @@ async function uploadTeacherImg(fileInputId, regno) {
     return null
   }
 
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
   const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(storagePath)
   return publicUrl + '?t=' + Date.now()
 }
 
-<<<<<<< HEAD
-// Fallback: search bucket for any file matching the regno prefix
 async function findTeacherPhotoInBucket(regno) {
-=======
-async function findTeacherPhotoInBucket(regno) {
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
   try {
     const { data: files, error } = await supabase.storage
       .from(BUCKET)
@@ -778,17 +743,6 @@ async function renderSetup(regno, existingData) {
       showToast('Fill required fields (*)', 'warning'); return
     }
 
-<<<<<<< HEAD
-    // --- CRITICAL: Always try to upload if a file was selected ---
-    let imgUrl = d.image_url || null
-    const fileInput = document.getElementById('f_img')
-    if (fileInput?.files?.[0]) {
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading photo…'
-      const newUrl = await uploadTeacherImg('f_img', regno)
-      if (newUrl) {
-        imgUrl = newUrl
-        showToast('Photo uploaded successfully!', 'success')
-=======
     // Check email verification
     if (!_otpVerified) {
       showToast('Please verify your email first by clicking "Send OTP"', 'warning')
@@ -799,69 +753,32 @@ async function renderSetup(regno, existingData) {
         btn.style.transform = 'scale(1.06)'
         btn.style.boxShadow = '0 0 0 3px rgba(245,158,11,.4)'
         setTimeout(() => { btn.style.transform = ''; btn.style.boxShadow = '' }, 800)
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
       }
-<<<<<<< HEAD
-=======
       return
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
     }
 
-<<<<<<< HEAD
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving profile…'
-
-    const { error } = await supabase.from('teacher_information').upsert({
-      register_no: regno, name, email, phone, gender,
-      department:     dept, designation: desig, qualification: qual,
-      experience:     g('f_exp'),     specialization: g('f_spec'),
-      employee_id:    g('f_empid'),   subjects:        g('f_subjects'),
-      joining_date:   g('f_joining'), address:         g('f_addr'),
-      image_url: imgUrl, updated_at: new Date().toISOString()
-    }, { onConflict: 'register_no' })
-=======
     // OTP verified — proceed with saving
     await doSaveProfile({ name, email, phone, gender, dept, desig, qual, g, d, isEdit })
   })
 }
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
 
 // Initiate OTP flow
 window.initiateOtp = async () => {
   const emailInput = document.getElementById('f_email')
   const email = emailInput?.value?.trim()
 
-<<<<<<< HEAD
-    if (error) { showToast('Save failed: ' + error.message, 'error'); return }
-=======
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast('Please enter a valid email address first.', 'warning')
     emailInput?.focus()
     return
   }
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
 
   const btn = document.getElementById('sendOtpBtn')
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…' }
 
-<<<<<<< HEAD
-    // Re-fetch fresh data from DB
-    const { data: t } = await supabase.from('teacher_information')
-      .select('*').ilike('register_no', regno).maybeSingle()
-=======
   const otp = generateOtp()
   const result = await sendOtpToEmail(email, otp)
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
 
-<<<<<<< HEAD
-    if (t) {
-      // Inject the fresh imgUrl so profile renders with new photo immediately
-      if (imgUrl) t.image_url = imgUrl
-      _profile = t
-      showSec('profile')
-      await renderProfile(t)
-    }
-  })
-=======
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend' }
 
   if (result.success) {
@@ -896,7 +813,6 @@ window.initiateOtp = async () => {
   } else {
     showToast('Failed to send OTP. Please try again.', 'error')
   }
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
 }
 
 // Core save logic (separated so OTP callback can call it)
@@ -962,33 +878,19 @@ window.tcCancelEdit = () => {
   showSec('profile')
 }
 
-<<<<<<< HEAD
-// ── RENDER PROFILE ────────────────────────────────────────────
-=======
 // ── RENDER PROFILE ─────────────────────────────────────────────
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
 async function renderProfile(t) {
   const c = document.getElementById('secProfile'); if (!c) return
 
   const fallbackPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name || t.register_no)}&background=f59e0b&color=060912&size=300&bold=true`
 
-<<<<<<< HEAD
-  // Determine photo URL — prefer DB value, fall back to bucket search
   let photo = fallbackPhoto
-=======
-  let photo = fallbackPhoto
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
   if (t.image_url && t.image_url.startsWith('http')) {
     photo = t.image_url.split('?')[0] + '?t=' + Date.now()
   } else {
     const found = await findTeacherPhotoInBucket(t.register_no)
     if (found) {
-<<<<<<< HEAD
       photo = found
-      // Save found URL back to DB silently
-=======
-      photo = found
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
       supabase.from('teacher_information')
         .update({ image_url: found })
         .ilike('register_no', t.register_no)
@@ -999,24 +901,6 @@ async function renderProfile(t) {
   const subjs = t.subjects ? t.subjects.split(',').map(s => s.trim()).filter(Boolean) : []
 
   c.innerHTML = `
-<<<<<<< HEAD
-  <div class="tc-wrap">
-    <!-- ═══ PROFILE HERO CARD ═══ -->
-    <div class="tg tc-prof-card-new tu" style="margin-bottom:22px;">
-      <!-- Big centered photo -->
-      <div class="tc-photo-center-wrap">
-        <div class="tc-photo-ring-outer">
-          <div class="tc-photo-ring-inner">
-            <img
-              id="tcProfilePhoto"
-              src="${photo}"
-              alt="${esc(t.name || t.register_no)}"
-              class="tc-photo-big"
-              onerror="this.onerror=null;this.src='${fallbackPhoto}'"
-            />
-          </div>
-          <div class="tc-photo-ring-glow"></div>
-=======
   <div class="tc-wrap">
     <!-- PROFILE HERO CARD -->
     <div class="tg tc-prof-card-new tu" style="margin-bottom:22px;">
@@ -1032,51 +916,26 @@ async function renderProfile(t) {
             />
           </div>
           <div class="tc-photo-ring-glow"></div>
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
         </div>
         <div class="tc-photo-status-dot"></div>
       </div>
-<<<<<<< HEAD
-
-      <!-- Name / role / dept -->
       <div class="tc-prof-text-center">
         <div class="tc-prof-name-big">${esc(t.name || t.register_no)}</div>
         <div class="tc-prof-desig-new">${esc(t.designation || '')}</div>
         <div class="tc-prof-dept-new">${t.department ? 'Dept. of ' + esc(t.department) : ''}</div>
         <div class="tc-prof-badges-center">
-=======
-      <div class="tc-prof-text-center">
-        <div class="tc-prof-name-big">${esc(t.name || t.register_no)}</div>
-        <div class="tc-prof-desig-new">${esc(t.designation || '')}</div>
-        <div class="tc-prof-dept-new">${t.department ? 'Dept. of ' + esc(t.department) : ''}</div>
-        <div class="tc-prof-badges-center">
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
           <span class="tbd tb-amber"><i class="fas fa-id-badge"></i> ${esc(t.register_no)}</span>
           ${t.qualification ? `<span class="tbd tb-teal"><i class="fas fa-graduation-cap"></i> ${esc(t.qualification)}</span>` : ''}
           ${t.experience    ? `<span class="tbd tb-green"><i class="fas fa-briefcase"></i> ${esc(t.experience)}</span>` : ''}
         </div>
       </div>
-<<<<<<< HEAD
-=======
-      <div class="tc-prof-btns-center">
-        <button class="tb tb-ghost" onclick="tcEdit()"><i class="fas fa-edit"></i> Edit Profile</button>
-        <button class="tb tb-danger" onclick="tcLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-      </div>
-    </div>
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
-
-<<<<<<< HEAD
-      <!-- Action buttons -->
       <div class="tc-prof-btns-center">
         <button class="tb tb-ghost" onclick="tcEdit()"><i class="fas fa-edit"></i> Edit Profile</button>
         <button class="tb tb-danger" onclick="tcLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
       </div>
     </div>
 
-    <!-- ═══ INFO GRID ═══ -->
-=======
     <!-- INFO GRID -->
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
     <div class="tc-info-grid tu">
       ${tci('fas fa-envelope','tci-amb','Email',t.email)}
       ${tci('fas fa-phone','tci-tel','Phone',t.phone)}
@@ -1097,93 +956,6 @@ async function renderProfile(t) {
     <div id="attMgr" class="tu"></div>
   </div>
 
-<<<<<<< HEAD
-  <!-- ═══ NEW PROFILE PHOTO STYLES ═══ -->
-  <style>
-    .tc-photo-center-wrap {
-      position: relative;
-      width: 180px;
-      height: 180px;
-      margin: 0 auto 22px;
-    }
-    .tc-photo-ring-outer {
-      width: 180px; height: 180px;
-      border-radius: 50%;
-      padding: 4px;
-      background: linear-gradient(135deg, var(--tc-amber), var(--tc-blue2) 50%, var(--tc-teal));
-      animation: tcRingRotate 8s linear infinite;
-      position: relative;
-    }
-    @keyframes tcRingRotate {
-      to { transform: rotate(360deg); }
-    }
-    .tc-photo-ring-inner {
-      width: 100%; height: 100%;
-      border-radius: 50%;
-      overflow: hidden;
-      background: var(--tc-void);
-      padding: 3px;
-    }
-    .tc-photo-big {
-      width: 100%; height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .tc-photo-big:hover {
-      transform: scale(1.08);
-    }
-    .tc-photo-ring-glow {
-      position: absolute;
-      inset: -8px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, rgba(245,158,11,0.4), rgba(96,165,250,0.4), rgba(45,212,191,0.4), rgba(245,158,11,0.4));
-      filter: blur(12px);
-      z-index: -1;
-      animation: glowPulse 3s ease-in-out infinite;
-    }
-    @keyframes glowPulse {
-      0%,100% { opacity: 0.6; transform: scale(1); }
-      50%     { opacity: 1;   transform: scale(1.08); }
-    }
-    .tc-photo-status-dot {
-      position: absolute;
-      bottom: 10px; right: 10px;
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      background: var(--tc-green);
-      border: 3px solid var(--tc-surface);
-      box-shadow: 0 0 8px rgba(52,211,153,0.6);
-      animation: statusPulse 2.5s ease-in-out infinite;
-    }
-    @keyframes statusPulse {
-      0%,100% { box-shadow: 0 0 8px rgba(52,211,153,0.6); }
-      50%     { box-shadow: 0 0 18px rgba(52,211,153,0.9); }
-    }
-    .tc-prof-card-new {
-      padding: clamp(28px,5vw,48px) 32px;
-      text-align: center;
-    }
-    .tc-prof-text-center { margin-bottom: 22px; }
-    .tc-prof-name-big {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(1.6rem,3vw,2.4rem);
-      font-weight: 800; color: #fff; margin-bottom: 6px;
-      background: linear-gradient(90deg, #fff 0%, var(--tc-amber) 50%, var(--tc-teal) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      background-size: 200% auto;
-      animation: tcChroma 5s linear infinite;
-    }
-    .tc-prof-desig-new { font-size: 1rem; color: var(--tc-amber); font-weight: 700; margin-bottom: 4px; }
-    .tc-prof-dept-new  { font-size: .88rem; color: var(--tc-muted); margin-bottom: 16px; }
-    .tc-prof-badges-center { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
-    .tc-prof-btns-center {
-      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-    }
-  </style>`
-
-=======
   <style>
     .tc-photo-center-wrap{position:relative;width:180px;height:180px;margin:0 auto 22px;}
     .tc-photo-ring-outer{width:180px;height:180px;border-radius:50%;padding:4px;
@@ -1215,7 +987,6 @@ async function renderProfile(t) {
     .tc-prof-btns-center{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
   </style>`
 
->>>>>>> a8cc74208759f3b3cbbd80fbc7996a25fdbcd0d2
   setTimeout(initFU, 80)
 
   // ── CRITICAL FIX: Always load classrooms from Supabase ──────
