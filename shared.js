@@ -1153,3 +1153,27 @@ export async function saveProfile({
 
   return true
 }
+
+/* ── EMAIL OTP STUB FUNCTIONS (for admission form) ─────────── */
+// Note: These are stub implementations to prevent build errors
+// Actual OTP verification logic should be implemented as needed
+const _emailOtpState = {}
+
+export function sendEmailOtp(email) {
+  console.warn('sendEmailOtp stub called for:', email)
+  return Promise.resolve()
+}
+
+export function verifyEmailOtp(email, otp) {
+  console.warn('verifyEmailOtp stub called for:', email)
+  _emailOtpState[email] = true
+  return Promise.resolve(true)
+}
+
+export function isEmailOtpVerified(email) {
+  return _emailOtpState[email] === true
+}
+
+export function clearOtpState(email) {
+  delete _emailOtpState[email]
+}
